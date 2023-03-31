@@ -22,6 +22,8 @@ Show the help output.a
 Set the input URL to work with. The URL may be provided without a scheme,
 which then typically is not actually a legal URL but urler will try to figure
 out what is meant and guess what scheme to use.
+
+Providing multiple URLs will make urler act on all URLs in a serial fashion.
 .IP "--redirect [URL]"
 Redirect the base URL to this. It requires that you set the base url with \fB--url\fP
 .IP "--set-fragment [fragment]"

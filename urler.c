@@ -84,7 +84,7 @@ static void show_version(void)
 }
 
 struct option {
-  const char *url;
+  struct curl_slist *url_list;
   const char *host;
   const char *scheme;
   const char *port;
@@ -100,6 +100,14 @@ struct option {
   unsigned char output;
 };
 
+void urladd(struct option *o, const char *url)
+{
+  struct curl_slist *n;
+  n = curl_slist_append(o->url_list, url);
+  if(n)
+    o->url_list = n;
+}
+
 static int getlongarg(struct option *op,
                       const char *flag,
                       const char *arg)
@@ -109,7 +117,7 @@ static int getlongarg(struct option *op,
   if(!strcmp("--version", flag))
     show_version();
   if(!strcmp("--url", flag))
-    op->url = arg;
+    urladd(op, arg);
   else if(!strcmp("--set-host", flag))
     op->host = arg;
   else if(!strcmp("--set-scheme", flag))
@@ -174,6 +182,7 @@ int main(int argc, const char **argv)
   char *nurl = NULL;
   struct option o;
   CURLU *uh;
+  struct curl_slist *node;
   memset(&o, 0, sizeof(o));
   curl_global_init(CURL_GLOBAL_ALL);
 
@@ -194,121 +203,128 @@ int main(int argc, const char **argv)
     }
     else {
       /* this is a URL */
-      o.url = argv[0];
+      urladd(&o, argv[0]);
     }
   }
 
-  uh = curl_url();
-  if(!uh)
-    help("out of memory");
-  if(o.url) {
-    curl_url_set(uh, CURLUPART_URL, o.url,
-                 CURLU_GUESS_SCHEME|CURLU_NON_SUPPORT_SCHEME);
-    if(o.redirect)
-      curl_url_set(uh, CURLUPART_URL, o.redirect,
+  node = o.url_list;
+  do {
+    const char *url = NULL;
+    uh = curl_url();
+    if(!uh)
+      help("out of memory");
+    if(node) {
+      url = node->data;
+      curl_url_set(uh, CURLUPART_URL, url,
                    CURLU_GUESS_SCHEME|CURLU_NON_SUPPORT_SCHEME);
-  }
-  if(o.host)
-    curl_url_set(uh, CURLUPART_HOST, o.host, 0);
-  if(o.scheme)
-    curl_url_set(uh, CURLUPART_SCHEME, o.scheme, CURLU_NON_SUPPORT_SCHEME);
-  if(o.port)
-    curl_url_set(uh, CURLUPART_PORT, o.port, 0);
-  if(o.user)
-    curl_url_set(uh, CURLUPART_USER, o.user, 0);
-  if(o.password)
-    curl_url_set(uh, CURLUPART_PASSWORD, o.password, 0);
-  if(o.options)
-    curl_url_set(uh, CURLUPART_OPTIONS, o.options, 0);
-  if(o.path)
-    curl_url_set(uh, CURLUPART_PATH, o.path, 0);
-  if(o.query)
-    curl_url_set(uh, CURLUPART_QUERY, o.query, 0);
-  if(o.fragment)
-    curl_url_set(uh, CURLUPART_FRAGMENT, o.fragment, 0);
-  if(o.zoneid)
-    curl_url_set(uh, CURLUPART_ZONEID, o.zoneid, 0);
-
-  if(o.output) {
-    CURLUPart cpart = CURLUPART_HOST;
-    const char *name = NULL;
-
-    /* only extract the part we want to show */
-    switch(o.output) {
-    case OUTPUT_SCHEME:
-      cpart = CURLUPART_SCHEME;
-      name = "scheme";
-      break;
-    case OUTPUT_USER:
-      cpart = CURLUPART_USER;
-      name = "user";
-      break;
-    case OUTPUT_PASSWORD:
-      cpart = CURLUPART_PASSWORD;
-      name = "password";
-      break;
-    case OUTPUT_OPTIONS:
-      cpart = CURLUPART_OPTIONS;
-      name = "options";
-      break;
-    case OUTPUT_HOST:
-      cpart = CURLUPART_HOST;
-      name = "host";
-      break;
-    case OUTPUT_PORT:
-      cpart = CURLUPART_PORT;
-      name = "port";
-      break;
-    case OUTPUT_PATH:
-      cpart = CURLUPART_PATH;
-      name = "path";
-      break;
-    case OUTPUT_QUERY:
-      cpart = CURLUPART_QUERY;
-      name = "query";
-      break;
-    case OUTPUT_FRAGMENT:
-      cpart = CURLUPART_FRAGMENT;
-      name = "fragment";
-      break;
-    case OUTPUT_ZONEID:
-      cpart = CURLUPART_ZONEID;
-      name = "zoneid";
-      break;
-    default:
-      fprintf(stderr, "internal error, file an issue!\n");
-      break;
+      if(o.redirect)
+        curl_url_set(uh, CURLUPART_URL, o.redirect,
+                     CURLU_GUESS_SCHEME|CURLU_NON_SUPPORT_SCHEME);
     }
-    if(!curl_url_get(uh, cpart, &nurl, CURLU_DEFAULT_PORT)) {
-      printf("%s\n", nurl);
-      curl_free(nurl);
-    }
-    else {
-      if(o.url) {
-        /* if a URL was given, this just means that the URL did not have
-           this component */
+    if(o.host)
+      curl_url_set(uh, CURLUPART_HOST, o.host, 0);
+    if(o.scheme)
+      curl_url_set(uh, CURLUPART_SCHEME, o.scheme, CURLU_NON_SUPPORT_SCHEME);
+    if(o.port)
+      curl_url_set(uh, CURLUPART_PORT, o.port, 0);
+    if(o.user)
+      curl_url_set(uh, CURLUPART_USER, o.user, 0);
+    if(o.password)
+      curl_url_set(uh, CURLUPART_PASSWORD, o.password, 0);
+    if(o.options)
+      curl_url_set(uh, CURLUPART_OPTIONS, o.options, 0);
+    if(o.path)
+      curl_url_set(uh, CURLUPART_PATH, o.path, 0);
+    if(o.query)
+      curl_url_set(uh, CURLUPART_QUERY, o.query, 0);
+    if(o.fragment)
+      curl_url_set(uh, CURLUPART_FRAGMENT, o.fragment, 0);
+    if(o.zoneid)
+      curl_url_set(uh, CURLUPART_ZONEID, o.zoneid, 0);
+
+    if(o.output) {
+      CURLUPart cpart = CURLUPART_HOST;
+      const char *name = NULL;
+
+      /* only extract the part we want to show */
+      switch(o.output) {
+      case OUTPUT_SCHEME:
+        cpart = CURLUPART_SCHEME;
+        name = "scheme";
+        break;
+      case OUTPUT_USER:
+        cpart = CURLUPART_USER;
+        name = "user";
+        break;
+      case OUTPUT_PASSWORD:
+        cpart = CURLUPART_PASSWORD;
+        name = "password";
+        break;
+      case OUTPUT_OPTIONS:
+        cpart = CURLUPART_OPTIONS;
+        name = "options";
+        break;
+      case OUTPUT_HOST:
+        cpart = CURLUPART_HOST;
+        name = "host";
+        break;
+      case OUTPUT_PORT:
+        cpart = CURLUPART_PORT;
+        name = "port";
+        break;
+      case OUTPUT_PATH:
+        cpart = CURLUPART_PATH;
+        name = "path";
+        break;
+      case OUTPUT_QUERY:
+        cpart = CURLUPART_QUERY;
+        name = "query";
+        break;
+      case OUTPUT_FRAGMENT:
+        cpart = CURLUPART_FRAGMENT;
+        name = "fragment";
+        break;
+      case OUTPUT_ZONEID:
+        cpart = CURLUPART_ZONEID;
+        name = "zoneid";
+        break;
+      default:
+        fprintf(stderr, "internal error, file an issue!\n");
+        break;
+      }
+      if(!curl_url_get(uh, cpart, &nurl, CURLU_DEFAULT_PORT)) {
+        printf("%s\n", nurl);
+        curl_free(nurl);
       }
       else {
-        fprintf(stderr, "not enough input to show %s (%s -h for help)\n",
-                name, PROGNAME);
+        if(url) {
+          /* if a URL was given, this just means that the URL did not have
+             this component */
+        }
+        else {
+          fprintf(stderr, "not enough input to show %s (%s -h for help)\n",
+                  name, PROGNAME);
+          exit_status = 1;
+        }
+      }
+    }
+    else {
+      /* default output is full URL */
+      if(!curl_url_get(uh, CURLUPART_URL, &nurl, 0)) {
+        printf("%s\n", nurl);
+        curl_free(nurl);
+      }
+      else {
+        fprintf(stderr, "not enough input for a URL (%s -h for help)\n",
+                PROGNAME);
         exit_status = 1;
       }
     }
-  }
-  else {
-    /* default output is full URL */
-    if(!curl_url_get(uh, CURLUPART_URL, &nurl, 0)) {
-      printf("%s\n", nurl);
-      curl_free(nurl);
-    }
-    else {
-      fprintf(stderr, "not enough input for a URL (%s -h for help)\n",
-              PROGNAME);
-      exit_status = 1;
-    }
-  }
-  curl_url_cleanup(uh);
+    node = node->next;
+    curl_url_cleanup(uh);
+  } while(node);
   /* we're done with libcurl, so clean it up */
+  curl_slist_free_all(o.url_list);
   curl_global_cleanup();
   return exit_status;
 }
