@@ -16,3 +16,6 @@ install:
 
 clean:
 	rm -f $(OBJS) $(TARGET)
+
+test:
+	@perl test.pl
