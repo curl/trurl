@@ -62,16 +62,16 @@ static void help(const char *msg)
           "  --set-zoneid [zoneid]     - set this zone id\n"
           "  --url [base URL]          - URL to start with\n"
           " OUTPUT\n"
-          "  --show-fragment       - output only the fragment part\n"
-          "  --show-host           - output only the host part\n"
-          "  --show-options        - output only the options part\n"
-          "  --show-password       - output only the password part\n"
-          "  --show-path           - output only the path part\n"
-          "  --show-port           - output only the port part\n"
-          "  --show-query          - output only the query part\n"
-          "  --show-scheme         - output only the scheme part\n"
-          "  --show-user           - output only the user part\n"
-          "  --show-zoneid         - output only the zoneid part\n"
+          "  --get-fragment  - output only the fragment part\n"
+          "  --get-host      - output only the host part\n"
+          "  --get-options   - output only the options part\n"
+          "  --get-password  - output only the password part\n"
+          "  --get-path      - output only the path part\n"
+          "  --get-port      - output only the port part\n"
+          "  --get-query     - output only the query part\n"
+          "  --get-scheme    - output only the scheme part\n"
+          "  --get-user      - output only the user part\n"
+          "  --get-zoneid    - output only the zoneid part\n"
     );
   exit(1);
 }
@@ -132,25 +132,25 @@ static int getlongarg(struct option *op,
   else if(!strcmp("--redirect", flag))
     op->redirect = arg;
 
-  else if(!strcmp("--show-scheme", flag))
+  else if(!strcmp("--get-scheme", flag))
     op->output = OUTPUT_SCHEME;
-  else if(!strcmp("--show-user", flag))
+  else if(!strcmp("--get-user", flag))
     op->output = OUTPUT_USER;
-  else if(!strcmp("--show-password", flag))
+  else if(!strcmp("--get-password", flag))
     op->output = OUTPUT_PASSWORD;
-  else if(!strcmp("--show-options", flag))
+  else if(!strcmp("--get-options", flag))
     op->output = OUTPUT_OPTIONS;
-  else if(!strcmp("--show-host", flag))
+  else if(!strcmp("--get-host", flag))
     op->output = OUTPUT_HOST;
-  else if(!strcmp("--show-port", flag))
+  else if(!strcmp("--get-port", flag))
     op->output = OUTPUT_PORT;
-  else if(!strcmp("--show-path", flag))
+  else if(!strcmp("--get-path", flag))
     op->output = OUTPUT_PATH;
-  else if(!strcmp("--show-query", flag))
+  else if(!strcmp("--get-query", flag))
     op->output = OUTPUT_QUERY;
-  else if(!strcmp("--show-fragment", flag))
+  else if(!strcmp("--get-fragment", flag))
     op->output = OUTPUT_FRAGMENT;
-  else if(!strcmp("--show-zoneid", flag))
+  else if(!strcmp("--get-zoneid", flag))
     op->output = OUTPUT_ZONEID;
   return 0;
 }
