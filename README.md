@@ -10,7 +10,7 @@ command line tool for URL parsing and manipulation
   https://example.com/
 
   $ urler --set-host example.com --set-scheme ftp
-  ftp://example.com
+  ftp://example.com/
 
   $ urler --url https://curl.se/we/are.html --redirect here.html
   https://curl.se/we/here.html
