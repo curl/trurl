@@ -29,6 +29,19 @@
 
 #include "version.h"
 
+#define OUTPUT_URL      0  /* default */
+#define OUTPUT_SCHEME   1
+#define OUTPUT_USER     2
+#define OUTPUT_PASSWORD 3
+#define OUTPUT_OPTIONS  4
+#define OUTPUT_HOST     5
+#define OUTPUT_PORT     6
+#define OUTPUT_PATH     7
+#define OUTPUT_QUERY    8
+#define OUTPUT_FRAGMENT 9
+#define OUTPUT_ZONEID   10
+#define PROGNAME        "urler"
+
 static void help(const char *msg)
 {
   if(msg != NULL)
@@ -65,22 +78,9 @@ static void help(const char *msg)
 
 static void show_version(void)
 {
-  fputs("urler version " URLER_VERSION_TXT "\n", stdout);
+  fputs(PROGNAME " version " URLER_VERSION_TXT "\n", stdout);
   exit(0);
 }
-
-#define OUTPUT_URL      0  /* default */
-#define OUTPUT_SCHEME   1
-#define OUTPUT_USER     2
-#define OUTPUT_PASSWORD 3
-#define OUTPUT_OPTIONS  4
-#define OUTPUT_HOST     5
-#define OUTPUT_PORT     6
-#define OUTPUT_PATH     7
-#define OUTPUT_QUERY    8
-#define OUTPUT_FRAGMENT 9
-#define OUTPUT_ZONEID   10
-
 
 struct option {
   const char *url;
@@ -276,8 +276,9 @@ int main(int argc, const char **argv)
       curl_free(nurl);
     }
     else {
-      fprintf(stderr, "not enough input to show %s (urle -h for help)\n",
-              name);
+      fprintf(stderr, "not enough input to show %s (%s -h for help)\n",
+              name,
+              PROGNAME);
       exit_status = 1;
     }
   }
@@ -288,7 +289,8 @@ int main(int argc, const char **argv)
       curl_free(nurl);
     }
     else {
-      fprintf(stderr, "not enough input for a URL (urle -h for help)\n");
+      fprintf(stderr, "not enough input for a URL (%s -h for help)\n",
+              PROGNAME);
       exit_status = 1;
     }
   }
