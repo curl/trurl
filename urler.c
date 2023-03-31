@@ -260,7 +260,7 @@ int main(int argc, const char **argv)
   }
 
   node = o.url_list;
-  do {
+  while(node) {
     const char *url = NULL;
     struct curl_slist *p;
     uh = curl_url();
@@ -393,9 +393,9 @@ int main(int argc, const char **argv)
         exit_status = 1;
       }
     }
-    node = node->next;
     curl_url_cleanup(uh);
-  } while(node);
+    node = node->next;
+  };
   /* we're done with libcurl, so clean it up */
   curl_slist_free_all(o.url_list);
   curl_global_cleanup();
