@@ -23,3 +23,16 @@ command line tool for URL parsing and manipulation
 
   $ urler --url https://curl.se/we/are.html --only-port
   443
+~~~
+
+## Install
+
+On Linux :
+
+It's quite easy to compile the C source with GCC :
+
+```
+$ make
+cc  -W -Wall -pedantic -g   -c -o urler.o urler.c
+cc   urler.o  -lcurl -o urler
+```
