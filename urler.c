@@ -34,7 +34,7 @@ static void help(const char *msg)
   if(msg != NULL)
     fprintf(stderr, "%s:\n\n", msg);
   fprintf(stderr, "Usage: [options] [URL]\n"
-          "  -h                    - this help\n"
+          "  -h,--help             - this help\n"
           " INPUT\n"
           "  --fragment [fragment] - set this fragment\n"
           "  --host [host]         - set this host name\n"
@@ -104,6 +104,8 @@ static int getlongarg(struct option *op,
                       const char *flag,
                       const char *arg)
 {
+  if(!strcmp("--help", flag))
+    help(NULL);
   if(!strcmp("--version", flag))
     show_version();
   if(!strcmp("--url", flag))
