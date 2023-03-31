@@ -1,0 +1,70 @@
+.\" You can view this file with:
+.\" man -l urler.1
+.\" Written by Daniel Stenberg
+.\"
+.TH urler 1 "31 Mar 2023" "urler 0.1" "urler Manual"
+.SH NAME
+urler \- parse and manipulate URLs
+.SH SYNOPSIS
+.B urler [options]
+.SH DESCRIPTION
+.B urler
+parses, manipulates and outputs URLs and parts of URLs.
+
+It uses the RFC 3986 definition of URLs and it uses libcurl's URL parser to do
+so, which includes a few "extensions".
+
+Typically you set a few inputs and decide what of that you want output.
+.SH OPTIONS
+.IP "-h, --help"
+Show the help output.a
+.IP "--url [URL]"
+Set the input URL to work with. The URL may be provided without a scheme,
+which then typically is not actually a legal URL but urler will try to figure
+out what is meant and guess what scheme to use.
+.IP "--redirect [URL]"
+Redirect the base URL to this. It requires that you set the base url with \fB--url\fP
+.IP "--set-fragment [fragment]"
+Set this fragment.
+.IP "--set-host [host]"
+Set this host name.
+.IP "--set-options [options]"
+Set these options.
+.IP "--set-password [secret]"
+Set this password.
+.IP "--set-path [path]"
+Set this path.
+.IP "--set-port [port]"
+Set this port number.
+.IP "--set-query [query]"
+Set this query.
+.IP "--set-scheme [scheme]"
+Set this scheme.
+.IP "--set-user [name]"
+Set this user.
+.IP "--set-zoneid [zoneid]"
+Set this zone id.
+.IP "--get-fragment"
+Output only the fragment part.
+.IP "--get-host"
+Output only the host part.
+.IP "--get-options"
+Output only the options part.
+.IP "--get-password"
+Output only the password part.
+.IP "--get-path"
+Output only the path part.
+.IP "--get-port"
+Output only the port part.
+.IP "--get-query"
+Output only the query part.
+.IP "--get-scheme"
+Output only the scheme part.
+.IP "--get-user"
+Output only the user part.
+.IP "--get-zoneid"
+Output only the zoneid part.
+.IP \-v
+Show version number and exit.
+.SH WWW
+https://github.com/curl/urler
