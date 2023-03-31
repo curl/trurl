@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <curl/curl.h>
+#include <curl/mprintf.h>
 
 #include "version.h"
 
@@ -87,6 +88,7 @@ static void show_version(void)
 
 struct option {
   struct curl_slist *url_list;
+  struct curl_slist *append_path;
   const char *host;
   const char *scheme;
   const char *port;
@@ -103,12 +105,24 @@ struct option {
   unsigned char output;
 };
 
-void urladd(struct option *o, const char *url)
+static void urladd(struct option *o, const char *url)
 {
   struct curl_slist *n;
   n = curl_slist_append(o->url_list, url);
   if(n)
     o->url_list = n;
+}
+
+static void pathadd(struct option *o, const char *path)
+{
+  struct curl_slist *n;
+  char *urle = curl_easy_escape(NULL, path, 0);
+  if(urle) {
+    n = curl_slist_append(o->append_path, urle);
+    if(n) {
+      o->append_path = n;
+    }
+  }
 }
 
 static int getlongarg(struct option *op,
@@ -123,6 +137,10 @@ static int getlongarg(struct option *op,
     show_version();
   if(!strcmp("--url", flag)) {
     urladd(op, arg);
+    *usedarg = 1;
+  }
+  else if(!strcmp("--append-path", flag)) {
+    pathadd(op, arg);
     *usedarg = 1;
   }
   else if(!strcmp("--set-host", flag)) {
@@ -244,6 +262,7 @@ int main(int argc, const char **argv)
   node = o.url_list;
   do {
     const char *url = NULL;
+    struct curl_slist *p;
     uh = curl_url();
     if(!uh)
       help("out of memory");
@@ -275,6 +294,24 @@ int main(int argc, const char **argv)
       curl_url_set(uh, CURLUPART_FRAGMENT, o.fragment, 0);
     if(o.zoneid)
       curl_url_set(uh, CURLUPART_ZONEID, o.zoneid, 0);
+
+    /* append path segments */
+    for(p = o.append_path; p; p=p->next) {
+      char *apath = p->data;
+      char *opath;
+      char *npath;
+      /* extract the current path */
+      curl_url_get(uh, CURLUPART_PATH, &opath, 0);
+
+      /* append the new segment */
+      npath = curl_maprintf("%s/%s", opath, apath);
+      if(npath) {
+        /* set the new path */
+        curl_url_set(uh, CURLUPART_PATH, npath, 0);
+      }
+      curl_free(npath);
+      curl_free(opath);
+    }
 
     if(o.output) {
       CURLUPart cpart = CURLUPART_HOST;
