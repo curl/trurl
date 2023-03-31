@@ -267,9 +267,16 @@ int main(int argc, const char **argv)
       cpart = CURLUPART_QUERY;
       name = "query";
       break;
+    case OUTPUT_FRAGMENT:
+      cpart = CURLUPART_FRAGMENT;
+      name = "fragment";
+      break;
     case OUTPUT_ZONEID:
       cpart = CURLUPART_ZONEID;
       name = "zoneid";
+      break;
+    default:
+      fprintf(stderr, "internal error, file an issue!\n");
       break;
     }
     if(!curl_url_get(uh, cpart, &nurl, CURLU_DEFAULT_PORT)) {
@@ -277,10 +284,15 @@ int main(int argc, const char **argv)
       curl_free(nurl);
     }
     else {
-      fprintf(stderr, "not enough input to show %s (%s -h for help)\n",
-              name,
-              PROGNAME);
-      exit_status = 1;
+      if(o.url) {
+        /* if a URL was given, this just means that the URL did not have
+           this component */
+      }
+      else {
+        fprintf(stderr, "not enough input to show %s (%s -h for help)\n",
+                name, PROGNAME);
+        exit_status = 1;
+      }
     }
   }
   else {
