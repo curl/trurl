@@ -48,6 +48,7 @@ static void help(const char *msg)
     fprintf(stderr, "%s:\n\n", msg);
   fprintf(stderr, "Usage: [options] [URL]\n"
           "  -h,--help             - this help\n"
+          "  -v,--version          - show version\n"
           " INPUT\n"
           "  --redirect [URL]          - redirect the base URL to this\n"
           "  --set-fragment [fragment] - set this fragment\n"
