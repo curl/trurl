@@ -279,11 +279,8 @@ int main(int argc, const char **argv)
     else if(argv[0][0] == '-' && argv[0][1] == '-') {
       /* dash-dash prefixed */
       int usedarg = 0;
-      if(argc < 2) {
-          help("Invalid Arguments passed");
-          return -1;
-      }
-      if(getlongarg(&o, argv[0], argv[1], &usedarg))
+      
+      if(argc < 2 || getlongarg(&o, argv[0], argv[1], &usedarg))
         help("unknown option");
 
       if(usedarg) {
