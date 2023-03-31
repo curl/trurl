@@ -73,6 +73,8 @@ static void help(const char *msg)
           "  --get-scheme    - output only the scheme part\n"
           "  --get-user      - output only the user part\n"
           "  --get-zoneid    - output only the zoneid part\n"
+          " MODIFIERS\n"
+          "  --urldecode     - URL decode the output\n"
     );
   exit(1);
 }
@@ -97,6 +99,7 @@ struct option {
   const char *zoneid;
   const char *redirect;
 
+  unsigned int urldecode:1;
   unsigned char output;
 };
 
@@ -110,37 +113,62 @@ void urladd(struct option *o, const char *url)
 
 static int getlongarg(struct option *op,
                       const char *flag,
-                      const char *arg)
+                      const char *arg,
+                      int *usedarg)
 {
+  *usedarg = 0;
   if(!strcmp("--help", flag))
     help(NULL);
   if(!strcmp("--version", flag))
     show_version();
-  if(!strcmp("--url", flag))
+  if(!strcmp("--url", flag)) {
     urladd(op, arg);
-  else if(!strcmp("--set-host", flag))
+    *usedarg = 1;
+  }
+  else if(!strcmp("--set-host", flag)) {
     op->host = arg;
-  else if(!strcmp("--set-scheme", flag))
+    *usedarg = 1;
+  }
+  else if(!strcmp("--set-scheme", flag)) {
     op->scheme = arg;
-  else if(!strcmp("--set-port", flag))
+    *usedarg = 1;
+  }
+  else if(!strcmp("--set-port", flag)) {
     op->port = arg;
-  else if(!strcmp("--set-user", flag))
+    *usedarg = 1;
+  }
+  else if(!strcmp("--set-user", flag)) {
     op->user = arg;
-  else if(!strcmp("--set-password", flag))
+    *usedarg = 1;
+  }
+  else if(!strcmp("--set-password", flag)) {
     op->password = arg;
-  else if(!strcmp("--set-options", flag))
+    *usedarg = 1;
+  }
+  else if(!strcmp("--set-options", flag)) {
     op->options = arg;
-  else if(!strcmp("--set-path", flag))
+    *usedarg = 1;
+  }
+  else if(!strcmp("--set-path", flag)) {
     op->path = arg;
-  else if(!strcmp("--set-query", flag))
+    *usedarg = 1;
+  }
+  else if(!strcmp("--set-query", flag)) {
     op->query = arg;
-  else if(!strcmp("--set-fragment", flag))
+    *usedarg = 1;
+  }
+  else if(!strcmp("--set-fragment", flag)) {
     op->fragment = arg;
-  else if(!strcmp("--set-zoneid", flag))
+    *usedarg = 1;
+  }
+  else if(!strcmp("--set-zoneid", flag)) {
     op->zoneid = arg;
-  else if(!strcmp("--redirect", flag))
+    *usedarg = 1;
+  }
+  else if(!strcmp("--redirect", flag)) {
     op->redirect = arg;
-
+    *usedarg = 1;
+  }
   else if(!strcmp("--get-scheme", flag))
     op->output = OUTPUT_SCHEME;
   else if(!strcmp("--get-user", flag))
@@ -161,6 +189,9 @@ static int getlongarg(struct option *op,
     op->output = OUTPUT_FRAGMENT;
   else if(!strcmp("--get-zoneid", flag))
     op->output = OUTPUT_ZONEID;
+
+  else if(!strcmp("--urldecode", flag))
+    op->urldecode = 1;
   return 0;
 }
 
@@ -194,12 +225,15 @@ int main(int argc, const char **argv)
     }
     else if(argv[0][0] == '-' && argv[0][1] == '-') {
       /* dash-dash prefixed */
-      if(getlongarg(&o, argv[0], argv[1]))
+      int usedarg = 0;
+      if(getlongarg(&o, argv[0], argv[1], &usedarg))
         help("unknown option");
 
-      /* skip the parsed argument */
-      argc--;
-      argv++;
+      if(usedarg) {
+        /* skip the parsed argument */
+        argc--;
+        argv++;
+      }
     }
     else {
       /* this is a URL */
@@ -292,7 +326,8 @@ int main(int argc, const char **argv)
         fprintf(stderr, "internal error, file an issue!\n");
         break;
       }
-      if(!curl_url_get(uh, cpart, &nurl, CURLU_DEFAULT_PORT)) {
+      if(!curl_url_get(uh, cpart, &nurl, CURLU_DEFAULT_PORT|
+                       (o.urldecode?CURLU_URLDECODE:0))) {
         printf("%s\n", nurl);
         curl_free(nurl);
       }
@@ -310,7 +345,8 @@ int main(int argc, const char **argv)
     }
     else {
       /* default output is full URL */
-      if(!curl_url_get(uh, CURLUPART_URL, &nurl, 0)) {
+      if(!curl_url_get(uh, CURLUPART_URL, &nurl,
+                       o.urldecode?CURLU_URLDECODE:0)) {
         printf("%s\n", nurl);
         curl_free(nurl);
       }

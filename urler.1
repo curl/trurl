@@ -15,9 +15,12 @@ It uses the RFC 3986 definition of URLs and it uses libcurl's URL parser to do
 so, which includes a few "extensions".
 
 Typically you set a few inputs and decide what of that you want output.
-.SH OPTIONS
+.SH "MISC OPTIONS"
 .IP "-h, --help"
-Show the help output.a
+Show the help output.
+.IP "-v, --version"
+Show version information and exit.
+.SH "INPUT OPTIONS"
 .IP "--url [URL]"
 Set the input URL to work with. The URL may be provided without a scheme,
 which then typically is not actually a legal URL but urler will try to figure
@@ -46,6 +49,7 @@ Set this scheme.
 Set this user.
 .IP "--set-zoneid [zoneid]"
 Set this zone id.
+.SH "OUTPUT OPTIONS"
 .IP "--get-fragment"
 Output only the fragment part.
 .IP "--get-host"
@@ -66,7 +70,10 @@ Output only the scheme part.
 Output only the user part.
 .IP "--get-zoneid"
 Output only the zoneid part.
-.IP \-v
-Show version number and exit.
+.SH "MODIFIERS"
+.IP "--urldecode"
+By default each component is output using the format of the input (URL
+encoded). This option makes urler instead provide it URL decoded. Note that
+%20 will then output space and %09 a tab etc.
 .SH WWW
 https://github.com/curl/urler
