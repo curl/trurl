@@ -51,6 +51,8 @@ static void help(const char *msg)
           "  -h,--help             - this help\n"
           "  -v,--version          - show version\n"
           " INPUT\n"
+          "  --append-path [segtment]  - add a piece to the path\n"
+          "  --append-query [segtment] - add a piece to the query\n"
           "  --redirect [URL]          - redirect the base URL to this\n"
           "  --set-fragment [fragment] - set this fragment\n"
           "  --set-host [host]         - set this host name\n"
@@ -89,6 +91,7 @@ static void show_version(void)
 struct option {
   struct curl_slist *url_list;
   struct curl_slist *append_path;
+  struct curl_slist *append_query;
   const char *host;
   const char *scheme;
   const char *port;
@@ -125,6 +128,30 @@ static void pathadd(struct option *o, const char *path)
   }
 }
 
+static void queryadd(struct option *o, const char *query)
+{
+  struct curl_slist *n;
+  char *p = strchr(query, '=');
+  char *urle;
+  if(p) {
+    /* URL encode the left and the right side of the '=' separately */
+    char *f1 = curl_easy_escape(NULL, query, p - query);
+    char *f2 = curl_easy_escape(NULL, p + 1, 0);
+    urle = curl_maprintf("%s=%s", f1, f2);
+    curl_free(f1);
+    curl_free(f2);
+  }
+  else
+    urle = curl_easy_escape(NULL, query, 0);
+  if(urle) {
+    n = curl_slist_append(o->append_query, urle);
+    if(n) {
+      o->append_query = n;
+    }
+  }
+}
+
+
 static int getlongarg(struct option *op,
                       const char *flag,
                       const char *arg,
@@ -141,6 +168,10 @@ static int getlongarg(struct option *op,
   }
   else if(!strcmp("--append-path", flag)) {
     pathadd(op, arg);
+    *usedarg = 1;
+  }
+  else if(!strcmp("--append-query", flag)) {
+    queryadd(op, arg);
     *usedarg = 1;
   }
   else if(!strcmp("--set-host", flag)) {
@@ -311,6 +342,24 @@ int main(int argc, const char **argv)
       }
       curl_free(npath);
       curl_free(opath);
+    }
+
+    /* append query segments */
+    for(p = o.append_query; p; p=p->next) {
+      char *aq = p->data;
+      char *oq;
+      char *nq;
+      /* extract the current query */
+      curl_url_get(uh, CURLUPART_QUERY, &oq, 0);
+
+      /* append the new segment */
+      nq = curl_maprintf("%s&%s", oq, aq);
+      if(nq) {
+        /* set the new query */
+        curl_url_set(uh, CURLUPART_QUERY, nq, 0);
+      }
+      curl_free(nq);
+      curl_free(oq);
     }
 
     if(o.output) {
