@@ -241,6 +241,8 @@ static int getlongarg(struct option *op,
 
   else if(!strcmp("--urldecode", flag))
     op->urldecode = 1;
+  else
+    return 1;  /* unrecognized option */
   return 0;
 }
 
@@ -252,6 +254,8 @@ static int getshortarg(struct option *op,
     show_version();
   else if(!strcmp("-h", flag))
     help(NULL);
+  else
+    return 1;  /* unrecognized option */
   return 0;
 }
 
