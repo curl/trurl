@@ -49,17 +49,16 @@ static void help(const char *msg)
           "  --user [name]         - set this user\n"
           "  --zoneid [zoneid]     - set this zone id\n"
           " OUTPUT\n"
-
-          "  --only-fragment       - output only the fragment part"
-          "  --only-host           - output only the host part"
-          "  --only-options        - output only the options part"
-          "  --only-password       - output only the password part"
-          "  --only-path           - output only the path part"
-          "  --only-port           - output only the port part"
-          "  --only-query          - output only the query part"
-          "  --only-scheme         - output only the scheme part"
-          "  --only-user           - output only the user part"
-          "  --only-zoneid         - output only the zoneid part"
+          "  --only-fragment       - output only the fragment part\n"
+          "  --only-host           - output only the host part\n"
+          "  --only-options        - output only the options part\n"
+          "  --only-password       - output only the password part\n"
+          "  --only-path           - output only the path part\n"
+          "  --only-port           - output only the port part\n"
+          "  --only-query          - output only the query part\n"
+          "  --only-scheme         - output only the scheme part\n"
+          "  --only-user           - output only the user part\n"
+          "  --only-zoneid         - output only the zoneid part\n"
     );
   exit(1);
 }
