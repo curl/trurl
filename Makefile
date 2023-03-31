@@ -4,16 +4,15 @@ LDLIBS = -lcurl
 CFLAGS := $(CFLAGS) -W -Wall -pedantic -g
 MANUAL = urler.1
 
-BINDIR ?= /usr/bin
-MANDIR ?= /usr/share/man
+BINDIR ?= $(prefix)/bin
+MANDIR ?= $(prefix)/share/man/man1
 
 $(TARGET): $(OBJS)
 
 install:
-	install -d $(DESTDIR)$(BINDIR)
-	install -m 0755 $(TARGET) $(DESTDIR)$(BINDIR)
-	install -d $(DESTDIR)$(MANDIR)/man1/
-	install -m 0744 $(MANUAL) $(DESTDIR)$(MANDIR)/man1/
+	install -d $(BINDIR)
+	install -m 0755 $(TARGET) $(BINDIR)
+	install -m 0744 $(MANUAL) $(MANDIR)
 
 clean:
 	rm -f $(OBJS) $(TARGET)
