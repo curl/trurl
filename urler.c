@@ -49,29 +49,29 @@ static void help(const char *msg)
   fprintf(stderr, "Usage: [options] [URL]\n"
           "  -h,--help             - this help\n"
           " INPUT\n"
-          "  --fragment [fragment] - set this fragment\n"
-          "  --host [host]         - set this host name\n"
-          "  --options [options]   - set these options\n"
-          "  --password [secret]   - set this password\n"
-          "  --path [path]         - set this path\n"
-          "  --port [port]         - set this port number\n"
-          "  --query [query]       - set this query\n"
-          "  --redirect [URL]      - redirect the base URL to this\n"
-          "  --scheme [scheme]     - set this scheme\n"
-          "  --url [base URL]      - URL to start with\n"
-          "  --user [name]         - set this user\n"
-          "  --zoneid [zoneid]     - set this zone id\n"
+          "  --redirect [URL]          - redirect the base URL to this\n"
+          "  --set-fragment [fragment] - set this fragment\n"
+          "  --set-host [host]         - set this host name\n"
+          "  --set-options [options]   - set these options\n"
+          "  --set-password [secret]   - set this password\n"
+          "  --set-path [path]         - set this path\n"
+          "  --set-port [port]         - set this port number\n"
+          "  --set-query [query]       - set this query\n"
+          "  --set-scheme [scheme]     - set this scheme\n"
+          "  --set-user [name]         - set this user\n"
+          "  --set-zoneid [zoneid]     - set this zone id\n"
+          "  --url [base URL]          - URL to start with\n"
           " OUTPUT\n"
-          "  --only-fragment       - output only the fragment part\n"
-          "  --only-host           - output only the host part\n"
-          "  --only-options        - output only the options part\n"
-          "  --only-password       - output only the password part\n"
-          "  --only-path           - output only the path part\n"
-          "  --only-port           - output only the port part\n"
-          "  --only-query          - output only the query part\n"
-          "  --only-scheme         - output only the scheme part\n"
-          "  --only-user           - output only the user part\n"
-          "  --only-zoneid         - output only the zoneid part\n"
+          "  --show-fragment       - output only the fragment part\n"
+          "  --show-host           - output only the host part\n"
+          "  --show-options        - output only the options part\n"
+          "  --show-password       - output only the password part\n"
+          "  --show-path           - output only the path part\n"
+          "  --show-port           - output only the port part\n"
+          "  --show-query          - output only the query part\n"
+          "  --show-scheme         - output only the scheme part\n"
+          "  --show-user           - output only the user part\n"
+          "  --show-zoneid         - output only the zoneid part\n"
     );
   exit(1);
 }
@@ -109,48 +109,48 @@ static int getlongarg(struct option *op,
     show_version();
   if(!strcmp("--url", flag))
     op->url = arg;
-  else if(!strcmp("--host", flag))
+  else if(!strcmp("--set-host", flag))
     op->host = arg;
-  else if(!strcmp("--scheme", flag))
+  else if(!strcmp("--set-scheme", flag))
     op->scheme = arg;
-  else if(!strcmp("--port", flag))
+  else if(!strcmp("--set-port", flag))
     op->port = arg;
-  else if(!strcmp("--user", flag))
+  else if(!strcmp("--set-user", flag))
     op->user = arg;
-  else if(!strcmp("--password", flag))
+  else if(!strcmp("--set-password", flag))
     op->password = arg;
-  else if(!strcmp("--options", flag))
+  else if(!strcmp("--set-options", flag))
     op->options = arg;
-  else if(!strcmp("--path", flag))
+  else if(!strcmp("--set-path", flag))
     op->path = arg;
-  else if(!strcmp("--query", flag))
+  else if(!strcmp("--set-query", flag))
     op->query = arg;
-  else if(!strcmp("--fragment", flag))
+  else if(!strcmp("--set-fragment", flag))
     op->fragment = arg;
-  else if(!strcmp("--zoneid", flag))
+  else if(!strcmp("--set-zoneid", flag))
     op->zoneid = arg;
   else if(!strcmp("--redirect", flag))
     op->redirect = arg;
 
-  else if(!strcmp("--only-scheme", flag))
+  else if(!strcmp("--show-scheme", flag))
     op->output = OUTPUT_SCHEME;
-  else if(!strcmp("--only-user", flag))
+  else if(!strcmp("--show-user", flag))
     op->output = OUTPUT_USER;
-  else if(!strcmp("--only-password", flag))
+  else if(!strcmp("--show-password", flag))
     op->output = OUTPUT_PASSWORD;
-  else if(!strcmp("--only-options", flag))
+  else if(!strcmp("--show-options", flag))
     op->output = OUTPUT_OPTIONS;
-  else if(!strcmp("--only-host", flag))
+  else if(!strcmp("--show-host", flag))
     op->output = OUTPUT_HOST;
-  else if(!strcmp("--only-port", flag))
+  else if(!strcmp("--show-port", flag))
     op->output = OUTPUT_PORT;
-  else if(!strcmp("--only-path", flag))
+  else if(!strcmp("--show-path", flag))
     op->output = OUTPUT_PATH;
-  else if(!strcmp("--only-query", flag))
+  else if(!strcmp("--show-query", flag))
     op->output = OUTPUT_QUERY;
-  else if(!strcmp("--only-fragment", flag))
+  else if(!strcmp("--show-fragment", flag))
     op->output = OUTPUT_FRAGMENT;
-  else if(!strcmp("--only-zoneid", flag))
+  else if(!strcmp("--show-zoneid", flag))
     op->output = OUTPUT_ZONEID;
   return 0;
 }
