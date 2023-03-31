@@ -7,6 +7,9 @@ my @t = (
     "hp://example.com|hp://example.com/",
     "|",
     "ftp.example.com|ftp://ftp.example.com/",
+    "https://example.com/../moo|https://example.com/moo",
+    "https://example.com/.././moo|https://example.com/moo",
+    "https://example.com/test/../moo|https://example.com/moo",
 );
 
 for my $c (@t) {
