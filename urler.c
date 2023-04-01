@@ -55,31 +55,12 @@ static void help(const char *msg)
           "  --append-path [segtment]  - add a piece to the path\n"
           "  --append-query [segtment] - add a piece to the query\n"
           "  --redirect [URL]          - redirect the base URL to this\n"
-          "  --set-fragment [fragment] - set this fragment\n"
-          "  --set-host [host]         - set this host name\n"
-          "  --set-options [options]   - set these options\n"
-          "  --set-password [secret]   - set this password\n"
-          "  --set-path [path]         - set this path\n"
-          "  --set-port [port]         - set this port number\n"
-          "  --set-query [query]       - set this query\n"
-          "  --set-scheme [scheme]     - set this scheme\n"
-          "  --set-user [name]         - set this user\n"
-          "  --set-zoneid [zoneid]     - set this zone id\n"
+          "  --set [component]=[data]  - set this component\n"
           "  --url [base URL]          - URL to start with\n"
           " OUTPUT\n"
-          "  --get-fragment  - output only the fragment part\n"
-          "  --get-host      - output only the host part\n"
-          "  --get-options   - output only the options part\n"
-          "  --get-password  - output only the password part\n"
-          "  --get-path      - output only the path part\n"
-          "  --get-port      - output only the port part\n"
-          "  --get-query     - output only the query part\n"
-          "  --get-scheme    - output only the scheme part\n"
-          "  --get-user      - output only the user part\n"
-          "  --get-zoneid    - output only the zoneid part\n"
-          "  --get [format]  - output custom format\n"
+          "  --get [format]            - output URL components\n"
           " MODIFIERS\n"
-          "  --urldecode     - URL decode the output\n"
+          "  --urldecode               - URL decode the output\n"
     );
   exit(1);
 }
@@ -94,16 +75,7 @@ struct option {
   struct curl_slist *url_list;
   struct curl_slist *append_path;
   struct curl_slist *append_query;
-  const char *host;
-  const char *scheme;
-  const char *port;
-  const char *user;
-  const char *password;
-  const char *options;
-  const char *path;
-  const char *query;
-  const char *fragment;
-  const char *zoneid;
+  struct curl_slist *set_list;
   const char *redirect;
   const char *format;
 
@@ -154,6 +126,35 @@ static void queryadd(struct option *o, const char *query)
   }
 }
 
+struct var {
+  const char *name;
+  CURLUPart part;
+};
+
+static const struct var variables[] = {
+  {"url",      CURLUPART_URL},
+  {"scheme",   CURLUPART_SCHEME},
+  {"user",     CURLUPART_USER},
+  {"password", CURLUPART_PASSWORD},
+  {"options",  CURLUPART_OPTIONS},
+  {"host",     CURLUPART_HOST},
+  {"port",     CURLUPART_PORT},
+  {"path",     CURLUPART_PATH},
+  {"query",    CURLUPART_QUERY},
+  {"fragment", CURLUPART_FRAGMENT},
+  {"zoneid",   CURLUPART_ZONEID},
+  {NULL, 0}
+};
+
+
+static void setadd(struct option *o,
+              const char *set) /* [component]=[data] */
+{
+  struct curl_slist *n;
+  n = curl_slist_append(o->set_list, set);
+  if(n)
+    o->set_list = n;
+}
 
 static int getlongarg(struct option *op,
                       const char *flag,
@@ -177,70 +178,14 @@ static int getlongarg(struct option *op,
     queryadd(op, arg);
     *usedarg = 1;
   }
-  else if(!strcmp("--set-host", flag)) {
-    op->host = arg;
-    *usedarg = 1;
-  }
-  else if(!strcmp("--set-scheme", flag)) {
-    op->scheme = arg;
-    *usedarg = 1;
-  }
-  else if(!strcmp("--set-port", flag)) {
-    op->port = arg;
-    *usedarg = 1;
-  }
-  else if(!strcmp("--set-user", flag)) {
-    op->user = arg;
-    *usedarg = 1;
-  }
-  else if(!strcmp("--set-password", flag)) {
-    op->password = arg;
-    *usedarg = 1;
-  }
-  else if(!strcmp("--set-options", flag)) {
-    op->options = arg;
-    *usedarg = 1;
-  }
-  else if(!strcmp("--set-path", flag)) {
-    op->path = arg;
-    *usedarg = 1;
-  }
-  else if(!strcmp("--set-query", flag)) {
-    op->query = arg;
-    *usedarg = 1;
-  }
-  else if(!strcmp("--set-fragment", flag)) {
-    op->fragment = arg;
-    *usedarg = 1;
-  }
-  else if(!strcmp("--set-zoneid", flag)) {
-    op->zoneid = arg;
+  else if(!strcmp("--set", flag)) {
+    setadd(op, arg);
     *usedarg = 1;
   }
   else if(!strcmp("--redirect", flag)) {
     op->redirect = arg;
     *usedarg = 1;
   }
-  else if(!strcmp("--get-scheme", flag))
-    op->output = OUTPUT_SCHEME;
-  else if(!strcmp("--get-user", flag))
-    op->output = OUTPUT_USER;
-  else if(!strcmp("--get-password", flag))
-    op->output = OUTPUT_PASSWORD;
-  else if(!strcmp("--get-options", flag))
-    op->output = OUTPUT_OPTIONS;
-  else if(!strcmp("--get-host", flag))
-    op->output = OUTPUT_HOST;
-  else if(!strcmp("--get-port", flag))
-    op->output = OUTPUT_PORT;
-  else if(!strcmp("--get-path", flag))
-    op->output = OUTPUT_PATH;
-  else if(!strcmp("--get-query", flag))
-    op->output = OUTPUT_QUERY;
-  else if(!strcmp("--get-fragment", flag))
-    op->output = OUTPUT_FRAGMENT;
-  else if(!strcmp("--get-zoneid", flag))
-    op->output = OUTPUT_ZONEID;
   else if(!strcmp("--get", flag)) {
     op->format = arg;
     *usedarg = 1;
@@ -264,26 +209,6 @@ static int getshortarg(struct option *op,
     return 1;  /* unrecognized option */
   return 0;
 }
-
-struct var {
-  const char *name;
-  CURLUPart part;
-};
-
-static const struct var variables[] = {
-  {"url",      CURLUPART_URL},
-  {"scheme",   CURLUPART_SCHEME},
-  {"user",     CURLUPART_USER},
-  {"password", CURLUPART_PASSWORD},
-  {"options",  CURLUPART_OPTIONS},
-  {"host",     CURLUPART_HOST},
-  {"port",     CURLUPART_PORT},
-  {"path",     CURLUPART_PATH},
-  {"query",    CURLUPART_QUERY},
-  {"fragment", CURLUPART_FRAGMENT},
-  {"zoneid",   CURLUPART_ZONEID},
-  {NULL, 0}
-};
 
 static void format(struct option *op, CURLU *uh)
 {
@@ -352,6 +277,31 @@ static void format(struct option *op, CURLU *uh)
   fputc('\n', stream);
 }
 
+static void set(CURLU *uh,
+                struct option *o)
+{
+  struct curl_slist *node;
+  for(node =  o->set_list; node; node=node->next) {
+    char *set = node->data;
+    int i;
+    char *ptr = strchr(set, '=');
+    if(ptr) {
+      size_t vlen = ptr-set;
+      bool found = false;
+      for(i=0; variables[i].name; i++) {
+        if((strlen(variables[i].name) == vlen) &&
+           !strncasecmp(set, variables[i].name, vlen)) {
+          curl_url_set(uh, variables[i].part, ptr+1, CURLU_NON_SUPPORT_SCHEME);
+          found = true;
+          break;
+        }
+      }
+      if(!found)
+        help("Set unknown component");
+    }
+  }
+}
+
 int main(int argc, const char **argv)
 {
   int exit_status = 0;
@@ -401,26 +351,8 @@ int main(int argc, const char **argv)
         curl_url_set(uh, CURLUPART_URL, o.redirect,
                      CURLU_GUESS_SCHEME|CURLU_NON_SUPPORT_SCHEME);
     }
-    if(o.host)
-      curl_url_set(uh, CURLUPART_HOST, o.host, 0);
-    if(o.scheme)
-      curl_url_set(uh, CURLUPART_SCHEME, o.scheme, CURLU_NON_SUPPORT_SCHEME);
-    if(o.port)
-      curl_url_set(uh, CURLUPART_PORT, o.port, 0);
-    if(o.user)
-      curl_url_set(uh, CURLUPART_USER, o.user, 0);
-    if(o.password)
-      curl_url_set(uh, CURLUPART_PASSWORD, o.password, 0);
-    if(o.options)
-      curl_url_set(uh, CURLUPART_OPTIONS, o.options, 0);
-    if(o.path)
-      curl_url_set(uh, CURLUPART_PATH, o.path, 0);
-    if(o.query)
-      curl_url_set(uh, CURLUPART_QUERY, o.query, 0);
-    if(o.fragment)
-      curl_url_set(uh, CURLUPART_FRAGMENT, o.fragment, 0);
-    if(o.zoneid)
-      curl_url_set(uh, CURLUPART_ZONEID, o.zoneid, 0);
+    /* set everything */
+    set(uh, &o);
 
     /* append path segments */
     for(p = o.append_path; p; p=p->next) {
@@ -468,73 +400,6 @@ int main(int argc, const char **argv)
     if(o.format) {
       /* custom output format */
       format(&o, uh);
-    }
-    else if(o.output) {
-      CURLUPart cpart = CURLUPART_HOST;
-      const char *name = NULL;
-
-      /* only extract the part we want to show */
-      switch(o.output) {
-      case OUTPUT_SCHEME:
-        cpart = CURLUPART_SCHEME;
-        name = "scheme";
-        break;
-      case OUTPUT_USER:
-        cpart = CURLUPART_USER;
-        name = "user";
-        break;
-      case OUTPUT_PASSWORD:
-        cpart = CURLUPART_PASSWORD;
-        name = "password";
-        break;
-      case OUTPUT_OPTIONS:
-        cpart = CURLUPART_OPTIONS;
-        name = "options";
-        break;
-      case OUTPUT_HOST:
-        cpart = CURLUPART_HOST;
-        name = "host";
-        break;
-      case OUTPUT_PORT:
-        cpart = CURLUPART_PORT;
-        name = "port";
-        break;
-      case OUTPUT_PATH:
-        cpart = CURLUPART_PATH;
-        name = "path";
-        break;
-      case OUTPUT_QUERY:
-        cpart = CURLUPART_QUERY;
-        name = "query";
-        break;
-      case OUTPUT_FRAGMENT:
-        cpart = CURLUPART_FRAGMENT;
-        name = "fragment";
-        break;
-      case OUTPUT_ZONEID:
-        cpart = CURLUPART_ZONEID;
-        name = "zoneid";
-        break;
-      default:
-        fprintf(stderr, "internal error, file an issue!\n");
-        break;
-      }
-      if(!curl_url_get(uh, cpart, &nurl, CURLU_DEFAULT_PORT|
-                       (o.urldecode?CURLU_URLDECODE:0))) {
-        printf("%s\n", nurl);
-        curl_free(nurl);
-      }
-      else {
-        if(url) {
-          /* if a URL was given, this just means that the URL did not have
-             this component */
-        }
-        else {
-          fprintf(stderr, "not enough input to show %s (%s -h for help)\n",
-                  name, PROGNAME);
-          exit_status = 1;
-        }
-      }
     }
     else {
       /* default output is full URL */

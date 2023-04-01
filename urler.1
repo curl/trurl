@@ -35,53 +35,13 @@ URL encodes and appends this segment to the path, separated with a slash.
 URL encodes and appends this segment to the query, separated with an ampersand
 (&). If the segment contains an equal sign ('=') that will be kept verbatim
 and both sides of the first occrance will be URL encoded separately.
-.IP "--set-fragment [fragment]"
-Set this fragment. Setting it to a blank string ("") will clear it from the
+.IP "--set [component]=[data]"
+Set this URL component. Setting blank string ("") will clear it from the
 URL.
-.IP "--set-host [host]"
-Set this host name. Setting it to a blank string ("") will clear it from the
-URL.
-.IP "--set-options [options]"
-Set these options. Setting it to a blank string ("") will clear it from the
-URL.
-.IP "--set-password [secret]"
-Set this password. Setting it to a blank string ("") will clear it from the
-URL.
-.IP "--set-path [path]"
-Set this path. Setting it to a blank string ("") will clear it from the URL.
-.IP "--set-port [port]"
-Set this port number. Setting it to a blank string ("") will clear it from the
-URL.
-.IP "--set-query [query]"
-Set this query. Setting it to a blank string ("") will clear it from the URL.
-.IP "--set-scheme [scheme]"
-Set this scheme. Setting it to a blank string ("") will clear it from the URL.
-.IP "--set-user [name]"
-Set this user. Setting it to a blank string ("") will clear it from the URL.
-.IP "--set-zoneid [zoneid]"
-Set this zone id. Setting it to a blank string ("") will clear it from the
-URL.
+
+The following components can be set: url, scheme, user, password,
+options, host, port, path, query, fragment and zoneid.
 .SH "OUTPUT OPTIONS"
-.IP "--get-fragment"
-Output only the fragment part.
-.IP "--get-host"
-Output only the host part.
-.IP "--get-options"
-Output only the options part.
-.IP "--get-password"
-Output only the password part.
-.IP "--get-path"
-Output only the path part.
-.IP "--get-port"
-Output only the port part.
-.IP "--get-query"
-Output only the query part.
-.IP "--get-scheme"
-Output only the scheme part.
-.IP "--get-user"
-Output only the user part.
-.IP "--get-zoneid"
-Output only the zoneid part.
 .IP "--get [format]"
 Output data according to the provided format string. Components from the URL
 can be output when specified as \fB{component}\fP, with the name of the part
