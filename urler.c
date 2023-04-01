@@ -166,6 +166,22 @@ static void setadd(struct option *o,
     o->set_list = n;
 }
 
+static bool checkoptarg(const char *str,
+                   const char *given,
+                   const char *arg)
+{
+  if(!strcmp(str, given)) {
+    if(!arg) {
+      char buffer[128];
+      curl_msnprintf(buffer, sizeof(buffer),
+                     "Missing argument for %s", str);
+      help(buffer);
+    }
+    return true;
+  }
+  return false;
+}
+
 static int getlongarg(struct option *op,
                       const char *flag,
                       const char *arg,
@@ -174,25 +190,25 @@ static int getlongarg(struct option *op,
   *usedarg = 0;
   if(!strcmp("--help", flag))
     help(NULL);
-  if(!strcmp("--version", flag))
+  else if(!strcmp("--version", flag))
     show_version();
-  if(!strcmp("--url", flag)) {
+  else if(checkoptarg("--url", flag, arg)) {
     urladd(op, arg);
     *usedarg = 1;
   }
-  else if(!strcmp("--append", flag)) {
+  else if(checkoptarg("--append", flag, arg)) {
     appendadd(op, arg);
     *usedarg = 1;
   }
-  else if(!strcmp("--set", flag)) {
+  else if(checkoptarg("--set", flag, arg)) {
     setadd(op, arg);
     *usedarg = 1;
   }
-  else if(!strcmp("--redirect", flag)) {
+  else if(checkoptarg("--redirect", flag, arg)) {
     op->redirect = arg;
     *usedarg = 1;
   }
-  else if(!strcmp("--get", flag)) {
+  else if(checkoptarg("--get", flag, arg)) {
     op->format = arg;
     *usedarg = 1;
   }
