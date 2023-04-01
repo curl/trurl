@@ -10,7 +10,7 @@ my @t = (
     "https://example.com/../moo|https://example.com/moo",
     "https://example.com/.././moo|https://example.com/moo",
     "https://example.com/test/../moo|https://example.com/moo",
-    "localhost --append-path moo|http://localhost/moo",
+    "localhost --append path=moo|http://localhost/moo",
     "--set host=moo --set scheme=http|http://moo/",
 );
 
