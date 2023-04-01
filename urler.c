@@ -163,6 +163,9 @@ static int getlongarg(struct option *op,
   if(!strcmp("--version", flag))
     show_version();
   if(!strcmp("--url", flag)) {
+    if(arg == NULL) {
+        help("No url passed");
+    }
     urladd(op, arg);
     *usedarg = 1;
   }
@@ -279,8 +282,7 @@ int main(int argc, const char **argv)
     else if(argv[0][0] == '-' && argv[0][1] == '-') {
       /* dash-dash prefixed */
       int usedarg = 0;
-      
-      if(argc < 2 || getlongarg(&o, argv[0], argv[1], &usedarg))
+      if(getlongarg(&o, argv[0], argv[1], &usedarg))
         help("unknown option");
 
       if(usedarg) {
