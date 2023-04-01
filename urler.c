@@ -427,11 +427,18 @@ int main(int argc, const char **argv)
       char *apath = p->data;
       char *opath;
       char *npath;
+      size_t olen;
       /* extract the current path */
       curl_url_get(uh, CURLUPART_PATH, &opath, 0);
 
+      /* does the existing path end with a slash, then don't
+         add one inbetween */
+      olen = strlen(opath);
+
       /* append the new segment */
-      npath = curl_maprintf("%s/%s", opath, apath);
+      npath = curl_maprintf("%s%s%s", opath,
+                            opath[olen-1] == '/' ? "" : "/",
+                            apath);
       if(npath) {
         /* set the new path */
         curl_url_set(uh, CURLUPART_PATH, npath, 0);

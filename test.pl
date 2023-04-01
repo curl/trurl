@@ -10,6 +10,7 @@ my @t = (
     "https://example.com/../moo|https://example.com/moo",
     "https://example.com/.././moo|https://example.com/moo",
     "https://example.com/test/../moo|https://example.com/moo",
+    "localhost --append-path moo|http://localhost/moo",
 );
 
 for my $c (@t) {
@@ -19,8 +20,8 @@ for my $c (@t) {
     chomp $result;
     if($result ne $o) {
         print "FAIL\n";
-        print "$i did not make $o\n";
-        print "$result\n";
+        print "$i did not show \"$o\"\n";
+        print "It showed \"$result\"\n";
         exit 1;
     }
 }
