@@ -49,18 +49,17 @@ static void help(const char *msg)
   if(msg != NULL)
     fprintf(stderr, "%s:\n\n", msg);
   fprintf(stderr, "Usage: [options] [URL]\n"
-          "  -h,--help             - this help\n"
-          "  -v,--version          - show version\n"
+          "  -h,--help                   - this help\n"
+          "  -v,--version                - show version\n"
           " INPUT\n"
-          "  --append-path [segtment]  - add a piece to the path\n"
-          "  --append-query [segtment] - add a piece to the query\n"
-          "  --redirect [URL]          - redirect the base URL to this\n"
-          "  --set [component]=[data]  - set this component\n"
-          "  --url [base URL]          - URL to start with\n"
+          "  --append [component]=[data] - append data to component\n"
+          "  --redirect [URL]            - redirect the base URL to this\n"
+          "  --set [component]=[data]    - set this component\n"
+          "  --url [base URL]            - URL to start with\n"
           " OUTPUT\n"
-          "  --get [format]            - output URL components\n"
+          "  --get [format]              - output URL components\n"
           " MODIFIERS\n"
-          "  --urldecode               - URL decode the output\n"
+          "  --urldecode                 - URL decode the output\n"
     );
   exit(1);
 }
@@ -147,6 +146,17 @@ static const struct var variables[] = {
 };
 
 
+static void appendadd(struct option *o,
+                      const char *arg)
+{
+  if(!strncasecmp("path=", arg, 5))
+    pathadd(o, arg + 5);
+  else if(!strncasecmp("query=", arg, 6))
+    queryadd(o, arg + 5);
+  else
+    help("--append unsupported component");
+}
+
 static void setadd(struct option *o,
               const char *set) /* [component]=[data] */
 {
@@ -170,12 +180,8 @@ static int getlongarg(struct option *op,
     urladd(op, arg);
     *usedarg = 1;
   }
-  else if(!strcmp("--append-path", flag)) {
-    pathadd(op, arg);
-    *usedarg = 1;
-  }
-  else if(!strcmp("--append-query", flag)) {
-    queryadd(op, arg);
+  else if(!strcmp("--append", flag)) {
+    appendadd(op, arg);
     *usedarg = 1;
   }
   else if(!strcmp("--set", flag)) {
