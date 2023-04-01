@@ -11,11 +11,13 @@ my @t = (
     "https://example.com/.././moo|https://example.com/moo",
     "https://example.com/test/../moo|https://example.com/moo",
     "localhost --append-path moo|http://localhost/moo",
+    "--set-host moo --set-scheme http|http://moo/",
 );
 
 for my $c (@t) {
-    my ($i, $o) = split(/\|/, $c);    
-    my @out = `./urler $i`;
+    my ($i, $o) = split(/\|/, $c);
+    # A future version should also check stderr
+    my @out = `./urler $i 2>/dev/null`;
     my $result = join("", @out);
     chomp $result;
     if($result ne $o) {
