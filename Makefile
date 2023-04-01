@@ -13,6 +13,7 @@ $(TARGET): $(OBJS)
 install:
 	install -d $(BINDIR)
 	install -m 0755 $(TARGET) $(BINDIR)
+	install -d $(MANDIR)
 	install -m 0744 $(MANUAL) $(MANDIR)
 
 clean:
