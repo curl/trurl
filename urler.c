@@ -152,7 +152,7 @@ static void appendadd(struct option *o,
   if(!strncasecmp("path=", arg, 5))
     pathadd(o, arg + 5);
   else if(!strncasecmp("query=", arg, 6))
-    queryadd(o, arg + 5);
+    queryadd(o, arg + 6);
   else
     help("--append unsupported component");
 }
