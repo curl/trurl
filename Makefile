@@ -4,8 +4,9 @@ LDLIBS = -lcurl
 CFLAGS := $(CFLAGS) -W -Wall -pedantic -g
 MANUAL = urler.1
 
-BINDIR ?= $(DESTDIR)$(prefix)/bin
-MANDIR ?= $(DESTDIR)$(prefix)/share/man/man1
+PREFIX ?= /usr/local
+BINDIR ?= $(DESTDIR)$(PREFIX)/bin
+MANDIR ?= $(DESTDIR)$(PREFIX)/share/man/man1
 
 $(TARGET): $(OBJS)
 
