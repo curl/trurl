@@ -6,22 +6,22 @@ command line tool for URL parsing and manipulation
 ## Example command lines
 
 ~~~
-  $ urler --url https://curl.se --set-host example.com
+  $ urler --url https://curl.se --set host=example.com
   https://example.com/
 
-  $ urler --set-host example.com --set-scheme ftp
+  $ urler --set host=example.com --set scheme=ftp
   ftp://example.com/
 
   $ urler --url https://curl.se/we/are.html --redirect here.html
   https://curl.se/we/here.html
 
-  $ urler --url https://curl.se/we/../are.html --set-port 8080
+  $ urler --url https://curl.se/we/../are.html --set port=8080
   https://curl.se:8080/are.html
 
-  $ urler --url https://curl.se/we/are.html --get-path
+  $ urler --url https://curl.se/we/are.html --get '{path}'
   /we/are.html
 
-  $ urler --url https://curl.se/we/are.html --get-port
+  $ urler --url https://curl.se/we/are.html --get '{port}'
   443
 ~~~
 
