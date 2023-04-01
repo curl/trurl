@@ -164,16 +164,22 @@ static int getlongarg(struct option *op,
     show_version();
   if(!strcmp("--url", flag)) {
     if(arg == NULL) {
-        help("No url passed");
+        help("No url provided");
     }
     urladd(op, arg);
     *usedarg = 1;
   }
   else if(!strcmp("--append-path", flag)) {
+    if(arg == NULL) {
+        help("No path provided");
+    }
     pathadd(op, arg);
     *usedarg = 1;
   }
   else if(!strcmp("--append-query", flag)) {
+    if(arg == NULL) {
+        help("No query provided");
+    }
     queryadd(op, arg);
     *usedarg = 1;
   }
