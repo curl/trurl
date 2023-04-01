@@ -154,6 +154,21 @@ static void queryadd(struct option *o, const char *query)
   }
 }
 
+static bool checkoptarg(const char *str,
+                   const char *given,
+                   const char *arg)
+{
+  if(!strcmp(str, given)) {
+    if(!arg) {
+      char buffer[128];
+      curl_msnprintf(buffer, sizeof(buffer),
+                     "Missing argument for %s", str);
+      help(buffer);
+    }
+    return true;
+  }
+  return false;
+}
 
 static int getlongarg(struct option *op,
                       const char *flag,
@@ -165,59 +180,59 @@ static int getlongarg(struct option *op,
     help(NULL);
   if(!strcmp("--version", flag))
     show_version();
-  if(!strcmp("--url", flag)) {
+  if(checkoptarg("--url", flag, arg)) {
     urladd(op, arg);
     *usedarg = 1;
   }
-  else if(!strcmp("--append-path", flag)) {
+  else if(checkoptarg("--append-path", flag, arg)) {
     pathadd(op, arg);
     *usedarg = 1;
   }
-  else if(!strcmp("--append-query", flag)) {
+  else if(checkoptarg("--append-query", flag, arg)) {
     queryadd(op, arg);
     *usedarg = 1;
   }
-  else if(!strcmp("--set-host", flag)) {
+  else if(checkoptarg("--set-host", flag, arg)) {
     op->host = arg;
     *usedarg = 1;
   }
-  else if(!strcmp("--set-scheme", flag)) {
+  else if(checkoptarg("--set-scheme", flag, arg)) {
     op->scheme = arg;
     *usedarg = 1;
   }
-  else if(!strcmp("--set-port", flag)) {
+  else if(checkoptarg("--set-port", flag, arg)) {
     op->port = arg;
     *usedarg = 1;
   }
-  else if(!strcmp("--set-user", flag)) {
+  else if(checkoptarg("--set-user", flag, arg)) {
     op->user = arg;
     *usedarg = 1;
   }
-  else if(!strcmp("--set-password", flag)) {
+  else if(checkoptarg("--set-password", flag, arg)) {
     op->password = arg;
     *usedarg = 1;
   }
-  else if(!strcmp("--set-options", flag)) {
+  else if(checkoptarg("--set-options", flag, arg)) {
     op->options = arg;
     *usedarg = 1;
   }
-  else if(!strcmp("--set-path", flag)) {
+  else if(checkoptarg("--set-path", flag, arg)) {
     op->path = arg;
     *usedarg = 1;
   }
-  else if(!strcmp("--set-query", flag)) {
+  else if(checkoptarg("--set-query", flag, arg)) {
     op->query = arg;
     *usedarg = 1;
   }
-  else if(!strcmp("--set-fragment", flag)) {
+  else if(checkoptarg("--set-fragment", flag, arg)) {
     op->fragment = arg;
     *usedarg = 1;
   }
-  else if(!strcmp("--set-zoneid", flag)) {
+  else if(checkoptarg("--set-zoneid", flag, arg)) {
     op->zoneid = arg;
     *usedarg = 1;
   }
-  else if(!strcmp("--redirect", flag)) {
+  else if(checkoptarg("--redirect", flag, arg)) {
     op->redirect = arg;
     *usedarg = 1;
   }
