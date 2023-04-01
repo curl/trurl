@@ -57,9 +57,10 @@ Set this query. Setting it to a blank string ("") will clear it from the URL.
 .IP "--set-scheme [scheme]"
 Set this scheme. Setting it to a blank string ("") will clear it from the URL.
 .IP "--set-user [name]"
-Set this user.
+Set this user. Setting it to a blank string ("") will clear it from the URL.
 .IP "--set-zoneid [zoneid]"
-Set this zone id.
+Set this zone id. Setting it to a blank string ("") will clear it from the
+URL.
 .SH "OUTPUT OPTIONS"
 .IP "--get-fragment"
 Output only the fragment part.
@@ -81,6 +82,14 @@ Output only the scheme part.
 Output only the user part.
 .IP "--get-zoneid"
 Output only the zoneid part.
+.IP "--get [format]"
+Output data according to the provided format string. Components from the URL
+can be output when specified as \fB{component}\fP, with the name of the part
+within curly braces. The following component names are available: {url},
+{scheme}, {user}, {password}, {options}, {host}, {port}, {path}, {query},
+{fragment} and {zoneid}.
+
+This option overrides other \fB--get-*\fP options.
 .SH "MODIFIERS"
 .IP "--urldecode"
 By default each component is output using the format of the input (URL

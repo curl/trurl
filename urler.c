@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include <curl/curl.h>
 #include <curl/mprintf.h>
 
@@ -76,6 +77,7 @@ static void help(const char *msg)
           "  --get-scheme    - output only the scheme part\n"
           "  --get-user      - output only the user part\n"
           "  --get-zoneid    - output only the zoneid part\n"
+          "  --get [format]  - output custom format\n"
           " MODIFIERS\n"
           "  --urldecode     - URL decode the output\n"
     );
@@ -103,6 +105,7 @@ struct option {
   const char *fragment;
   const char *zoneid;
   const char *redirect;
+  const char *format;
 
   unsigned int urldecode:1;
   unsigned char output;
@@ -238,7 +241,10 @@ static int getlongarg(struct option *op,
     op->output = OUTPUT_FRAGMENT;
   else if(!strcmp("--get-zoneid", flag))
     op->output = OUTPUT_ZONEID;
-
+  else if(!strcmp("--get", flag)) {
+    op->format = arg;
+    *usedarg = 1;
+  }
   else if(!strcmp("--urldecode", flag))
     op->urldecode = 1;
   else
@@ -259,6 +265,92 @@ static int getshortarg(struct option *op,
   return 0;
 }
 
+struct var {
+  const char *name;
+  CURLUPart part;
+};
+
+static const struct var variables[] = {
+  {"url",      CURLUPART_URL},
+  {"scheme",   CURLUPART_SCHEME},
+  {"user",     CURLUPART_USER},
+  {"password", CURLUPART_PASSWORD},
+  {"options",  CURLUPART_OPTIONS},
+  {"host",     CURLUPART_HOST},
+  {"port",     CURLUPART_PORT},
+  {"path",     CURLUPART_PATH},
+  {"query",    CURLUPART_QUERY},
+  {"fragment", CURLUPART_FRAGMENT},
+  {"zoneid",   CURLUPART_ZONEID},
+  {NULL, 0}
+};
+
+static void format(struct option *op, CURLU *uh)
+{
+  FILE *stream = stdout;
+  const char *ptr = op->format;
+  bool done = false;
+
+  while(ptr && *ptr && !done) {
+    if('{' == *ptr) {
+      if('{' == ptr[1]) {
+        /* an escaped {-letter */
+        fputc('{', stream);
+        ptr += 2;
+      }
+      else {
+        /* this is meant as a variable to output */
+        char *end;
+        size_t vlen;
+        int i;
+        end = strchr(ptr, '}');
+        ptr++; /* pass the { */
+        if(!end) {
+          /* syntax error */
+          continue;
+        }
+        vlen = end - ptr;
+        for(i = 0; variables[i].name; i++) {
+          if((strlen(variables[i].name) == vlen) &&
+             !strncasecmp(ptr, variables[i].name, vlen)) {
+            char *nurl;
+            if(!curl_url_get(uh, variables[i].part, &nurl, CURLU_DEFAULT_PORT|
+                             (op->urldecode?CURLU_URLDECODE:0))) {
+              fprintf(stream, "%s", nurl);
+              curl_free(nurl);
+            }
+            break;
+          }
+        }
+        ptr = end + 1; /* pass the end */
+      }
+    }
+    else if('\\' == *ptr && ptr[1]) {
+      switch(ptr[1]) {
+      case 'r':
+        fputc('\r', stream);
+        break;
+      case 'n':
+        fputc('\n', stream);
+        break;
+      case 't':
+        fputc('\t', stream);
+        break;
+      default:
+        /* unknown, just output this */
+        fputc(*ptr, stream);
+        fputc(ptr[1], stream);
+        break;
+      }
+      ptr += 2;
+    }
+    else {
+      fputc(*ptr, stream);
+      ptr++;
+    }
+  }
+  fputc('\n', stream);
+}
 
 int main(int argc, const char **argv)
 {
@@ -366,7 +458,11 @@ int main(int argc, const char **argv)
       curl_free(oq);
     }
 
-    if(o.output) {
+    if(o.format) {
+      /* custom output format */
+      format(&o, uh);
+    }
+    else if(o.output) {
       CURLUPart cpart = CURLUPART_HOST;
       const char *name = NULL;
 
