@@ -23,6 +23,12 @@ command line tool for URL parsing and manipulation
 
   $ urler --url https://curl.se/we/are.html --get '{port}'
   443
+
+  $ urler --url https://curl.se/hello --append path=you
+  https://curl.se/hello/you
+
+  $ urler --url "https://curl.se?name=hello" --append query=search=string
+  https://curl.se/?name=hello&search=string
 ~~~
 
 ## Install
