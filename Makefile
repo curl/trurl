@@ -10,6 +10,8 @@ MANDIR ?= $(DESTDIR)$(PREFIX)/share/man/man1
 
 $(TARGET): $(OBJS)
 
+trurl.o:trurl.c version.h
+
 install:
 	install -d $(BINDIR)
 	install -m 0755 $(TARGET) $(BINDIR)
