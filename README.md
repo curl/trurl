@@ -1,4 +1,5 @@
 # urler
+
 command line tool for URL parsing and manipulation
 
 [original idea](https://curl.se/mail/archive-2023-03/0030.html)
@@ -42,3 +43,6 @@ $ make
 cc  -W -Wall -pedantic -g   -c -o urler.o urler.c
 cc   urler.o  -lcurl -o urler
 ```
+
+Note that development files of libcurl (e.g. `libcurl4-openssl-dev` or `libcurl4-gnutls-dev`) are
+needed for compilation.
