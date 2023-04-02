@@ -64,5 +64,50 @@ within curly braces. The following component names are available: {url},
 By default each component is output using the format of the input (URL
 encoded). This option makes urler instead provide it URL decoded. Note that
 %20 will then output space and %09 a tab etc.
+.SH EXAMPLES
+.IP "Replace the host name of a URL"
+.nf
+$ urler --url https://curl.se --set host=example.com
+https://example.com/
+.fi
+.IP "Create a URL by setting components"
+.nf
+ $ urler --set host=example.com --set scheme=ftp
+ ftp://example.com/
+.fi
+.IP "Redirect a URL"
+.nf
+$ urler --url https://curl.se/we/are.html --redirect here.html
+https://curl.se/we/here.html
+.fi
+.IP "Change port number"
+This also shows how urler will remove dot-dot sequences
+
+.nf
+$ urler --url https://curl.se/we/../are.html --set port=8080
+https://curl.se:8080/are.html
+.IP "Extract the path from a URL"
+.nf
+$ urler --url https://curl.se/we/are.html --get '{path}'
+/we/are.html
+.IP "Extract the port from a URL"
+This gets the default port based on the scheme if the port is not set in the
+URL.
+
+.nf
+$ urler --url https://curl.se/we/are.html --get '{port}'
+443
+.IP "Append a path segment to a URL"
+.nf
+$ urler --url https://curl.se/hello --append path=you
+https://curl.se/hello/you
+.IP "Append a query segment to a URL"
+.nf
+$ urler --url "https://curl.se?name=hello" --append query=search=string
+ https://curl.se/?name=hello&search=string
+.IP "Read URLs from stdin"
+.nf
+$ cat urllist.txt | urler --url-file -
+...
 .SH WWW
 https://github.com/curl/urler
