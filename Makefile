@@ -1,8 +1,8 @@
-TARGET = urler
-OBJS = urler.o
+TARGET = trurl
+OBJS = trurl.o
 LDLIBS = -lcurl
 CFLAGS := $(CFLAGS) -W -Wall -pedantic -g
-MANUAL = urler.1
+MANUAL = trurl.1
 
 PREFIX ?= /usr/local
 BINDIR ?= $(DESTDIR)$(PREFIX)/bin

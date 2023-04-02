@@ -1,14 +1,14 @@
 .\" You can view this file with:
-.\" man -l urler.1
+.\" man -l trurl.1
 .\" Written by Daniel Stenberg
 .\"
-.TH urler 1 "31 Mar 2023" "urler 0.1" "urler Manual"
+.TH trurl 1 "31 Mar 2023" "trurl 0.1" "trurl Manual"
 .SH NAME
-urler \- parse and manipulate URLs
+trurl \- transpose URLs
 .SH SYNOPSIS
-.B urler [options]
+.B trurl [options]
 .SH DESCRIPTION
-.B urler
+.B trurl
 parses, manipulates and outputs URLs and parts of URLs.
 
 It uses the RFC 3986 definition of URLs and it uses libcurl's URL parser to do
@@ -23,13 +23,13 @@ Show version information and exit.
 .SH "INPUT OPTIONS"
 .IP "--url [URL]"
 Set the input URL to work with. The URL may be provided without a scheme,
-which then typically is not actually a legal URL but urler will try to figure
+which then typically is not actually a legal URL but trurl will try to figure
 out what is meant and guess what scheme to use.
 
-Providing multiple URLs will make urler act on all URLs in a serial fashion.
+Providing multiple URLs will make trurl act on all URLs in a serial fashion.
 .IP "--url-file [name]"
 Read URLs to work on from the given file. Use the file name "-" (a single
-minus) to tell urler to read the URLs from stdin.
+minus) to tell trurl to read the URLs from stdin.
 
 Each line needs to be a single valid URL and the line needs to end with a
 newline. The maximum URL length supported in a file like this is 4095 bytes.
@@ -62,52 +62,52 @@ within curly braces. The following component names are available: {url},
 .SH "MODIFIERS"
 .IP "--urldecode"
 By default each component is output using the format of the input (URL
-encoded). This option makes urler instead provide it URL decoded. Note that
+encoded). This option makes trurl instead provide it URL decoded. Note that
 %20 will then output space and %09 a tab etc.
 .SH EXAMPLES
 .IP "Replace the host name of a URL"
 .nf
-$ urler --url https://curl.se --set host=example.com
+$ trurl --url https://curl.se --set host=example.com
 https://example.com/
 .fi
 .IP "Create a URL by setting components"
 .nf
- $ urler --set host=example.com --set scheme=ftp
+ $ trurl --set host=example.com --set scheme=ftp
  ftp://example.com/
 .fi
 .IP "Redirect a URL"
 .nf
-$ urler --url https://curl.se/we/are.html --redirect here.html
+$ trurl --url https://curl.se/we/are.html --redirect here.html
 https://curl.se/we/here.html
 .fi
 .IP "Change port number"
-This also shows how urler will remove dot-dot sequences
+This also shows how trurl will remove dot-dot sequences
 
 .nf
-$ urler --url https://curl.se/we/../are.html --set port=8080
+$ trurl --url https://curl.se/we/../are.html --set port=8080
 https://curl.se:8080/are.html
 .IP "Extract the path from a URL"
 .nf
-$ urler --url https://curl.se/we/are.html --get '{path}'
+$ trurl --url https://curl.se/we/are.html --get '{path}'
 /we/are.html
 .IP "Extract the port from a URL"
 This gets the default port based on the scheme if the port is not set in the
 URL.
 
 .nf
-$ urler --url https://curl.se/we/are.html --get '{port}'
+$ trurl --url https://curl.se/we/are.html --get '{port}'
 443
 .IP "Append a path segment to a URL"
 .nf
-$ urler --url https://curl.se/hello --append path=you
+$ trurl --url https://curl.se/hello --append path=you
 https://curl.se/hello/you
 .IP "Append a query segment to a URL"
 .nf
-$ urler --url "https://curl.se?name=hello" --append query=search=string
+$ trurl --url "https://curl.se?name=hello" --append query=search=string
  https://curl.se/?name=hello&search=string
 .IP "Read URLs from stdin"
 .nf
-$ cat urllist.txt | urler --url-file -
+$ cat urllist.txt | trurl --url-file -
 ...
 .SH WWW
-https://github.com/curl/urler
+https://github.com/curl/trurl
