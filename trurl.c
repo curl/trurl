@@ -79,6 +79,8 @@ struct option {
   struct curl_slist *set_list;
   const char *redirect;
   const char *format;
+  FILE *url;
+  bool urlopen;
 
   unsigned int urldecode:1;
   unsigned char output;
@@ -97,34 +99,15 @@ static void urladd(struct option *o, const char *url)
 static void urlfile(struct option *o, const char *file)
 {
   FILE *f;
-  bool closeit = false;
-
   if(strcmp("-", file)) {
     f = fopen(file, "rt");
     if(!f)
       help("--url-file not found");
-    closeit = true;
+    o->urlopen = true;
   }
   else
     f = stdin;
-  if(f) {
-    char buffer[4096]; /* arbitrary max */
-    while(fgets(buffer, sizeof(buffer), f)) {
-      char *eol = strchr(buffer, '\n');
-      if(eol && (eol > buffer)) {
-        if(eol[-1] == '\r')
-          /* CRLF detected */
-          eol--;
-        *eol = 0; /* end of URL */
-        urladd(o, buffer);
-      }
-      else {
-        /* no newline or no content, skip */
-      }
-    }
-    if(closeit)
-      fclose(f);
-  }
+  o->url = f;
 }
 
 static void pathadd(struct option *o, const char *path)
@@ -367,12 +350,89 @@ static void set(CURLU *uh,
   }
 }
 
+static void singleurl(struct option *o,
+                      const char *url) /* might be NULL */
+{
+    struct curl_slist *p;
+    CURLU *uh = curl_url();
+    if(!uh)
+      help("out of memory");
+    if(url) {
+      curl_url_set(uh, CURLUPART_URL, url,
+                   CURLU_GUESS_SCHEME|CURLU_NON_SUPPORT_SCHEME);
+      if(o->redirect)
+        curl_url_set(uh, CURLUPART_URL, o->redirect,
+                     CURLU_GUESS_SCHEME|CURLU_NON_SUPPORT_SCHEME);
+    }
+    /* set everything */
+    set(uh, o);
+
+    /* append path segments */
+    for(p = o->append_path; p; p=p->next) {
+      char *apath = p->data;
+      char *opath;
+      char *npath;
+      size_t olen;
+      /* extract the current path */
+      curl_url_get(uh, CURLUPART_PATH, &opath, 0);
+
+      /* does the existing path end with a slash, then don't
+         add one inbetween */
+      olen = strlen(opath);
+
+      /* append the new segment */
+      npath = curl_maprintf("%s%s%s", opath,
+                            opath[olen-1] == '/' ? "" : "/",
+                            apath);
+      if(npath) {
+        /* set the new path */
+        curl_url_set(uh, CURLUPART_PATH, npath, 0);
+      }
+      curl_free(npath);
+      curl_free(opath);
+    }
+
+    /* append query segments */
+    for(p = o->append_query; p; p=p->next) {
+      char *aq = p->data;
+      char *oq;
+      char *nq;
+      /* extract the current query */
+      curl_url_get(uh, CURLUPART_QUERY, &oq, 0);
+
+      /* append the new segment */
+      nq = curl_maprintf("%s&%s", oq, aq);
+      if(nq) {
+        /* set the new query */
+        curl_url_set(uh, CURLUPART_QUERY, nq, 0);
+      }
+      curl_free(nq);
+      curl_free(oq);
+    }
+
+    if(o->format) {
+      /* custom output format */
+      format(o, uh);
+    }
+    else {
+      /* default output is full URL */
+      char *nurl = NULL;
+      if(!curl_url_get(uh, CURLUPART_URL, &nurl,
+                       o->urldecode?CURLU_URLDECODE:0)) {
+        printf("%s\n", nurl);
+        curl_free(nurl);
+      }
+      else {
+        help("not enough input for a URL");
+      }
+    }
+    curl_url_cleanup(uh);
+}
+
 int main(int argc, const char **argv)
 {
   int exit_status = 0;
-  char *nurl = NULL;
   struct option o;
-  CURLU *uh;
   struct curl_slist *node;
   memset(&o, 0, sizeof(o));
   curl_global_init(CURL_GLOBAL_ALL);
@@ -401,88 +461,38 @@ int main(int argc, const char **argv)
     }
   }
 
-  node = o.url_list;
-  do {
-    const char *url = NULL;
-    struct curl_slist *p;
-    uh = curl_url();
-    if(!uh)
-      help("out of memory");
-    if(node) {
-      url = node->data;
-      curl_url_set(uh, CURLUPART_URL, url,
-                   CURLU_GUESS_SCHEME|CURLU_NON_SUPPORT_SCHEME);
-      if(o.redirect)
-        curl_url_set(uh, CURLUPART_URL, o.redirect,
-                     CURLU_GUESS_SCHEME|CURLU_NON_SUPPORT_SCHEME);
-    }
-    /* set everything */
-    set(uh, &o);
-
-    /* append path segments */
-    for(p = o.append_path; p; p=p->next) {
-      char *apath = p->data;
-      char *opath;
-      char *npath;
-      size_t olen;
-      /* extract the current path */
-      curl_url_get(uh, CURLUPART_PATH, &opath, 0);
-
-      /* does the existing path end with a slash, then don't
-         add one inbetween */
-      olen = strlen(opath);
-
-      /* append the new segment */
-      npath = curl_maprintf("%s%s%s", opath,
-                            opath[olen-1] == '/' ? "" : "/",
-                            apath);
-      if(npath) {
-        /* set the new path */
-        curl_url_set(uh, CURLUPART_PATH, npath, 0);
-      }
-      curl_free(npath);
-      curl_free(opath);
-    }
-
-    /* append query segments */
-    for(p = o.append_query; p; p=p->next) {
-      char *aq = p->data;
-      char *oq;
-      char *nq;
-      /* extract the current query */
-      curl_url_get(uh, CURLUPART_QUERY, &oq, 0);
-
-      /* append the new segment */
-      nq = curl_maprintf("%s&%s", oq, aq);
-      if(nq) {
-        /* set the new query */
-        curl_url_set(uh, CURLUPART_QUERY, nq, 0);
-      }
-      curl_free(nq);
-      curl_free(oq);
-    }
-
-    if(o.format) {
-      /* custom output format */
-      format(&o, uh);
-    }
-    else {
-      /* default output is full URL */
-      if(!curl_url_get(uh, CURLUPART_URL, &nurl,
-                       o.urldecode?CURLU_URLDECODE:0)) {
-        printf("%s\n", nurl);
-        curl_free(nurl);
+  if(o.url) {
+    /* this is a file to read URLs from */
+    char buffer[4096]; /* arbitrary max */
+    while(fgets(buffer, sizeof(buffer), o.url)) {
+      char *eol = strchr(buffer, '\n');
+      if(eol && (eol > buffer)) {
+        if(eol[-1] == '\r')
+          /* CRLF detected */
+          eol--;
+        *eol = 0; /* end of URL */
+        singleurl(&o, buffer);
       }
       else {
-        fprintf(stderr, "not enough input for a URL (%s -h for help)\n",
-                PROGNAME);
-        exit_status = 1;
+        /* no newline or no content, skip */
       }
     }
-    curl_url_cleanup(uh);
-    if(node)
-      node = node->next;
-  } while(node);
+    if(o.urlopen)
+      fclose(o.url);
+  }
+  else {
+    /* not reading URLs from a file */
+    node = o.url_list;
+    do {
+      if(node) {
+        const char *url = node->data;
+        singleurl(&o, url);
+        node = node->next;
+      }
+      else
+        singleurl(&o, NULL);
+    } while(node);
+  }
   /* we're done with libcurl, so clean it up */
   curl_slist_free_all(o.url_list);
   curl_slist_free_all(o.set_list);
