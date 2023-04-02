@@ -1,4 +1,4 @@
-# urler
+# trurl
 
 command line tool for URL parsing and manipulation
 
@@ -7,28 +7,28 @@ command line tool for URL parsing and manipulation
 ## Example command lines
 
 ~~~
-  $ urler --url https://curl.se --set host=example.com
+  $ trurl --url https://curl.se --set host=example.com
   https://example.com/
 
-  $ urler --set host=example.com --set scheme=ftp
+  $ trurl --set host=example.com --set scheme=ftp
   ftp://example.com/
 
-  $ urler --url https://curl.se/we/are.html --redirect here.html
+  $ trurl --url https://curl.se/we/are.html --redirect here.html
   https://curl.se/we/here.html
 
-  $ urler --url https://curl.se/we/../are.html --set port=8080
+  $ trurl --url https://curl.se/we/../are.html --set port=8080
   https://curl.se:8080/are.html
 
-  $ urler --url https://curl.se/we/are.html --get '{path}'
+  $ trurl --url https://curl.se/we/are.html --get '{path}'
   /we/are.html
 
-  $ urler --url https://curl.se/we/are.html --get '{port}'
+  $ trurl --url https://curl.se/we/are.html --get '{port}'
   443
 
-  $ urler --url https://curl.se/hello --append path=you
+  $ trurl --url https://curl.se/hello --append path=you
   https://curl.se/hello/you
 
-  $ urler --url "https://curl.se?name=hello" --append query=search=string
+  $ trurl --url "https://curl.se?name=hello" --append query=search=string
   https://curl.se/?name=hello&search=string
 ~~~
 
@@ -40,8 +40,8 @@ It's quite easy to compile the C source with GCC :
 
 ```
 $ make
-cc  -W -Wall -pedantic -g   -c -o urler.o urler.c
-cc   urler.o  -lcurl -o urler
+cc  -W -Wall -pedantic -g   -c -o trurl.o trurl.c
+cc   trurl.o  -lcurl -o trurl
 ```
 
 Note that development files of libcurl (e.g. `libcurl4-openssl-dev` or `libcurl4-gnutls-dev`) are

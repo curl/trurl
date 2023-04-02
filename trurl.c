@@ -42,7 +42,7 @@
 #define OUTPUT_QUERY    8
 #define OUTPUT_FRAGMENT 9
 #define OUTPUT_ZONEID   10
-#define PROGNAME        "urler"
+#define PROGNAME        "trurl"
 
 static void help(const char *msg)
 {
@@ -68,7 +68,7 @@ static void help(const char *msg)
 static void show_version(void)
 {
   curl_version_info_data *data = curl_version_info(CURLVERSION_NOW);
-  fprintf(stdout, "%s version %s libcurl/%s\n", PROGNAME, URLER_VERSION_TXT, data->version);
+  fprintf(stdout, "%s version %s libcurl/%s\n", PROGNAME, TRURL_VERSION_TXT, data->version);
   exit(0);
 }
 
