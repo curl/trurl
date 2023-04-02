@@ -25,11 +25,21 @@ command line tool for URL parsing and manipulation
   $ trurl --url https://curl.se/we/are.html --get '{port}'
   443
 
+  $ trurl https://example.com/hello.html --get '{scheme} {port} {path}'
+  https 443 /hello.html
+
   $ trurl --url https://curl.se/hello --append path=you
   https://curl.se/hello/you
 
   $ trurl --url "https://curl.se?name=hello" --append query=search=string
   https://curl.se/?name=hello&search=string
+
+  $ trurl --url-file url-list.txt --get '{host}'
+  [one host name per URL in the input file]
+
+  $ cat url-list.txt | trurl --url-file - --get '{host}'
+  [one host name per URL in the input file]
+
 ~~~
 
 ## Install
