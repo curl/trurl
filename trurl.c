@@ -42,10 +42,34 @@
 #define OUTPUT_QUERY    8
 #define OUTPUT_FRAGMENT 9
 #define OUTPUT_ZONEID   10
+#define NUM_COMPONENTS 11 /* including "url" */
+
 #define PROGNAME        "trurl"
+
+struct var {
+  const char *name;
+  CURLUPart part;
+};
+
+static const struct var variables[] = {
+  {"url",      CURLUPART_URL},
+  {"scheme",   CURLUPART_SCHEME},
+  {"user",     CURLUPART_USER},
+  {"password", CURLUPART_PASSWORD},
+  {"options",  CURLUPART_OPTIONS},
+  {"host",     CURLUPART_HOST},
+  {"port",     CURLUPART_PORT},
+  {"path",     CURLUPART_PATH},
+  {"query",    CURLUPART_QUERY},
+  {"fragment", CURLUPART_FRAGMENT},
+  {"zoneid",   CURLUPART_ZONEID},
+  {NULL, 0}
+};
+
 
 static void help(const char *msg)
 {
+  int i;
   if(msg != NULL)
     fprintf(stderr, "%s:\n\n", msg);
   fprintf(stderr, "Usage: [options] [URL]\n"
@@ -58,10 +82,16 @@ static void help(const char *msg)
           "  --url [base URL]            - URL to start with\n"
           "  --url-file [file/-]         - read URLs from file or stdin\n"
           " OUTPUT\n"
-          "  --get [format]              - output URL components\n"
+          "  --get [{component}s]        - output URL component(s)\n"
           " MODIFIERS\n"
           "  --urldecode                 - URL decode the output\n"
+          " URL COMPONENTS:\n"
+          "  "
     );
+  for(i=0; i< NUM_COMPONENTS; i++) {
+    fprintf(stderr, "%s%s", i?", ":"", variables[i].name);
+  }
+  fprintf(stderr, "\n");
   exit(1);
 }
 
@@ -146,29 +176,6 @@ static void queryadd(struct option *o, const char *query)
     free(urle);
   }
 }
-
-struct var {
-  const char *name;
-  CURLUPart part;
-};
-
-#define NUM_COMPONENTS 11 /* including "url" */
-
-static const struct var variables[] = {
-  {"url",      CURLUPART_URL},
-  {"scheme",   CURLUPART_SCHEME},
-  {"user",     CURLUPART_USER},
-  {"password", CURLUPART_PASSWORD},
-  {"options",  CURLUPART_OPTIONS},
-  {"host",     CURLUPART_HOST},
-  {"port",     CURLUPART_PORT},
-  {"path",     CURLUPART_PATH},
-  {"query",    CURLUPART_QUERY},
-  {"fragment", CURLUPART_FRAGMENT},
-  {"zoneid",   CURLUPART_ZONEID},
-  {NULL, 0}
-};
-
 
 static void appendadd(struct option *o,
                       const char *arg)
