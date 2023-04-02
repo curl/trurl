@@ -67,7 +67,8 @@ static void help(const char *msg)
 
 static void show_version(void)
 {
-  fputs(PROGNAME " version " URLER_VERSION_TXT "\n", stdout);
+  curl_version_info_data *data = curl_version_info(CURLVERSION_NOW);
+  fprintf(stdout, "%s version %s libcurl/%s\n", PROGNAME, URLER_VERSION_TXT, data->version);
   exit(0);
 }
 
