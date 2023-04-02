@@ -12,6 +12,8 @@ my @t = (
     "https://example.com/test/../moo|https://example.com/moo",
     "localhost --append path=moo|http://localhost/moo",
     "--set host=moo --set scheme=http|http://moo/",
+    "--set host=moo --set scheme=https --set port=999|https://moo:999/",
+    "--set host=moo --set scheme=ftps --set path=/hello|ftps://moo/hello",
     "--url https://curl.se --set host=example.com|https://example.com/",
     "--set host=example.com --set scheme=ftp|ftp://example.com/",
     "--url https://curl.se/we/are.html --redirect here.html|https://curl.se/we/here.html",
