@@ -136,6 +136,7 @@ static void pathadd(struct option *o, const char *path)
     if(n) {
       o->append_path = n;
     }
+    free(urle);
   }
 }
 
@@ -159,6 +160,7 @@ static void queryadd(struct option *o, const char *query)
     if(n) {
       o->append_query = n;
     }
+    free(urle);
   }
 }
 
@@ -483,6 +485,9 @@ int main(int argc, const char **argv)
   } while(node);
   /* we're done with libcurl, so clean it up */
   curl_slist_free_all(o.url_list);
+  curl_slist_free_all(o.set_list);
+  curl_slist_free_all(o.append_path);
+  curl_slist_free_all(o.append_query);
   curl_global_cleanup();
   return exit_status;
 }
