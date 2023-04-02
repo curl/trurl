@@ -68,7 +68,8 @@ static void help(const char *msg)
 static void show_version(void)
 {
   curl_version_info_data *data = curl_version_info(CURLVERSION_NOW);
-  fprintf(stdout, "%s version %s libcurl/%s\n", PROGNAME, TRURL_VERSION_TXT, data->version);
+  fprintf(stdout, "%s version %s libcurl/%s\n", PROGNAME, TRURL_VERSION_TXT,
+          data->version);
   exit(0);
 }
 
@@ -81,8 +82,7 @@ struct option {
   const char *format;
   FILE *url;
   bool urlopen;
-
-  unsigned int urldecode:1;
+  bool urldecode;
   unsigned char output;
 };
 
@@ -180,7 +180,7 @@ static void appendadd(struct option *o,
 }
 
 static void setadd(struct option *o,
-              const char *set) /* [component]=[data] */
+                   const char *set) /* [component]=[data] */
 {
   struct curl_slist *n;
   n = curl_slist_append(o->set_list, set);
@@ -189,8 +189,8 @@ static void setadd(struct option *o,
 }
 
 static bool checkoptarg(const char *str,
-                   const char *given,
-                   const char *arg)
+                        const char *given,
+                        const char *arg)
 {
   if(!strcmp(str, given)) {
     if(!arg) {
@@ -219,6 +219,8 @@ static int getlongarg(struct option *op,
     *usedarg = 1;
   }
   else if(checkoptarg("--url-file", flag, arg)) {
+    if(op->url)
+      help("only one --url-file is supported");
     urlfile(op, arg);
     *usedarg = 1;
   }
@@ -231,15 +233,19 @@ static int getlongarg(struct option *op,
     *usedarg = 1;
   }
   else if(checkoptarg("--redirect", flag, arg)) {
+    if(op->redirect)
+      help("only one --redirect is supported");
     op->redirect = arg;
     *usedarg = 1;
   }
   else if(checkoptarg("--get", flag, arg)) {
+    if(op->format)
+      help("only one --get is supported");
     op->format = arg;
     *usedarg = 1;
   }
   else if(!strcmp("--urldecode", flag))
-    op->urldecode = 1;
+    op->urldecode = true;
   else
     return 1;  /* unrecognized option */
   return 0;
