@@ -27,6 +27,12 @@ which then typically is not actually a legal URL but urler will try to figure
 out what is meant and guess what scheme to use.
 
 Providing multiple URLs will make urler act on all URLs in a serial fashion.
+.IP "--url-file [name]"
+Read URLs to work on from the given file. Use the file name "-" (a single
+minus) to tell urler to read the URLs from stdin.
+
+Each line needs to be a single valid URL and the line needs to end with a
+newline. The maximum URL length supported in a file like this is 4095 bytes.
 .IP "--redirect [URL]"
 Redirect the base URL to this. It requires that you set the base url with \fB--url\fP
 .IP "--append [component]=[data]"
