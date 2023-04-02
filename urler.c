@@ -56,6 +56,7 @@ static void help(const char *msg)
           "  --redirect [URL]            - redirect the base URL to this\n"
           "  --set [component]=[data]    - set this component\n"
           "  --url [base URL]            - URL to start with\n"
+          "  --url-file [file/-]         - read URLs from file or stdin\n"
           " OUTPUT\n"
           "  --get [format]              - output URL components\n"
           " MODIFIERS\n"
@@ -88,6 +89,41 @@ static void urladd(struct option *o, const char *url)
   n = curl_slist_append(o->url_list, url);
   if(n)
     o->url_list = n;
+}
+
+
+/* read URLs from this file/stdin */
+static void urlfile(struct option *o, const char *file)
+{
+  FILE *f;
+  bool closeit = false;
+
+  if(strcmp("-", file)) {
+    f = fopen(file, "rt");
+    if(!f)
+      help("--url-file not found");
+    closeit = true;
+  }
+  else
+    f = stdin;
+  if(f) {
+    char buffer[4096]; /* arbitrary max */
+    while(fgets(buffer, sizeof(buffer), f)) {
+      char *eol = strchr(buffer, '\n');
+      if(eol && (eol > buffer)) {
+        if(eol[-1] == '\r')
+          /* CRLF detected */
+          eol--;
+        *eol = 0; /* end of URL */
+        urladd(o, buffer);
+      }
+      else {
+        /* no newline or no content, skip */
+      }
+    }
+    if(closeit)
+      fclose(f);
+  }
 }
 
 static void pathadd(struct option *o, const char *path)
@@ -194,6 +230,10 @@ static int getlongarg(struct option *op,
     show_version();
   else if(checkoptarg("--url", flag, arg)) {
     urladd(op, arg);
+    *usedarg = 1;
+  }
+  else if(checkoptarg("--url-file", flag, arg)) {
+    urlfile(op, arg);
     *usedarg = 1;
   }
   else if(checkoptarg("--append", flag, arg)) {
