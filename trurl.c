@@ -152,6 +152,8 @@ struct var {
   CURLUPart part;
 };
 
+#define NUM_COMPONENTS 11 /* including "url" */
+
 static const struct var variables[] = {
   {"url",      CURLUPART_URL},
   {"scheme",   CURLUPART_SCHEME},
@@ -335,6 +337,8 @@ static void set(CURLU *uh,
                 struct option *o)
 {
   struct curl_slist *node;
+  bool varset[NUM_COMPONENTS];
+  memset(varset, 0, sizeof(varset));
   for(node =  o->set_list; node; node=node->next) {
     char *set = node->data;
     int i;
@@ -345,8 +349,11 @@ static void set(CURLU *uh,
       for(i=0; variables[i].name; i++) {
         if((strlen(variables[i].name) == vlen) &&
            !strncasecmp(set, variables[i].name, vlen)) {
+          if(varset[i])
+            help("A component can only be set once per URL");
           curl_url_set(uh, variables[i].part, ptr+1, CURLU_NON_SUPPORT_SCHEME);
           found = true;
+          varset[i] = true;
           break;
         }
       }
