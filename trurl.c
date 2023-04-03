@@ -93,18 +93,18 @@ static void help(void)
 {
   int i;
   fprintf(stderr, "Usage: [options] [URL]\n"
-          "  -h,--help                   - this help\n"
-          "  -v,--version                - show version\n"
+          "  -h, --help                   - this help\n"
+          "  -v, --version                - show version\n"
           " INPUT\n"
-          "  --append [component]=[data] - append data to component\n"
-          "  --redirect [URL]            - redirect the base URL to this\n"
-          "  --set [component]=[data]    - set this component\n"
-          "  --url [base URL]            - URL to start with\n"
-          "  -f,--url-file [file/-]      - read URLs from file or stdin\n"
+          "  --append [component]=[data]  - append data to component\n"
+          "  --redirect [URL]             - redirect the base URL to this\n"
+          "  -s, --set [component]=[data] - set this component\n"
+          "  --url [base URL]             - URL to start with\n"
+          "  -f, --url-file [file/-]      - read URLs from file or stdin\n"
           " OUTPUT\n"
-          "  --get [{component}s]        - output URL component(s)\n"
+          "  -g, --get [{component}s]     - output URL component(s)\n"
           " MODIFIERS\n"
-          "  --urldecode                 - URL decode the output\n"
+          "  --urldecode                  - URL decode the output\n"
           " URL COMPONENTS:\n"
           "  "
     );
@@ -255,7 +255,8 @@ static int getarg(struct option *op,
     appendadd(op, arg);
     *usedarg = 1;
   }
-  else if(checkoptarg("--set", flag, arg)) {
+  else if(checkoptarg("-s", flag, arg) ||
+          checkoptarg("--set", flag, arg)) {
     setadd(op, arg);
     *usedarg = 1;
   }
@@ -265,7 +266,8 @@ static int getarg(struct option *op,
     op->redirect = arg;
     *usedarg = 1;
   }
-  else if(checkoptarg("--get", flag, arg)) {
+  else if(checkoptarg("-g", flag, arg) ||
+          checkoptarg("--get", flag, arg)) {
     if(op->format)
       errorf(ERROR_FLAG, "only one --get is supported");
     op->format = arg;
