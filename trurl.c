@@ -144,6 +144,9 @@ struct option {
   bool urlopen;
   bool jsonout;
   unsigned char output;
+
+  /* -- stats -- */
+  unsigned int urls;
 };
 
 static void urladd(struct option *o, const char *url)
@@ -470,19 +473,20 @@ static void json(struct option *o, CURLU *uh)
 {
   int i;
   (void)o;
-  fputs("{\n", stdout);
+  printf("%s  {\n", o->urls?",\n":"");
   for(i = 0; variables[i].name; i++) {
     char *nurl;
     CURLUcode rc = curl_url_get(uh, variables[i].part, &nurl,
                                 (i?CURLU_DEFAULT_PORT:0)|
                                 CURLU_URLDECODE);
     if(!rc) {
-      printf("  \"%s\": ", variables[i].name);
+      if(i)
+        fputs(",\n", stdout);
+      printf("    \"%s\": ", variables[i].name);
       jsonString(stdout, nurl, false);
-      fputs(",\n", stdout);
     }
   }
-  fputs("}\n", stdout);
+  fputs("\n  }", stdout);
 }
 
 static void singleurl(struct option *o,
@@ -569,6 +573,7 @@ static void singleurl(struct option *o,
         errorf(ERROR_URL, "not enough input for a URL");
       }
     }
+    o->urls++;
     curl_url_cleanup(uh);
 }
 
@@ -599,6 +604,9 @@ int main(int argc, const char **argv)
       argv++;
     }
   }
+
+  if(o.jsonout)
+    fputs("[\n", stdout);
 
   if(o.url) {
     /* this is a file to read URLs from */
@@ -632,6 +640,8 @@ int main(int argc, const char **argv)
         singleurl(&o, NULL);
     } while(node);
   }
+  if(o.jsonout)
+    fputs("\n]\n", stdout);
   /* we're done with libcurl, so clean it up */
   curl_slist_free_all(o.url_list);
   curl_slist_free_all(o.set_list);
