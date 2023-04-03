@@ -41,15 +41,17 @@ command line tool for URL parsing and manipulation
   [one host name per URL in the input file]
 
   $ trurl "https://fake.host/hello#frag" --set user=::moo:: --json
-  {
-    "url": "https://%3a%3amoo%3a%3a@fake.host/hello#frag",
-    "scheme": "https",
-    "user": "::moo::",
-    "host": "fake.host",
-    "port": "443",
-    "path": "/hello",
-    "fragment": "frag",
-  }
+  [
+    {
+      "url": "https://%3a%3amoo%3a%3a@fake.host/hello#frag",
+      "scheme": "https",
+      "user": "::moo::",
+      "host": "fake.host",
+      "port": "443",
+      "path": "/hello",
+      "fragment": "frag"
+    }
+  ]
 ~~~
 
 ## Install
