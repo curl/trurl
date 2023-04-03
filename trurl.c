@@ -540,16 +540,19 @@ static void singleurl(struct option *o,
       char *oq;
       char *nq;
       /* extract the current query */
-      curl_url_get(uh, CURLUPART_QUERY, &oq, 0);
-
-      /* append the new segment */
-      nq = curl_maprintf("%s&%s", oq, aq);
-      if(nq) {
-        /* set the new query */
-        curl_url_set(uh, CURLUPART_QUERY, nq, 0);
+      if(!curl_url_get(uh, CURLUPART_QUERY, &oq, 0)) {
+        /* append the new segment */
+        nq = curl_maprintf("%s&%s", oq, aq);
+        if(nq)
+          /* set the new query */
+          curl_url_set(uh, CURLUPART_QUERY, nq, 0);
+        curl_free(nq);
+        curl_free(oq);
       }
-      curl_free(nq);
-      curl_free(oq);
+      else {
+        /* no existing query, set the new one */
+        curl_url_set(uh, CURLUPART_QUERY, aq, 0);
+      }
     }
 
     if(o->jsonout)
