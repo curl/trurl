@@ -67,6 +67,7 @@ static const struct var variables[] = {
 };
 
 #define ERROR_PREFIX PROGNAME " error: "
+#define WARN_PREFIX PROGNAME " note: "
 
 /* error codes */
 #define ERROR_FILE   1
@@ -76,9 +77,18 @@ static const struct var variables[] = {
 #define ERROR_SET    5 /* a --set problem */
 #define ERROR_MEM    6 /* out of memory */
 #define ERROR_URL    7 /* could not get a URL out of the set components */
-#define ERROR_BADURL 8 /* failed to parse the given URL */
 
-void errorf(int exit_code, char *fmt, ...)
+static void warnf(char *fmt, ...)
+{
+  va_list ap;
+  va_start(ap, fmt);
+  fputs(WARN_PREFIX, stderr);
+  vfprintf(stderr, fmt, ap);
+  fputs("\n", stderr);
+  va_end(ap);
+}
+
+static void errorf(int exit_code, char *fmt, ...)
 {
   va_list ap;
   va_start(ap, fmt);
@@ -486,8 +496,10 @@ static void singleurl(struct option *o,
       CURLUcode rc =
         curl_url_set(uh, CURLUPART_URL, url,
                      CURLU_GUESS_SCHEME|CURLU_NON_SUPPORT_SCHEME);
-      if(rc)
-        errorf(ERROR_BADURL, "%s [%s]", curl_url_strerror(rc), url);
+      if(rc) {
+        warnf("%s [%s]", curl_url_strerror(rc), url);
+        return;
+      }
       else {
         if(o->redirect)
           curl_url_set(uh, CURLUPART_URL, o->redirect,
