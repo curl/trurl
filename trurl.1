@@ -2,7 +2,7 @@
 .\" man -l trurl.1
 .\" Written by Daniel Stenberg
 .\"
-.TH trurl 1 "31 Mar 2023" "trurl 0.1" "trurl Manual"
+.TH trurl 1 "3 Apr 2023" "trurl 0.2" "trurl Manual"
 .SH NAME
 trurl \- transpose URLs
 .SH SYNOPSIS
@@ -37,15 +37,15 @@ newline. The maximum URL length supported in a file like this is 4095 bytes.
 Redirect the base URL to this. It requires that you set the base url with \fB--url\fP
 .IP "--append [component]=[data]"
 Append data to a component. This can only append data to the path and the
-query component.
+query components.
 
-For path:, this URL encodes and appends this segment to the path, separated
+For path, this URL encodes and appends the new segment to the path, separated
 with a slash.
 
-For query, this URL encodes and appends this segment to the query, separated
-with an ampersand (&). If the segment contains an equal sign ('=') that will
-be kept verbatim and both sides of the first occurrence will be URL encoded
-separately.
+For query, this URL encodes and appends the new segment to the query,
+separated with an ampersand (&). If the appended segment contains an equal
+sign ('=') that one will be kept verbatim and both sides of the first
+occurrence will be URL encoded separately.
 .IP "-s, --set [component][:]=[data]"
 Set this URL component. Setting blank string ("") will clear it from the
 URL.
@@ -62,14 +62,14 @@ Output data according to the provided format string. Components from the URL
 can be output when specified as \fB{component}\fP, with the name of the part
 within curly braces. The following component names are available: {url},
 {scheme}, {user}, {password}, {options}, {host}, {port}, {path}, {query},
-{fragment} and {zoneid}.
+{fragment} and {zoneid}. All other text in the format string will be shown
+as-is.
 
-All components are shown URL decoded by default. If you instead write the
-component prefixed with a colon like "{:path}", you get it output URL encoded.
+Components are shown URL decoded by default. If you instead write the
+component prefixed with a colon like "{:path}", it gets output URL encoded.
 .IP "--json"
 Outputs all components of the URL as a JSON object. All components of the URL
-that has data will get populated in the object with using their component
-names.
+that has data will get populated in the object using their component names.
 .SH EXAMPLES
 .IP "Replace the host name of a URL"
 .nf
@@ -115,5 +115,17 @@ $ trurl --url "https://curl.se?name=hello" --append query=search=string
 .nf
 $ cat urllist.txt | trurl --url-file -
 ...
+.IP "Output JSON"
+.nf
+$ trurl "https://fake.host/hello#frag" --set user=::moo:: --json
+{
+  "url": "https://%3a%3amoo%3a%3a@fake.host/hello#frag",
+  "scheme": "https",
+  "user": "::moo::",
+  "host": "fake.host",
+  "port": "443",
+  "path": "/hello",
+  "fragment": "frag",
+}
 .SH WWW
 https://github.com/curl/trurl
