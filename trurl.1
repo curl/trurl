@@ -46,7 +46,7 @@ For query, this URL encodes and appends this segment to the query, separated
 with an ampersand (&). If the segment contains an equal sign ('=') that will
 be kept verbatim and both sides of the first occurrence will be URL encoded
 separately.
-.IP "--set [component][:]=[data]"
+.IP "-s, --set [component][:]=[data]"
 Set this URL component. Setting blank string ("") will clear it from the
 URL.
 
@@ -57,7 +57,7 @@ If a simple "="-assignment is used, the data is URL encoded when applied. If
 ":=" is used, the data is assumed to already be URL encoded and will be stored
 as-is.
 .SH "OUTPUT OPTIONS"
-.IP "--get [format]"
+.IP "-g, --get [format]"
 Output data according to the provided format string. Components from the URL
 can be output when specified as \fB{component}\fP, with the name of the part
 within curly braces. The following component names are available: {url},
