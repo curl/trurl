@@ -302,12 +302,29 @@ static void format(struct option *op, CURLU *uh)
           if((strlen(variables[i].name) == vlen) &&
              !strncasecmp(ptr, variables[i].name, vlen)) {
             char *nurl;
-            if(!curl_url_get(uh, variables[i].part, &nurl, CURLU_DEFAULT_PORT|
-                             (op->urldecode?CURLU_URLDECODE:0))) {
+            CURLUcode rc;
+            rc = curl_url_get(uh, variables[i].part, &nurl, CURLU_DEFAULT_PORT|
+                              (op->urldecode?CURLU_URLDECODE:0));
+            switch(rc) {
+            case CURLUE_OK:
               fprintf(stream, "%s", nurl);
               curl_free(nurl);
+            case CURLUE_NO_SCHEME:
+            case CURLUE_NO_USER:
+            case CURLUE_NO_PASSWORD:
+            case CURLUE_NO_OPTIONS:
+            case CURLUE_NO_HOST:
+            case CURLUE_NO_PORT:
+            case CURLUE_NO_QUERY:
+            case CURLUE_NO_FRAGMENT:
+            case CURLUE_NO_ZONEID:
+              /* silently ignore */
+              break;
+            default:
+              fprintf(stderr, PROGNAME ": %s (%s)\n", curl_url_strerror(rc),
+                      variables[i].name);
+              break;
             }
-            break;
           }
         }
         ptr = end + 1; /* pass the end */
