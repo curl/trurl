@@ -105,8 +105,6 @@ static void help(void)
           " OUTPUT\n"
           "  -g, --get [{component}s]     - output URL component(s)\n"
           " --json                        - output URL info as JSON\n"
-          " MODIFIERS\n"
-          "  --urldecode                  - URL decode the output\n"
           " URL COMPONENTS:\n"
           "  "
     );
@@ -134,7 +132,6 @@ struct option {
   const char *format;
   FILE *url;
   bool urlopen;
-  bool urldecode;
   bool jsonout;
   unsigned char output;
 };
@@ -276,8 +273,6 @@ static int getarg(struct option *op,
     op->format = arg;
     *usedarg = 1;
   }
-  else if(!strcmp("--urldecode", flag))
-    op->urldecode = true;
   else if(!strcmp("--json", flag))
     op->jsonout = true;
   else
@@ -285,7 +280,7 @@ static int getarg(struct option *op,
   return 0;
 }
 
-static void format(struct option *op, CURLU *uh)
+static void get(struct option *op, CURLU *uh)
 {
   FILE *stream = stdout;
   const char *ptr = op->format;
@@ -303,11 +298,17 @@ static void format(struct option *op, CURLU *uh)
         char *end;
         size_t vlen;
         int i;
+        bool urldecode = true;
         end = strchr(ptr, '}');
         ptr++; /* pass the { */
         if(!end) {
           /* syntax error */
           continue;
+        }
+        /* {path} {:path} */
+        if(*ptr == ':') {
+          urldecode = false;
+          ptr++;
         }
         vlen = end - ptr;
         for(i = 0; variables[i].name; i++) {
@@ -316,7 +317,7 @@ static void format(struct option *op, CURLU *uh)
             char *nurl;
             CURLUcode rc;
             rc = curl_url_get(uh, variables[i].part, &nurl, CURLU_DEFAULT_PORT|
-                              (op->urldecode?CURLU_URLDECODE:0));
+                              (urldecode?CURLU_URLDECODE:0));
             switch(rc) {
             case CURLUE_OK:
               fprintf(stream, "%s", nurl);
@@ -458,13 +459,13 @@ static void jsonString(FILE *stream, const char *in, bool lowercase)
 static void json(struct option *o, CURLU *uh)
 {
   int i;
-
+  (void)o;
   fputs("{\n", stdout);
   for(i = 0; variables[i].name; i++) {
     char *nurl;
     CURLUcode rc = curl_url_get(uh, variables[i].part, &nurl,
                                 (i?CURLU_DEFAULT_PORT:0)|
-                                (o->urldecode?CURLU_URLDECODE:0));
+                                CURLU_URLDECODE);
     if(!rc) {
       printf("  \"%s\": ", variables[i].name);
       jsonString(stdout, nurl, false);
@@ -543,13 +544,12 @@ static void singleurl(struct option *o,
       json(o, uh);
     else if(o->format) {
       /* custom output format */
-      format(o, uh);
+      get(o, uh);
     }
     else {
       /* default output is full URL */
       char *nurl = NULL;
-      if(!curl_url_get(uh, CURLUPART_URL, &nurl,
-                       o->urldecode?CURLU_URLDECODE:0)) {
+      if(!curl_url_get(uh, CURLUPART_URL, &nurl, 0)) {
         printf("%s\n", nurl);
         curl_free(nurl);
       }

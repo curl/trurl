@@ -63,15 +63,13 @@ can be output when specified as \fB{component}\fP, with the name of the part
 within curly braces. The following component names are available: {url},
 {scheme}, {user}, {password}, {options}, {host}, {port}, {path}, {query},
 {fragment} and {zoneid}.
+
+All components are shown URL decoded by default. If you instead write the
+component prefixed with a colon like "{:path}", you get it output URL encoded.
 .IP "--json"
 Outputs all components of the URL as a JSON object. All components of the URL
 that has data will get populated in the object with using their component
 names.
-.SH "MODIFIERS"
-.IP "--urldecode"
-By default each component is output using the format of the input (URL
-encoded). This option makes trurl instead provide it URL decoded. Note that
-%20 will then output space and %09 a tab etc.
 .SH EXAMPLES
 .IP "Replace the host name of a URL"
 .nf
