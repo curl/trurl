@@ -66,12 +66,32 @@ static const struct var variables[] = {
   {NULL, 0}
 };
 
+#define ERROR_PREFIX PROGNAME " error: "
 
-static void help(const char *msg)
+/* error codes */
+#define ERROR_FILE   1
+#define ERROR_APPEND 2 /* --append mistake */
+#define ERROR_ARG    3 /* a command line option misses its argument */
+#define ERROR_FLAG   4 /* a command line flag mistake */
+#define ERROR_SET    5 /* a --set problem */
+#define ERROR_MEM    6 /* out of memory */
+#define ERROR_URL    7 /* could not get a URL out of the set components */
+
+void errorf(int exit_code, char *fmt, ...)
+{
+  va_list ap;
+  va_start(ap, fmt);
+  fputs(ERROR_PREFIX, stderr);
+  vfprintf(stderr, fmt, ap);
+  fputs("\n" ERROR_PREFIX "Try " PROGNAME " -h for help\n", stderr);
+  va_end(ap);
+  exit(exit_code);
+}
+
+
+static void help(void)
 {
   int i;
-  if(msg != NULL)
-    fprintf(stderr, "%s:\n\n", msg);
   fprintf(stderr, "Usage: [options] [URL]\n"
           "  -h,--help                   - this help\n"
           "  -v,--version                - show version\n"
@@ -132,7 +152,7 @@ static void urlfile(struct option *o, const char *file)
   if(strcmp("-", file)) {
     f = fopen(file, "rt");
     if(!f)
-      help("--url-file not found");
+      errorf(ERROR_FILE, "--url-file %s not found", file);
     o->urlopen = true;
   }
   else
@@ -185,7 +205,7 @@ static void appendadd(struct option *o,
   else if(!strncasecmp("query=", arg, 6))
     queryadd(o, arg + 6);
   else
-    help("--append unsupported component");
+    errorf(ERROR_APPEND, "--append unsupported component: %s", arg);
 }
 
 static void setadd(struct option *o,
@@ -202,12 +222,8 @@ static bool checkoptarg(const char *str,
                         const char *arg)
 {
   if(!strcmp(str, given)) {
-    if(!arg) {
-      char buffer[128];
-      curl_msnprintf(buffer, sizeof(buffer),
-                     "Missing argument for %s", str);
-      help(buffer);
-    }
+    if(!arg)
+      errorf(ERROR_ARG, "Missing argument for %s", str);
     return true;
   }
   return false;
@@ -220,7 +236,7 @@ static int getlongarg(struct option *op,
 {
   *usedarg = 0;
   if(!strcmp("--help", flag))
-    help(NULL);
+    help();
   else if(!strcmp("--version", flag))
     show_version();
   else if(checkoptarg("--url", flag, arg)) {
@@ -229,7 +245,7 @@ static int getlongarg(struct option *op,
   }
   else if(checkoptarg("--url-file", flag, arg)) {
     if(op->url)
-      help("only one --url-file is supported");
+      errorf(ERROR_FLAG, "only one --url-file is supported");
     urlfile(op, arg);
     *usedarg = 1;
   }
@@ -243,13 +259,13 @@ static int getlongarg(struct option *op,
   }
   else if(checkoptarg("--redirect", flag, arg)) {
     if(op->redirect)
-      help("only one --redirect is supported");
+      errorf(ERROR_FLAG, "only one --redirect is supported");
     op->redirect = arg;
     *usedarg = 1;
   }
   else if(checkoptarg("--get", flag, arg)) {
     if(op->format)
-      help("only one --get is supported");
+      errorf(ERROR_FLAG, "only one --get is supported");
     op->format = arg;
     *usedarg = 1;
   }
@@ -267,7 +283,7 @@ static int getshortarg(struct option *op,
   if(!strcmp("-v", flag))
     show_version();
   else if(!strcmp("-h", flag))
-    help(NULL);
+    help();
   else
     return 1;  /* unrecognized option */
   return 0;
@@ -379,7 +395,8 @@ static void set(CURLU *uh,
         if((strlen(variables[i].name) == vlen) &&
            !strncasecmp(set, variables[i].name, vlen)) {
           if(varset[i])
-            help("A component can only be set once per URL");
+            errorf(ERROR_SET, "A component can only be set once per URL (%s)",
+                   variables[i].name);
           curl_url_set(uh, variables[i].part, ptr+1,
                        CURLU_NON_SUPPORT_SCHEME|
                        (urlencode ? CURLU_URLENCODE : 0) );
@@ -389,10 +406,10 @@ static void set(CURLU *uh,
         }
       }
       if(!found)
-        help("Set unknown component");
+        errorf(ERROR_SET, "Set unknown component: %s", set);
     }
     else
-      help("invalid --set syntax");
+      errorf(ERROR_SET, "invalid --set syntax: %s", set);
   }
 }
 
@@ -402,7 +419,7 @@ static void singleurl(struct option *o,
     struct curl_slist *p;
     CURLU *uh = curl_url();
     if(!uh)
-      help("out of memory");
+      errorf(ERROR_MEM, "out of memory");
     if(url) {
       curl_url_set(uh, CURLUPART_URL, url,
                    CURLU_GUESS_SCHEME|CURLU_NON_SUPPORT_SCHEME);
@@ -469,7 +486,7 @@ static void singleurl(struct option *o,
         curl_free(nurl);
       }
       else {
-        help("not enough input for a URL");
+        errorf(ERROR_URL, "not enough input for a URL");
       }
     }
     curl_url_cleanup(uh);
@@ -487,13 +504,13 @@ int main(int argc, const char **argv)
     if(argv[0][0] == '-' && argv[0][1] != '-') {
       /* single-dash prefix */
       if(getshortarg(&o, argv[0]))
-        help("unknown option");
+        errorf(ERROR_FLAG, "unknown option: %s", argv[0]);
     }
     else if(argv[0][0] == '-' && argv[0][1] == '-') {
       /* dash-dash prefixed */
       int usedarg = 0;
       if(getlongarg(&o, argv[0], argv[1], &usedarg))
-        help("unknown option");
+        errorf(ERROR_FLAG, "unknown option: %s", argv[0]);
 
       if(usedarg) {
         /* skip the parsed argument */
