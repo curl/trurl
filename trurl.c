@@ -104,6 +104,7 @@ static void help(void)
           "  -f, --url-file [file/-]      - read URLs from file or stdin\n"
           " OUTPUT\n"
           "  -g, --get [{component}s]     - output URL component(s)\n"
+          " --json                        - output URL info as JSON\n"
           " MODIFIERS\n"
           "  --urldecode                  - URL decode the output\n"
           " URL COMPONENTS:\n"
@@ -134,6 +135,7 @@ struct option {
   FILE *url;
   bool urlopen;
   bool urldecode;
+  bool jsonout;
   unsigned char output;
 };
 
@@ -276,6 +278,8 @@ static int getarg(struct option *op,
   }
   else if(!strcmp("--urldecode", flag))
     op->urldecode = true;
+  else if(!strcmp("--json", flag))
+    op->jsonout = true;
   else
     return 1;  /* unrecognized option */
   return 0;
@@ -405,6 +409,71 @@ static void set(CURLU *uh,
   }
 }
 
+static void jsonString(FILE *stream, const char *in, bool lowercase)
+{
+  const char *i = in;
+  const char *in_end = in + strlen(in);
+
+  fputc('\"', stream);
+  for(; i < in_end; i++) {
+    switch(*i) {
+    case '\\':
+      fputs("\\\\", stream);
+      break;
+    case '\"':
+      fputs("\\\"", stream);
+      break;
+    case '\b':
+      fputs("\\b", stream);
+      break;
+    case '\f':
+      fputs("\\f", stream);
+      break;
+    case '\n':
+      fputs("\\n", stream);
+      break;
+    case '\r':
+      fputs("\\r", stream);
+      break;
+    case '\t':
+      fputs("\\t", stream);
+      break;
+    default:
+      if (*i < 32) {
+        fprintf(stream, "u%04x", *i);
+      }
+      else {
+        char out = *i;
+        if(lowercase && (out >= 'A' && out <= 'Z'))
+          /* do not use tolower() since that's locale specific */
+          out |= ('a' - 'A');
+        fputc(out, stream);
+      }
+      break;
+    }
+  }
+  fputc('\"', stream);
+}
+
+static void json(struct option *o, CURLU *uh)
+{
+  int i;
+
+  fputs("{\n", stdout);
+  for(i = 0; variables[i].name; i++) {
+    char *nurl;
+    CURLUcode rc = curl_url_get(uh, variables[i].part, &nurl,
+                                (i?CURLU_DEFAULT_PORT:0)|
+                                (o->urldecode?CURLU_URLDECODE:0));
+    if(!rc) {
+      printf("  \"%s\": ", variables[i].name);
+      jsonString(stdout, nurl, false);
+      fputs(",\n", stdout);
+    }
+  }
+  fputs("}\n", stdout);
+}
+
 static void singleurl(struct option *o,
                       const char *url) /* might be NULL */
 {
@@ -470,7 +539,9 @@ static void singleurl(struct option *o,
       curl_free(oq);
     }
 
-    if(o->format) {
+    if(o->jsonout)
+      json(o, uh);
+    else if(o->format) {
       /* custom output format */
       format(o, uh);
     }
