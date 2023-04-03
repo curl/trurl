@@ -350,15 +350,22 @@ static void set(CURLU *uh,
     char *set = node->data;
     int i;
     char *ptr = strchr(set, '=');
-    if(ptr) {
+    if(ptr && (ptr > set)) {
       size_t vlen = ptr-set;
+      bool urlencode = true;
       bool found = false;
+      if(ptr[-1] == ':') {
+        urlencode = false;
+        vlen--;
+      }
       for(i=0; variables[i].name; i++) {
         if((strlen(variables[i].name) == vlen) &&
            !strncasecmp(set, variables[i].name, vlen)) {
           if(varset[i])
             help("A component can only be set once per URL");
-          curl_url_set(uh, variables[i].part, ptr+1, CURLU_NON_SUPPORT_SCHEME);
+          curl_url_set(uh, variables[i].part, ptr+1,
+                       CURLU_NON_SUPPORT_SCHEME|
+                       (urlencode ? CURLU_URLENCODE : 0) );
           found = true;
           varset[i] = true;
           break;
@@ -367,6 +374,8 @@ static void set(CURLU *uh,
       if(!found)
         help("Set unknown component");
     }
+    else
+      help("invalid --set syntax");
   }
 }
 

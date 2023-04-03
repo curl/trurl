@@ -22,6 +22,7 @@ my @t = (
     "--url https://curl.se/we/are.html --get '{port}'|443",
     "--url https://curl.se/hello --append path=you|https://curl.se/hello/you",
     "--url \"https://curl.se?name=hello\" --append query=search=string|https://curl.se/?name=hello&search=string",
+    "--url https://curl.se/hello --set user=:hej:|https://%3ahej%3a\@curl.se/hello",
 );
 
 for my $c (@t) {
