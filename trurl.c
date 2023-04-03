@@ -100,7 +100,7 @@ static void help(void)
           "  --redirect [URL]            - redirect the base URL to this\n"
           "  --set [component]=[data]    - set this component\n"
           "  --url [base URL]            - URL to start with\n"
-          "  --url-file [file/-]         - read URLs from file or stdin\n"
+          "  -f,--url-file [file/-]      - read URLs from file or stdin\n"
           " OUTPUT\n"
           "  --get [{component}s]        - output URL component(s)\n"
           " MODIFIERS\n"
@@ -149,6 +149,8 @@ static void urladd(struct option *o, const char *url)
 static void urlfile(struct option *o, const char *file)
 {
   FILE *f;
+  if(o->url)
+    errorf(ERROR_FLAG, "only one --url-file is supported");
   if(strcmp("-", file)) {
     f = fopen(file, "rt");
     if(!f)
@@ -229,23 +231,23 @@ static bool checkoptarg(const char *str,
   return false;
 }
 
-static int getlongarg(struct option *op,
-                      const char *flag,
-                      const char *arg,
-                      int *usedarg)
+static int getarg(struct option *op,
+                  const char *flag,
+                  const char *arg,
+                  bool *usedarg)
 {
-  *usedarg = 0;
-  if(!strcmp("--help", flag))
-    help();
-  else if(!strcmp("--version", flag))
+  *usedarg = false;
+
+  if(!strcmp("-v", flag) || !strcmp("--version", flag))
     show_version();
+  else if(!strcmp("-h", flag) || !strcmp("--help", flag))
+    help();
   else if(checkoptarg("--url", flag, arg)) {
     urladd(op, arg);
     *usedarg = 1;
   }
-  else if(checkoptarg("--url-file", flag, arg)) {
-    if(op->url)
-      errorf(ERROR_FLAG, "only one --url-file is supported");
+  else if(checkoptarg("-f", flag, arg) ||
+          checkoptarg("--url-file", flag, arg)) {
     urlfile(op, arg);
     *usedarg = 1;
   }
@@ -271,19 +273,6 @@ static int getlongarg(struct option *op,
   }
   else if(!strcmp("--urldecode", flag))
     op->urldecode = true;
-  else
-    return 1;  /* unrecognized option */
-  return 0;
-}
-
-static int getshortarg(struct option *op,
-                       const char *flag)
-{
-  (void)op;
-  if(!strcmp("-v", flag))
-    show_version();
-  else if(!strcmp("-h", flag))
-    help();
   else
     return 1;  /* unrecognized option */
   return 0;
@@ -501,26 +490,22 @@ int main(int argc, const char **argv)
   curl_global_init(CURL_GLOBAL_ALL);
 
   for(argc--, argv++; argc > 0; argc--, argv++) {
-    if(argv[0][0] == '-' && argv[0][1] != '-') {
-      /* single-dash prefix */
-      if(getshortarg(&o, argv[0]))
-        errorf(ERROR_FLAG, "unknown option: %s", argv[0]);
-    }
-    else if(argv[0][0] == '-' && argv[0][1] == '-') {
+    bool usedarg = false;
+    if((argv[0][0] == '-' && argv[0][1] != '-') ||
+       /* single-dash prefix */
+       (argv[0][0] == '-' && argv[0][1] == '-')) {
       /* dash-dash prefixed */
-      int usedarg = 0;
-      if(getlongarg(&o, argv[0], argv[1], &usedarg))
+      if(getarg(&o, argv[0], argv[1], &usedarg))
         errorf(ERROR_FLAG, "unknown option: %s", argv[0]);
-
-      if(usedarg) {
-        /* skip the parsed argument */
-        argc--;
-        argv++;
-      }
     }
     else {
       /* this is a URL */
       urladd(&o, argv[0]);
+    }
+    if(usedarg) {
+      /* skip the parsed argument */
+      argc--;
+      argv++;
     }
   }
 
