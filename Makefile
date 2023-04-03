@@ -23,3 +23,4 @@ clean:
 
 test:
 	@perl test.pl
+	@perl test-json.pl
