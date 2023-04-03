@@ -469,20 +469,26 @@ static void jsonString(FILE *stream, const char *in, bool lowercase)
 static void json(struct option *o, CURLU *uh)
 {
   int i;
+  int first=1;
   (void)o;
-  fputs("{\n", stdout);
+  fputs("  {\n", stdout);
   for(i = 0; variables[i].name; i++) {
     char *nurl;
     CURLUcode rc = curl_url_get(uh, variables[i].part, &nurl,
                                 (i?CURLU_DEFAULT_PORT:0)|
                                 CURLU_URLDECODE);
     if(!rc) {
-      printf("  \"%s\": ", variables[i].name);
+      if (first) {
+        first = 0;
+      }
+      else {
+        fputs(",\n", stdout);
+      }
+      printf("    \"%s\": ", variables[i].name);
       jsonString(stdout, nurl, false);
-      fputs(",\n", stdout);
     }
   }
-  fputs("}\n", stdout);
+  fputs("\n  }", stdout);
 }
 
 static void singleurl(struct option *o,
@@ -572,12 +578,38 @@ static void singleurl(struct option *o,
     curl_url_cleanup(uh);
 }
 
+void prefix_output(struct option *o){
+  if (o->jsonout) {
+    fputs("[", stdout);
+  }
+
+}
+
+void suffix_output(struct option *o){
+  if (o->jsonout) {
+    fputs("\n]\n", stdout);
+  }
+
+}
+
+void separator_output(struct option *o, int count){
+  if (o->jsonout) {
+    if (count > 0) {
+      fputs(",\n", stdout);
+    }
+    else {
+      fputs("\n", stdout);
+    }
+  }
+}
+
 int main(int argc, const char **argv)
 {
   int exit_status = 0;
   struct option o;
   struct curl_slist *node;
   memset(&o, 0, sizeof(o));
+  int count = 0;
   curl_global_init(CURL_GLOBAL_ALL);
 
   for(argc--, argv++; argc > 0; argc--, argv++) {
@@ -600,6 +632,8 @@ int main(int argc, const char **argv)
     }
   }
 
+  prefix_output(&o);
+
   if(o.url) {
     /* this is a file to read URLs from */
     char buffer[4096]; /* arbitrary max */
@@ -610,7 +644,10 @@ int main(int argc, const char **argv)
           /* CRLF detected */
           eol--;
         *eol = 0; /* end of URL */
+        separator_output(&o, count);
         singleurl(&o, buffer);
+
+        ++count;
       }
       else {
         /* no newline or no content, skip */
@@ -623,6 +660,8 @@ int main(int argc, const char **argv)
     /* not reading URLs from a file */
     node = o.url_list;
     do {
+      separator_output(&o, count);
+
       if(node) {
         const char *url = node->data;
         singleurl(&o, url);
@@ -630,8 +669,13 @@ int main(int argc, const char **argv)
       }
       else
         singleurl(&o, NULL);
+
+      ++count;
     } while(node);
   }
+
+  suffix_output(&o);
+
   /* we're done with libcurl, so clean it up */
   curl_slist_free_all(o.url_list);
   curl_slist_free_all(o.set_list);
