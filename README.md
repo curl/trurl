@@ -52,6 +52,9 @@ command line tool for URL parsing and manipulation
       "fragment": "frag"
     }
   ]
+
+  $ trurl "https://example.com?search=hello&utm_source=tracker" --trim query="utm_*"
+  https://example.com/?search=hello
 ~~~
 
 ## Install
