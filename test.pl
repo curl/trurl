@@ -24,9 +24,9 @@ my @t = (
     "--set host=example.com --set scheme=ftp|ftp://example.com/",
     "--url https://curl.se/we/are.html --redirect here.html|https://curl.se/we/here.html",
     "--url https://curl.se/we/../are.html --set port=8080|https://curl.se:8080/are.html",
-    "--url https://curl.se/we/are.html --get '{path}'|/we/are.html",
-    "--url https://curl.se/we/are.html --get '{port}'|443",
-    "--url https://curl.se/we/are.html -g '{port}'|443",
+    "--url https://curl.se/we/are.html --get \"{path}\"|/we/are.html",
+    "--url https://curl.se/we/are.html --get \"{port}\"|443",
+    "--url https://curl.se/we/are.html -g \"{port}\"|443",
     "--url https://curl.se/hello --append path=you|https://curl.se/hello/you",
     "--url \"https://curl.se?name=hello\" --append query=search=string|https://curl.se/?name=hello&search=string",
     "--url https://curl.se/hello --set user=:hej:|https://%3ahej%3a\@curl.se/hello",
@@ -42,7 +42,7 @@ my @t = (
 for my $c (@t) {
     my ($i, $o) = split(/\|/, $c);
     # A future version should also check stderr
-    my @out = `./trurl $i 2>/dev/null`;
+    my @out = ($^O eq 'MSWin32')?`.\\trurl.exe $i 2>nul`:`./trurl $i 2>/dev/null`;
     my $result = join("", @out);
     chomp $result;
     is( $result, $o, "./trurl $i" );
