@@ -56,6 +56,12 @@ options, host, port, path, query, fragment and zoneid.
 If a simple "="-assignment is used, the data is URL encoded when applied. If
 ":=" is used, the data is assumed to already be URL encoded and will be stored
 as-is.
+.IP "--trim [component]=[what]"
+Trims data off a component. Currently this can only trim a query component.
+
+"what" is specified as a full word or as a word prefix (using a single
+trailing asterisk) which make trurl remove tuples from the query string that
+match the instruction.
 .SH "OUTPUT OPTIONS"
 .IP "-g, --get [format]"
 Output data according to the provided format string. Components from the URL
@@ -129,5 +135,9 @@ $ trurl "https://fake.host/hello#frag" --set user=::moo:: --json
     "fragment": "frag"
   }
 ]
+.IP "Remove tracking tuples from query"
+$ trurl "https://example.com?search=hello&utm_source=tracker" --trim query="utm_*"
+https://example.com/?search=hello
+
 .SH WWW
 https://github.com/curl/trurl

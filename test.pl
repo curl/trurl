@@ -26,6 +26,12 @@ my @t = (
     "--url \"https://curl.se?name=hello\" --append query=search=string|https://curl.se/?name=hello&search=string",
     "--url https://curl.se/hello --set user=:hej:|https://%3ahej%3a\@curl.se/hello",
     "localhost --append query=hello=foo|http://localhost/?hello=foo",
+    "\"https://example.com?search=hello&utm_source=tracker\" --trim query=\"utm_*\"|https://example.com/?search=hello",
+    "\"https://example.com?search=hello&utm_source=tracker&more=data\" --trim query=\"utm_*\"|https://example.com/?search=hello&more=data",
+    "\"https://example.com?search=hello&more=data\" --trim query=\"utm_*\"|https://example.com/?search=hello&more=data",
+    "\"https://example.com?utm_source=tracker\" --trim query=\"utm_*\"|https://example.com/",
+    "\"https://example.com?search=hello&utm_source=tracker&more=data\" --trim query=\"utm_source\"|https://example.com/?search=hello&more=data",
+    "\"https://example.com?search=hello&utm_source=tracker&more=data\" --trim query=\"utm_source\" --trim query=more --trim query=search|https://example.com/",
 );
 
 for my $c (@t) {

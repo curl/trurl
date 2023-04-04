@@ -77,6 +77,7 @@ static const struct var variables[] = {
 #define ERROR_SET    5 /* a --set problem */
 #define ERROR_MEM    6 /* out of memory */
 #define ERROR_URL    7 /* could not get a URL out of the set components */
+#define ERROR_TRIM   8 /* a --trim problem */
 
 static void warnf(char *fmt, ...)
 {
@@ -110,6 +111,7 @@ static void help(void)
           "  -h, --help                   - this help\n"
           "  --redirect [URL]             - redirect the base URL to this\n"
           "  -s, --set [component]=[data] - set this component\n"
+          "  --trim [component]=[what]    - trim a component\n"
           "  --url [base URL]             - URL to start with\n"
           "  -v, --version                - show version\n"
           " --json                        - output URL info as JSON\n"
@@ -136,6 +138,7 @@ struct option {
   struct curl_slist *append_path;
   struct curl_slist *append_query;
   struct curl_slist *set_list;
+  struct curl_slist *trim_list;
   const char *redirect;
   const char *format;
   FILE *url;
@@ -230,6 +233,15 @@ static void setadd(struct option *o,
     o->set_list = n;
 }
 
+static void trimadd(struct option *o,
+                    const char *trim) /* [component]=[data] */
+{
+  struct curl_slist *n;
+  n = curl_slist_append(o->trim_list, trim);
+  if(n)
+    o->trim_list = n;
+}
+
 static bool checkoptarg(const char *str,
                         const char *given,
                         const char *arg)
@@ -275,6 +287,10 @@ static int getarg(struct option *op,
     if(op->redirect)
       errorf(ERROR_FLAG, "only one --redirect is supported");
     op->redirect = arg;
+    *usedarg = 1;
+  }
+  else if(checkoptarg("--trim", flag, arg)) {
+    trimadd(op, arg);
     *usedarg = 1;
   }
   else if(checkoptarg("-g", flag, arg) ||
@@ -487,6 +503,74 @@ static void json(struct option *o, CURLU *uh)
   fputs("\n  }", stdout);
 }
 
+/* --trim query="utm_*" */
+static void trim(CURLU *uh, struct option *o)
+{
+  struct curl_slist *node;
+  for(node = o->trim_list; node; node=node->next) {
+    char *instr = node->data;
+    if(strncasecmp(instr, "query", 5))
+      /* for now we can only trim query components */
+      errorf(ERROR_TRIM, "Unsupported trim component: %s", instr);
+    char *ptr = strchr(instr, '=');
+    if(ptr && (ptr > instr)) {
+      /* 'ptr' should be a fixed string or a pattern ending with an
+         asterisk */
+      size_t inslen;
+      bool pattern;
+      char *q;
+      CURLUcode rc;
+      char *newq;
+
+      ptr++; /* pass the = */
+      inslen = strlen(ptr);
+      pattern = ptr[inslen - 1] == '*';
+      if(pattern)
+        inslen--;
+      rc = curl_url_get(uh, CURLUPART_QUERY, &q, 0);
+      if(!rc && q) {
+        bool updated;
+        newq = q;
+        /* q is assumed to look like a=b&c=d&e=f */
+        do {
+          char *sep = strchr(q, '=');
+          if(sep) {
+            size_t qlen = sep - q;
+            if((pattern && (inslen <= qlen) &&
+                !strncasecmp(q, ptr, inslen)) ||
+               (!pattern && (inslen == qlen) &&
+                !strncasecmp(q, ptr, inslen))) {
+              /* this part should be stripped out */
+              char *end = strchr(sep, '&');
+              if(end) {
+                end++;
+                /* move the rest of the string to this position */
+                memmove(q, end, strlen(end)+1);
+              }
+              else {
+                /* don't leave a trailing ampersand */
+                if((q > newq) && (q[-1] == '&'))
+                  q--;
+                *q = 0;
+              }
+              updated = true;
+            }
+            else {
+              q = strchr(sep, '&');
+              if(!q)
+                break;
+              q++;
+            }
+          }
+        } while(*q);
+        if(updated)
+          rc = curl_url_set(uh, CURLUPART_QUERY, newq, 0);
+        curl_free(newq);
+      }
+    }
+  }
+}
+
 static void singleurl(struct option *o,
                       const char *url) /* might be NULL */
 {
@@ -556,6 +640,9 @@ static void singleurl(struct option *o,
         curl_url_set(uh, CURLUPART_QUERY, aq, 0);
       }
     }
+
+    /* trim parts */
+    trim(uh, o);
 
     if(o->jsonout)
       json(o, uh);
@@ -646,6 +733,7 @@ int main(int argc, const char **argv)
   /* we're done with libcurl, so clean it up */
   curl_slist_free_all(o.url_list);
   curl_slist_free_all(o.set_list);
+  curl_slist_free_all(o.trim_list);
   curl_slist_free_all(o.append_path);
   curl_slist_free_all(o.append_query);
   curl_global_cleanup();
