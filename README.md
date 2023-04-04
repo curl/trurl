@@ -69,6 +69,14 @@ cc  -W -Wall -pedantic -g   -c -o trurl.o trurl.c
 cc   trurl.o  -lcurl -o trurl
 ```
 
-Note that development files of libcurl (e.g. `libcurl4-openssl-dev` or
+## Prerequisites
+
+Development files of libcurl (e.g. `libcurl4-openssl-dev` or
 `libcurl4-gnutls-dev`) are needed for compilation. Requires libcurl version
-7.62.0 or newer.
+7.62.0 or newer (the first libcurl to ship the URL parsing API).
+
+trurl also uses `CURLUPART_ZONEID` added in libcurl 7.81.0 and
+`curl_url_strerror()` added in libcurl 7.80.0
+
+It would certainly be possible to make trurl work with older libcurl versions
+if someone wanted to.
