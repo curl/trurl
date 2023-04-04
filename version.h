@@ -1,5 +1,5 @@
-#ifndef URLER_VERSION_H
-#define URLER_VERSION_H
+#ifndef TRURL_VERSION_H
+#define TRURL_VERSION_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -22,6 +22,6 @@
  *
  ***************************************************************************/
 
-#define URLER_VERSION_TXT "0.1"
+#define TRURL_VERSION_TXT "0.2"
 
 #endif
