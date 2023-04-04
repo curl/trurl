@@ -1,5 +1,10 @@
 #!/usr/bin/perl
 
+use strict;
+use warnings;
+
+use Test::More;
+
 my @t = (
     "example.com|http://example.com/",
     "http://example.com|http://example.com/",
@@ -40,11 +45,7 @@ for my $c (@t) {
     my @out = `./trurl $i 2>/dev/null`;
     my $result = join("", @out);
     chomp $result;
-    if($result ne $o) {
-        print "FAIL\n";
-        print "$i did not show \"$o\"\n";
-        print "It showed \"$result\"\n";
-        exit 1;
-    }
+    is( $result, $o, "./trurl $i" );
 }
-print "success\n";
+
+done_testing();
