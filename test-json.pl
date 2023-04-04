@@ -32,7 +32,7 @@ while (my($i, $o) = each %t) {
     $o =~ s/[ \t\r\n]+/ /g;
 
     # A future version should also check stderr
-    my @out = `./trurl --json $i 2>/dev/null`;
+    my @out = ($^O eq 'MSWin32')?`.\\trurl.exe --json $i 2>nul`:`./trurl --json $i 2>/dev/null`;
     my $result = join("", @out);
     chomp $result;
     $result =~ s/[ \t\r\n]+/ /g;
