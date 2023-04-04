@@ -78,6 +78,7 @@ static const struct var variables[] = {
 #define ERROR_MEM    6 /* out of memory */
 #define ERROR_URL    7 /* could not get a URL out of the set components */
 #define ERROR_TRIM   8 /* a --trim problem */
+#define ERROR_BADURL 9 /* if --verify is set and the URL cannot parse */
 
 static void warnf(char *fmt, ...)
 {
@@ -109,12 +110,13 @@ static void help(void)
           "  -f, --url-file [file/-]      - read URLs from file or stdin\n"
           "  -g, --get [{component}s]     - output URL component(s)\n"
           "  -h, --help                   - this help\n"
+          " --json                        - output URL info as JSON\n"
           "  --redirect [URL]             - redirect the base URL to this\n"
           "  -s, --set [component]=[data] - set this component\n"
           "  --trim [component]=[what]    - trim a component\n"
           "  --url [base URL]             - URL to start with\n"
           "  -v, --version                - show version\n"
-          " --json                        - output URL info as JSON\n"
+          " --verify                      - return error on (first) bad URL\n"
           " URL COMPONENTS:\n"
           "  "
     );
@@ -144,6 +146,7 @@ struct option {
   FILE *url;
   bool urlopen;
   bool jsonout;
+  bool verify;
   unsigned char output;
 
   /* -- stats -- */
@@ -302,6 +305,8 @@ static int getarg(struct option *op,
   }
   else if(!strcmp("--json", flag))
     op->jsonout = true;
+  else if(!strcmp("--verify", flag))
+    op->verify = true;
   else
     return 1;  /* unrecognized option */
   return 0;
@@ -583,8 +588,9 @@ static void singleurl(struct option *o,
         curl_url_set(uh, CURLUPART_URL, url,
                      CURLU_GUESS_SCHEME|CURLU_NON_SUPPORT_SCHEME);
       if(rc) {
+        if(o->verify)
+          errorf(ERROR_BADURL, "%s [%s]", curl_url_strerror(rc), url);
         warnf("%s [%s]", curl_url_strerror(rc), url);
-        return;
       }
       else {
         if(o->redirect)
