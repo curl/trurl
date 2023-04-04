@@ -103,17 +103,15 @@ static void errorf(int exit_code, char *fmt, ...)
 static void help(void)
 {
   int i;
-  fprintf(stderr, "Usage: [options] [URL]\n"
-          "  -h, --help                   - this help\n"
-          "  -v, --version                - show version\n"
-          " INPUT\n"
+  fprintf(stderr, "Usage: " PROGNAME " [options] [URL]\n"
           "  --append [component]=[data]  - append data to component\n"
+          "  -f, --url-file [file/-]      - read URLs from file or stdin\n"
+          "  -g, --get [{component}s]     - output URL component(s)\n"
+          "  -h, --help                   - this help\n"
           "  --redirect [URL]             - redirect the base URL to this\n"
           "  -s, --set [component]=[data] - set this component\n"
           "  --url [base URL]             - URL to start with\n"
-          "  -f, --url-file [file/-]      - read URLs from file or stdin\n"
-          " OUTPUT\n"
-          "  -g, --get [{component}s]     - output URL component(s)\n"
+          "  -v, --version                - show version\n"
           " --json                        - output URL info as JSON\n"
           " URL COMPONENTS:\n"
           "  "
