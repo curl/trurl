@@ -110,6 +110,7 @@ static void help(void)
 {
   int i;
   fprintf(stderr, "Usage: " PROGNAME " [options] [URL]\n"
+          "  --accept-space               - give in to this URL abuse\n"
           "  --append [component]=[data]  - append data to component\n"
           "  -f, --url-file [file/-]      - read URLs from file or stdin\n"
           "  -g, --get [{component}s]     - output URL component(s)\n"
@@ -151,6 +152,7 @@ struct option {
   bool urlopen;
   bool jsonout;
   bool verify;
+  bool accept_space;
   unsigned char output;
 
   /* -- stats -- */
@@ -311,6 +313,8 @@ static int getarg(struct option *op,
     op->jsonout = true;
   else if(!strcmp("--verify", flag))
     op->verify = true;
+  else if(!strcmp("--accept-space", flag))
+    op->accept_space = true;
   else
     return 1;  /* unrecognized option */
   return 0;
@@ -590,7 +594,9 @@ static void singleurl(struct option *o,
     if(url) {
       CURLUcode rc =
         curl_url_set(uh, CURLUPART_URL, url,
-                     CURLU_GUESS_SCHEME|CURLU_NON_SUPPORT_SCHEME);
+                     CURLU_GUESS_SCHEME|CURLU_NON_SUPPORT_SCHEME|
+                     (o->accept_space ?
+                      (CURLU_ALLOW_SPACE|CURLU_URLENCODE) : 0));
       if(rc) {
         if(o->verify)
           errorf(ERROR_BADURL, "%s [%s]", curl_url_strerror(rc), url);

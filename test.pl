@@ -37,6 +37,8 @@ my @t = (
     "\"https://example.com?utm_source=tracker\" --trim query=\"utm_*\"|https://example.com/",
     "\"https://example.com?search=hello&utm_source=tracker&more=data\" --trim query=\"utm_source\"|https://example.com/?search=hello&more=data",
     "\"https://example.com?search=hello&utm_source=tracker&more=data\" --trim query=\"utm_source\" --trim query=more --trim query=search|https://example.com/",
+    "--accept-space --url \"gopher://localhost/ with space\"|gopher://localhost/%20with%20space",
+    "--accept-space --url \"https://localhost/?with space\"|https://localhost/?with+space",
 );
 
 for my $c (@t) {
