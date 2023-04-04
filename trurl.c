@@ -31,6 +31,10 @@
 
 #include "version.h"
 
+#ifdef _MSC_VER
+#define strncasecmp _strnicmp
+#endif
+
 #define OUTPUT_URL      0  /* default */
 #define OUTPUT_SCHEME   1
 #define OUTPUT_USER     2
