@@ -99,10 +99,12 @@ This also shows how trurl will remove dot-dot sequences
 .nf
 $ trurl --url https://curl.se/we/../are.html --set port=8080
 https://curl.se:8080/are.html
+.fi
 .IP "Extract the path from a URL"
 .nf
 $ trurl --url https://curl.se/we/are.html --get '{path}'
 /we/are.html
+.fi
 .IP "Extract the port from a URL"
 This gets the default port based on the scheme if the port is not set in the
 URL.
@@ -110,18 +112,22 @@ URL.
 .nf
 $ trurl --url https://curl.se/we/are.html --get '{port}'
 443
+.fi
 .IP "Append a path segment to a URL"
 .nf
 $ trurl --url https://curl.se/hello --append path=you
 https://curl.se/hello/you
+.fi
 .IP "Append a query segment to a URL"
 .nf
 $ trurl --url "https://curl.se?name=hello" --append query=search=string
  https://curl.se/?name=hello&search=string
+.fi
 .IP "Read URLs from stdin"
 .nf
 $ cat urllist.txt | trurl --url-file -
-...
+\&...
+.fi
 .IP "Output JSON"
 .nf
 $ trurl "https://fake.host/hello#frag" --set user=::moo:: --json
@@ -136,9 +142,11 @@ $ trurl "https://fake.host/hello#frag" --set user=::moo:: --json
     "fragment": "frag"
   }
 ]
+.fi
 .IP "Remove tracking tuples from query"
-$ trurl "https://example.com?search=hello&utm_source=tracker" --trim query="utm_*"
-https://example.com/?search=hello
-
+.nf
+$ trurl "https://curl.se?search=hey&utm_source=tracker" --trim query="utm_*"
+https://curl.se/?search=hey
+.fi
 .SH WWW
 https://github.com/curl/trurl
