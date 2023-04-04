@@ -8,15 +8,17 @@ PREFIX ?= /usr/local
 BINDIR ?= $(DESTDIR)$(PREFIX)/bin
 MANDIR ?= $(DESTDIR)$(PREFIX)/share/man/man1
 
+INSTALL = install
+
 $(TARGET): $(OBJS)
 
 trurl.o:trurl.c version.h
 
 install:
-	install -d $(BINDIR)
-	install -m 0755 $(TARGET) $(BINDIR)
-	install -d $(MANDIR)
-	install -m 0644 $(MANUAL) $(MANDIR)
+	$(INSTALL) -d $(BINDIR)
+	$(INSTALL) -m 0755 $(TARGET) $(BINDIR)
+	$(INSTALL) -d $(MANDIR)
+	$(INSTALL) -m 0644 $(MANUAL) $(MANDIR)
 
 clean:
 	rm -f $(OBJS) $(TARGET)
