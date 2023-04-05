@@ -2,7 +2,7 @@
 
 command line tool for URL parsing and manipulation
 
-[original idea](https://curl.se/mail/archive-2023-03/0030.html)
+[video presentation](https://youtu.be/oDL7DVszr2w)
 
 ## Example command lines
 
