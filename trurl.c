@@ -598,9 +598,14 @@ static void singleurl(struct option *o,
                      (o->accept_space ?
                       (CURLU_ALLOW_SPACE|CURLU_URLENCODE) : 0));
       if(rc) {
-        if(o->verify)
-          errorf(ERROR_BADURL, "%s [%s]", curl_url_strerror(rc), url);
-        warnf("%s [%s]", curl_url_strerror(rc), url);
+        if (o->url) { // check if we are reading from a file
+          return;
+        } 
+        else {
+          if(o->verify)
+            errorf(ERROR_BADURL, "%s [%s]", curl_url_strerror(rc), url);
+          warnf("%s [%s]", curl_url_strerror(rc), url);
+        }
       }
       else {
         if(o->redirect)
