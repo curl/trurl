@@ -356,7 +356,9 @@ static void get(struct option *op, CURLU *uh)
              !strncasecmp(ptr, variables[i].name, vlen)) {
             char *nurl;
             CURLUcode rc;
-            rc = curl_url_get(uh, variables[i].part, &nurl, CURLU_DEFAULT_PORT|
+            rc = curl_url_get(uh, variables[i].part, &nurl,
+                              CURLU_DEFAULT_PORT|
+                              CURLU_NO_DEFAULT_PORT|
                               (urldecode?CURLU_URLDECODE:0));
             switch(rc) {
             case CURLUE_OK:
@@ -669,7 +671,7 @@ static void singleurl(struct option *o,
     else {
       /* default output is full URL */
       char *nurl = NULL;
-      if(!curl_url_get(uh, CURLUPART_URL, &nurl, 0)) {
+      if(!curl_url_get(uh, CURLUPART_URL, &nurl, CURLU_NO_DEFAULT_PORT)) {
         printf("%s\n", nurl);
         curl_free(nurl);
       }

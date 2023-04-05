@@ -24,6 +24,8 @@ my @t = (
     "--set host=example.com --set scheme=ftp|ftp://example.com/",
     "--url https://curl.se/we/are.html --redirect here.html|https://curl.se/we/here.html",
     "--url https://curl.se/we/../are.html --set port=8080|https://curl.se:8080/are.html",
+    "https://curl.se:22/ -s port=443|https://curl.se/",
+    "https://curl.se:22/ -s port=443 --get {url}|https://curl.se/",
     "--url https://curl.se/we/are.html --get \"{path}\"|/we/are.html",
     "--url https://curl.se/we/are.html --get \"{port}\"|443",
     "--url https://curl.se/we/are.html --get \"{scheme}\"|https",
