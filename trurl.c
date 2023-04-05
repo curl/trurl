@@ -546,7 +546,6 @@ static void trim(CURLU *uh, struct option *o)
         bool updated = 0;
         char *newq = q;
 
-        /* q is assumed to look like a=b&c=d&e=f */
         do {
           char *end = strchr(q, '&');
           char *sep = strchr(q, '=');
