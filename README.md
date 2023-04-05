@@ -65,8 +65,8 @@ It's quite easy to compile the C source with GCC :
 
 ```
 $ make
-cc  -W -Wall -pedantic -g   -c -o trurl.o trurl.c
-cc   trurl.o  -lcurl -o trurl
+gcc  -W -Wall -pedantic -g   -c -o trurl.o trurl.c
+gcc   trurl.o  -lcurl -o trurl
 ```
 
 ## Prerequisites
