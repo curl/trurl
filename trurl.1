@@ -49,6 +49,12 @@ as-is.
 
 Components are shown URL decoded by default. If you instead write the
 component prefixed with a colon like "{:path}", it gets output URL encoded.
+
+Hosts provided as IPv6 numerical addresses will be provided within square
+brackets. Like "[fe80::20c:29ff:fe9c:409b]".
+
+Hosts provided as IPv4 numerical addresses will be "normalized" and provided
+as four dot-separated decimal numbers.
 .IP "-h, --help"
 Show the help output.
 .IP "--json"
