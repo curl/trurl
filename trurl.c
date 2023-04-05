@@ -535,7 +535,6 @@ static void trim(CURLU *uh, struct option *o)
       bool pattern;
       char *q;
       CURLUcode rc;
-      char *newq;
 
       ptr++; /* pass the = */
       inslen = strlen(ptr);
@@ -544,20 +543,28 @@ static void trim(CURLU *uh, struct option *o)
         inslen--;
       rc = curl_url_get(uh, CURLUPART_QUERY, &q, 0);
       if(!rc && q) {
-        bool updated;
-        newq = q;
+        bool updated = 0;
+        char *newq = q;
+
         /* q is assumed to look like a=b&c=d&e=f */
         do {
+          char *end = strchr(q, '&');
           char *sep = strchr(q, '=');
-          if(sep) {
-            size_t qlen = sep - q;
-            if((pattern && (inslen <= qlen) &&
-                !strncasecmp(q, ptr, inslen)) ||
-               (!pattern && (inslen == qlen) &&
-                !strncasecmp(q, ptr, inslen))) {
+
+          if (! end) {
+            end = q + strlen(q);
+          }
+          if (! sep || sep > end) {
+            sep = end;
+          }
+
+          size_t qlen = sep - q;
+          if((pattern && (inslen <= qlen) &&
+              !strncasecmp(q, ptr, inslen)) ||
+              (!pattern && (inslen == qlen) &&
+              !strncasecmp(q, ptr, inslen))) {
               /* this part should be stripped out */
-              char *end = strchr(sep, '&');
-              if(end) {
+              if(end && *end) {
                 end++;
                 /* move the rest of the string to this position */
                 memmove(q, end, strlen(end)+1);
@@ -569,13 +576,12 @@ static void trim(CURLU *uh, struct option *o)
                 *q = 0;
               }
               updated = true;
-            }
-            else {
-              q = strchr(sep, '&');
-              if(!q)
-                break;
-              q++;
-            }
+          }
+          else {
+            q = end;
+            if(!q)
+              break;
+            q++;
           }
         } while(*q);
         if(updated)
