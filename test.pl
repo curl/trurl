@@ -2,8 +2,10 @@
 
 use strict;
 use warnings;
+use 5.13.9; # minimum version for JSON::PP
 
 use Test::More;
+use JSON::PP;
 
 my @t = (
     "example.com|http://example.com/",
@@ -57,6 +59,36 @@ my @t = (
     "https://daniel\@curl.se:22/ -s port= -s user=|https://curl.se/",
 );
 
+my %json_tests = (
+    "example.com" => [
+        {
+            "url" => "http://example.com/",
+            "scheme" =>  "http",
+            "host" =>  "example.com",
+            "port" =>  "80",
+            "path" =>  "/"
+        }
+    ],
+    "example.com other.com" => [
+        {
+            "url" => "http://example.com/",
+            "scheme" =>  "http",
+            "host" =>  "example.com",
+            "port" =>  "80",
+            "path" =>  "/"
+        },
+        {
+            "url" => "http://other.com/",
+            "scheme" =>  "http",
+            "host" =>  "other.com",
+            "port" =>  "80",
+            "path" =>  "/"
+        }
+    ]
+);
+
+plan tests => keys(@t) + keys(%json_tests);
+
 for my $c (@t) {
     my ($i, $o) = split(/\|/, $c);
     # A future version should also check stderr
@@ -64,6 +96,14 @@ for my $c (@t) {
     my $result = join("", @out);
     chomp $result;
     is( $result, $o, "./trurl $i" );
+}
+
+while (my($i, $o) = each %json_tests) {
+    my @out = ($^O eq 'MSWin32')?`.\\trurl.exe --json $i 2>nul`:`./trurl --json $i 2>/dev/null`;
+    my $result_json = join("", @out);
+    my $result = decode_json($result_json);
+
+    is_deeply($result, $o, "./trurl --json $i");
 }
 
 done_testing();
