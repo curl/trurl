@@ -52,6 +52,7 @@ my @t = (
     "\"https://example.com?search=hello&utm_source=tracker&more=data\" --trim query=\"utm_source\" --trim query=more --trim query=search|https://example.com/",
     "--accept-space --url \"gopher://localhost/ with space\"|gopher://localhost/%20with%20space",
     "--accept-space --url \"https://localhost/?with space\"|https://localhost/?with+space",
+    "https://daniel\@curl.se:22/ -s port= -s user=|https://curl.se/",
 );
 
 for my $c (@t) {

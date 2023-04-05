@@ -434,7 +434,7 @@ static void set(CURLU *uh,
           if(varset[i])
             errorf(ERROR_SET, "A component can only be set once per URL (%s)",
                    variables[i].name);
-          curl_url_set(uh, variables[i].part, ptr+1,
+          curl_url_set(uh, variables[i].part, ptr[1] ? &ptr[1] : NULL,
                        CURLU_NON_SUPPORT_SCHEME|
                        (urlencode ? CURLU_URLENCODE : 0) );
           found = true;
