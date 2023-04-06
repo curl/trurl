@@ -529,7 +529,7 @@ static void json(struct option *o, CURLU *uh)
   }
   if(nqpairs) {
     int i;
-    fputs(",\n    \"q\": {\n", stdout);
+    fputs(",\n    \"params\": {\n", stdout);
     for(i=0 ; i < nqpairs; i++) {
       char *sep = strchr(qpairsdec[i], '=');
       if(i)

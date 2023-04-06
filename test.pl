@@ -79,7 +79,11 @@ my %json_tests = (
             "user" => "smith",
             "password" => "secret",
             "query" => "search=me",
-            "fragment" => "where"
+            "fragment" => "where",
+             "params" => {
+                 "search" => "me"
+            }
+            ,
         }
     ],
     "example.com" => [
