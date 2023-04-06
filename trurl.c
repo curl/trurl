@@ -786,6 +786,8 @@ static void singleurl(struct option *o,
       }
     }
 
+    fflush(stdout);
+
     freeqpairs();
 
     o->urls++;
