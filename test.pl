@@ -69,6 +69,22 @@ my @t = (
 );
 
 my %json_tests = (
+    "\"https://example.com?utm=tra%20cker&address%20=home&here=now&thisthen\"" => [
+        {
+            "url" => "https://example.com/?utm=tra%20cker&address%20=home&here=now&thisthen",
+            "scheme" => "https",
+            "host" => "example.com",
+            "port" => "443",
+            "path" => "/",
+            "query" => "utm=tra cker&address =home&here=now&thisthen",
+            "params" => {
+               "utm" => "tra cker",
+               "address " => "home",
+               "here" => "now",
+               "thisthen" => ""
+             }
+        }
+    ],
     "ftp://smith:secret\@example.com:33/path?search=me#where" => [
         {
             "url" => "ftp://smith:secret\@example.com:33/path?search=me#where",
