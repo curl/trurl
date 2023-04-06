@@ -60,6 +60,10 @@ my @t = (
     "\"https://example.com?moo&search=hello\" --trim query=search|https://example.com/?moo",
     "\"https://example.com?search=hello&moo\" --trim query=search|https://example.com/?moo",
     "\"https://example.com?search=hello\" --trim query=search --append query=moo|https://example.com/?moo",
+    "https://hello:443/foo|https://hello/foo",
+    "ftp://hello:21/foo|ftp://hello/foo",
+    "https://hello:443/foo -s scheme=ftp|ftp://hello:443/foo",
+    "ftp://hello:443/foo -s scheme=https|https://hello/foo",
 );
 
 my %json_tests = (
