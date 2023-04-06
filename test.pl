@@ -67,6 +67,19 @@ my @t = (
 );
 
 my %json_tests = (
+    "ftp://smith:secret\@example.com:33/path?search=me#where" => [
+        {
+            "url" => "ftp://smith:secret\@example.com:33/path?search=me#where",
+            "scheme" =>  "ftp",
+            "host" =>  "example.com",
+            "port" =>  "33",
+            "path" =>  "/path",
+            "user" => "smith",
+            "password" => "secret",
+            "query" => "search=me",
+            "fragment" => "where"
+        }
+    ],
     "example.com" => [
         {
             "url" => "http://example.com/",
