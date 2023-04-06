@@ -1,0 +1,22 @@
+trurl 0.3
+
+Changes since previous release
+
+ * the set port is the same as the scheme-default, don't show
+ * many more tests
+ * https://curl.se/trurl is now the project's website
+ * added --accept-space
+ * added --trim
+
+Bugfixes since previous release
+
+ * setting port to a blank now clears it
+ * improved the man page
+ * fix --append query when no previous query exists
+ * output JSON as an array
+ * provide the -h list in pure alphabetical order
+ * add an INSTALL variable to the Makefile
+ * enable building with msvc on Windows
+ * use 0644 for the man page install
+ * use Test::More inside of test.pl
+ * nicer JSON tests and test output
