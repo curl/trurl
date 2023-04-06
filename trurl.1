@@ -77,6 +77,10 @@ options, host, port, path, query, fragment and zoneid.
 If a simple "="-assignment is used, the data is URL encoded when applied. If
 ":=" is used, the data is assumed to already be URL encoded and will be stored
 as-is.
+.IP "--sort-query"
+The variable=content tuplets in the query component are sorted in a case
+insensitive alphabetical order. This helps making URLs identical that
+otherwise only had their query pairs in a different orders.
 .IP "--url [URL]"
 Set the input URL to work with. The URL may be provided without a scheme,
 which then typically is not actually a legal URL but trurl will try to figure

@@ -119,6 +119,7 @@ static void help(void)
           "  --json                       - output URL as JSON\n"
           "  --redirect [URL]             - redirect to this\n"
           "  -s, --set [component]=[data] - set component content\n"
+          "  --sort-query                 - alpha-sort the query pairs\n"
           "  --trim [component]=[what]    - trim component\n"
           "  --url [URL]                  - URL to work with\n"
           "  -v, --version                - show version\n"
@@ -154,6 +155,7 @@ struct option {
   bool jsonout;
   bool verify;
   bool accept_space;
+  bool sort_query;
   unsigned char output;
 
   /* -- stats -- */
@@ -322,6 +324,8 @@ static int getarg(struct option *op,
     op->verify = true;
   else if(!strcmp("--accept-space", flag))
     op->accept_space = true;
+  else if(!strcmp("--sort-query", flag))
+    op->sort_query = true;
   else
     return 1;  /* unrecognized option */
   return 0;
@@ -719,7 +723,7 @@ static void extractqpairs(CURLU *uh)
   curl_free(q);
 }
 
-void qpair2query(CURLU *uh)
+static void qpair2query(CURLU *uh)
 {
   int i;
   int rc;
@@ -734,6 +738,22 @@ void qpair2query(CURLU *uh)
       warnf("internal problem");
   }
   curl_free(nq);
+}
+
+/* sort case insensitively */
+static int cmpfunc(const void *p1, const void *p2)
+{
+  return strcasecmp(*(const char **)p1,
+                    *(const char **)p2);
+}
+
+static void sortquery(struct option *o)
+{
+  if(o->sort_query) {
+    /* not these two lists may no longer be the same order after the sort */
+    qsort(&qpairs[0], nqpairs, sizeof(char *), cmpfunc);
+    qsort(&qpairsdec[0], nqpairs, sizeof(char *), cmpfunc);
+  }
 }
 
 static void singleurl(struct option *o,
@@ -798,6 +818,8 @@ static void singleurl(struct option *o,
 
     /* trim parts */
     trim(o);
+
+    sortquery(o);
 
     /* put the query back */
     qpair2query(uh);
