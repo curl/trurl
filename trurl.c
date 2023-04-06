@@ -110,8 +110,8 @@ static void help(void)
 {
   int i;
   fprintf(stderr, "Usage: " PROGNAME " [options] [URL]\n"
+          "  -a, --append [component]=[data] - append data to component\n"
           "  --accept-space               - give in to this URL abuse\n"
-          "  --append [component]=[data]  - append data to component\n"
           "  -f, --url-file [file/-]      - read URLs from file or stdin\n"
           "  -g, --get [{component}s]     - output component(s)\n"
           "  -h, --help                   - this help\n"
@@ -283,7 +283,8 @@ static int getarg(struct option *op,
     urlfile(op, arg);
     *usedarg = 1;
   }
-  else if(checkoptarg("--append", flag, arg)) {
+  else if(checkoptarg("-a", flag, arg) ||
+          checkoptarg("--append", flag, arg)) {
     appendadd(op, arg);
     *usedarg = 1;
   }
