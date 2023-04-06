@@ -56,6 +56,10 @@ brackets. Like "[fe80::20c:29ff:fe9c:409b]".
 
 Hosts provided as IPv4 numerical addresses will be "normalized" and provided
 as four dot-separated decimal numbers.
+
+You can access specific keys in the query string using the format
+\fB{query:key}\fP. Then the value of the first matching key will be
+output.
 .IP "-h, --help"
 Show the help output.
 .IP "--json"
@@ -163,6 +167,11 @@ $ trurl "https://fake.host/hello#frag" --set user=::moo:: --json
 .nf
 $ trurl "https://curl.se?search=hey&utm_source=tracker" --trim query="utm_*"
 https://curl.se/?search=hey
+.fi
+.IP "Show a specific query key value"
+.nf
+$ trurl "https://example.com?address=home&here=now&thisthen" -g '{query:address}'
+home
 .fi
 .SH WWW
 https://github.com/curl/trurl

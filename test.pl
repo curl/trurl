@@ -66,6 +66,8 @@ my @t = (
     "ftp://hello:21/foo|ftp://hello/foo",
     "https://hello:443/foo -s scheme=ftp|ftp://hello:443/foo",
     "ftp://hello:443/foo -s scheme=https|https://hello/foo",
+    "\"https://example.com?utm_source=tra%20cker&address%20=home&here=now&thisthen\" -g {query:utm_source}|tra cker",
+    "\"https://example.com?utm_source=tra%20cker&address%20=home&here=now&thisthen\" -g {:query:utm_source}|tra%20cker",
 );
 
 my %json_tests = (
