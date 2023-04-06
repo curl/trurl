@@ -160,7 +160,8 @@ struct option {
 };
 
 #define MAX_QPAIRS 1000
-char *qpairs[MAX_QPAIRS];
+char *qpairs[MAX_QPAIRS]; /* encoded */
+char *qpairsdec[MAX_QPAIRS]; /* decoded */
 int nqpairs; /* how many is stored */
 
 static void urladd(struct option *o, const char *url)
@@ -457,10 +458,16 @@ static void set(CURLU *uh,
   }
 }
 
-static void jsonString(FILE *stream, const char *in, bool lowercase)
+static void jsonString(FILE *stream, const char *in, size_t len,
+                       bool lowercase)
 {
   const char *i = in;
-  const char *in_end = in + strlen(in);
+  const char *in_end;
+
+  if(!len)
+    in_end = in + strlen(in);
+  else
+    in_end = &in[len];
 
   fputc('\"', stream);
   for(; i < in_end; i++) {
@@ -517,8 +524,25 @@ static void json(struct option *o, CURLU *uh)
       if(i)
         fputs(",\n", stdout);
       printf("    \"%s\": ", variables[i].name);
-      jsonString(stdout, nurl, false);
+      jsonString(stdout, nurl, 0, false);
     }
+  }
+  if(nqpairs) {
+    int i;
+    fputs(",\n    \"params\": [\n", stdout);
+    for(i=0 ; i < nqpairs; i++) {
+      char *sep = strchr(qpairsdec[i], '=');
+      if(i)
+        fputs(",\n", stdout);
+      fputs("      {\n        \"key\": ", stdout);
+      jsonString(stdout, qpairsdec[i],
+                 sep ? (size_t)(sep - qpairsdec[i]) : strlen(qpairsdec[i]),
+                 false);
+      fputs(",\n        \"value\": ", stdout);
+      jsonString(stdout, sep ? sep + 1 : "", 0, false);
+      fputs("\n      }", stdout);
+    }
+    fputs("\n    ]", stdout);
   }
   fputs("\n  }", stdout);
 }
@@ -561,7 +585,9 @@ static void trim(struct option *o)
             !strncasecmp(q, ptr, inslen))) {
           /* this qpair should be stripped out */
           free(qpairs[i]);
+          free(qpairsdec[i]);
           qpairs[i] = strdup(""); /* marked as deleted */
+          qpairsdec[i] = strdup(""); /* marked as deleted */
         }
       }
     }
@@ -569,7 +595,7 @@ static void trim(struct option *o)
 }
 
 /* memdup the amount and add a trailing zero */
-char *memdupzero(char *source, size_t len)
+static char *memdupzero(char *source, size_t len)
 {
   char *p = malloc(len + 1);
   if(p) {
@@ -580,23 +606,52 @@ char *memdupzero(char *source, size_t len)
   return NULL;
 }
 
+/* URL decode the pair and return it in an allocated chunk */
+static char *memdupdec(char *source, size_t len)
+{
+  char *sep = memchr(source, '=', len);
+  char *left = NULL;
+  char *right = NULL;
+  int leftlen = 0;
+  int rightlen = 0;
+
+  left = curl_easy_unescape(NULL, source, sep ? (size_t)(sep - source) : len,
+                            &leftlen);
+  if(sep)
+    right = curl_easy_unescape(NULL, sep + 1 , len - (sep - source) - 1,
+                               &rightlen);
+
+  return curl_maprintf("%.*s%s%.*s", leftlen, left,
+                       right ? "=":"",
+                       rightlen, right?right:"");
+}
+
+
 static void freeqpairs(void)
 {
   int i;
   for(i=0; i<nqpairs; i++) {
     free(qpairs[i]);
     qpairs[i] = NULL;
+    free(qpairsdec[i]);
+    qpairsdec[i] = NULL;
   }
   nqpairs = 0;
 }
 
+/* store the pair both encoded and decoded */
 static char *addqpair(char *pair, size_t len)
 {
   char *p = NULL;
+  char *pdec = NULL;
   if(nqpairs < MAX_QPAIRS) {
     p = memdupzero(pair, len);
-    if(p)
-      qpairs[nqpairs++] = p;
+    pdec = memdupdec(pair, len);
+    if(p && pdec) {
+      qpairs[nqpairs] = p;
+      qpairsdec[nqpairs] = pdec;
+      nqpairs++;
+    }
   }
   else
     warnf("too many query pairs");
