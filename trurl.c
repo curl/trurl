@@ -156,6 +156,7 @@ struct option {
   bool verify;
   bool accept_space;
   bool sort_query;
+  bool end_of_options;
   unsigned char output;
 
   /* -- stats -- */
@@ -278,7 +279,9 @@ static int getarg(struct option *op,
 {
   *usedarg = false;
 
-  if(!strcmp("-v", flag) || !strcmp("--version", flag))
+  if(!strcmp("--", flag))
+    op->end_of_options = true;
+  else if(!strcmp("-v", flag) || !strcmp("--version", flag))
     show_version();
   else if(!strcmp("-h", flag) || !strcmp("--help", flag))
     help();
@@ -860,9 +863,7 @@ int main(int argc, const char **argv)
 
   for(argc--, argv++; argc > 0; argc--, argv++) {
     bool usedarg = false;
-    if((argv[0][0] == '-' && argv[0][1] != '-') ||
-       /* single-dash prefix */
-       (argv[0][0] == '-' && argv[0][1] == '-')) {
+    if(!o.end_of_options && argv[0][0] == '-') {
       /* dash-dash prefixed */
       if(getarg(&o, argv[0], argv[1], &usedarg))
         errorf(ERROR_FLAG, "unknown option: %s", argv[0]);
