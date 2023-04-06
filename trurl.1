@@ -12,7 +12,8 @@ trurl \- transpose URLs
 parses, manipulates and outputs URLs and parts of URLs.
 
 It uses the RFC 3986 definition of URLs and it uses libcurl's URL parser to do
-so, which includes a few "extensions".
+so, which includes a few "extensions". The URL support is limited to
+"hierarchical" URLs, the ones that use "://" separators after the scheme.
 
 Typically you set a few inputs and decide what of that you want output.
 .SH "OPTIONS"
