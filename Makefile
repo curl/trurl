@@ -15,10 +15,14 @@ $(TARGET): $(OBJS)
 trurl.o:trurl.c version.h
 
 install:
-	$(INSTALL) -d $(BINDIR)
+	[ -d $(BINDIR) ] || $(INSTALL) -d $(BINDIR)
 	$(INSTALL) -m 0755 $(TARGET) $(BINDIR)
-	$(INSTALL) -d $(MANDIR)
+	[ -d $(MANDIR) ] || $(INSTALL) -d $(MANDIR)
 	$(INSTALL) -m 0644 $(MANUAL) $(MANDIR)
+
+uninstall:
+	[ -f $(BINDIR)/$(TARGET) ] && rm $(BINDIR)/$(TARGET)
+	[ -f $(MANDIR)/$(MANUAL) ] && rm $(MANDIR)/$(MANUAL)
 
 clean:
 	rm -f $(OBJS) $(TARGET)
