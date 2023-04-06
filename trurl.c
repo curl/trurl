@@ -529,19 +529,20 @@ static void json(struct option *o, CURLU *uh)
   }
   if(nqpairs) {
     int i;
-    fputs(",\n    \"params\": {\n", stdout);
+    fputs(",\n    \"params\": [\n", stdout);
     for(i=0 ; i < nqpairs; i++) {
       char *sep = strchr(qpairsdec[i], '=');
       if(i)
         fputs(",\n", stdout);
-      fputs("      ", stdout);
+      fputs("      {\n        \"key\": ", stdout);
       jsonString(stdout, qpairsdec[i],
                  sep ? (size_t)(sep - qpairsdec[i]) : strlen(qpairsdec[i]),
                  false);
-      fputs(": ", stdout);
+      fputs(",\n        \"value\": ", stdout);
       jsonString(stdout, sep ? sep + 1 : "", 0, false);
+      fputs("\n      }", stdout);
     }
-    fputs("\n    }", stdout);
+    fputs("\n    ]", stdout);
   }
   fputs("\n  }", stdout);
 }

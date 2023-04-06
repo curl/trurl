@@ -77,12 +77,24 @@ my %json_tests = (
             "port" => "443",
             "path" => "/",
             "query" => "utm=tra cker&address =home&here=now&thisthen",
-            "params" => {
-               "utm" => "tra cker",
-               "address " => "home",
-               "here" => "now",
-               "thisthen" => ""
-             }
+             "params" => [
+                 {
+                     "key" => "utm",
+                     "value" => "tra cker",
+                 },
+                 {
+                     "key" => "address ",
+                     "value" => "home",
+                 },
+                 {
+                     "key" => "here",
+                     "value" => "now"
+                 },
+                 {
+                     "key" => "thisthen",
+                    "value" => ""
+                 }
+             ]
         }
     ],
     "ftp://smith:secret\@example.com:33/path?search=me#where" => [
@@ -96,10 +108,12 @@ my %json_tests = (
             "password" => "secret",
             "query" => "search=me",
             "fragment" => "where",
-             "params" => {
-                 "search" => "me"
-            }
-            ,
+            "params" => [
+                {
+                    "key" => "search",
+                    "value" => "me"
+                }        
+            ]
         }
     ],
     "example.com" => [
