@@ -159,6 +159,10 @@ struct option {
   unsigned int urls;
 };
 
+#define MAX_QPAIRS 1000
+char *qpairs[MAX_QPAIRS];
+int nqpairs; /* how many is stored */
+
 static void urladd(struct option *o, const char *url)
 {
   struct curl_slist *n;
@@ -520,7 +524,7 @@ static void json(struct option *o, CURLU *uh)
 }
 
 /* --trim query="utm_*" */
-static void trim(CURLU *uh, struct option *o)
+static void trim(struct option *o)
 {
   struct curl_slist *node;
   for(node = o->trim_list; node; node=node->next) {
@@ -534,62 +538,113 @@ static void trim(CURLU *uh, struct option *o)
          asterisk */
       size_t inslen;
       bool pattern;
-      char *q;
-      CURLUcode rc;
+      int i;
 
       ptr++; /* pass the = */
       inslen = strlen(ptr);
       pattern = ptr[inslen - 1] == '*';
       if(pattern)
         inslen--;
-      rc = curl_url_get(uh, CURLUPART_QUERY, &q, 0);
-      if(!rc && q) {
-        bool updated = 0;
-        char *newq = q;
 
-        do {
-          char *end = strchr(q, '&');
-          char *sep = strchr(q, '=');
+      for(i=0 ; i < nqpairs; i++) {
+        char *q = qpairs[i];
+        char *sep = strchr(q, '=');
+        size_t qlen;
+        if(sep)
+          qlen = sep - q;
+        else
+          qlen = strlen(q);
 
-          if (! end) {
-            end = q + strlen(q);
-          }
-          if (! sep || sep > end) {
-            sep = end;
-          }
-
-          size_t qlen = sep - q;
-          if((pattern && (inslen <= qlen) &&
-              !strncasecmp(q, ptr, inslen)) ||
-              (!pattern && (inslen == qlen) &&
-              !strncasecmp(q, ptr, inslen))) {
-              /* this part should be stripped out */
-              if(end && *end) {
-                end++;
-                /* move the rest of the string to this position */
-                memmove(q, end, strlen(end)+1);
-              }
-              else {
-                /* don't leave a trailing ampersand */
-                if((q > newq) && (q[-1] == '&'))
-                  q--;
-                *q = 0;
-              }
-              updated = true;
-          }
-          else {
-            q = end;
-            if(!q)
-              break;
-            q++;
-          }
-        } while(*q);
-        if(updated)
-          rc = curl_url_set(uh, CURLUPART_QUERY, newq, 0);
-        curl_free(newq);
+        if((pattern && (inslen <= qlen) &&
+            !strncasecmp(q, ptr, inslen)) ||
+           (!pattern && (inslen == qlen) &&
+            !strncasecmp(q, ptr, inslen))) {
+          /* this qpair should be stripped out */
+          free(qpairs[i]);
+          qpairs[i] = strdup(""); /* marked as deleted */
+        }
       }
     }
   }
+}
+
+/* memdup the amount and add a trailing zero */
+char *memdupzero(char *source, size_t len)
+{
+  char *p = malloc(len + 1);
+  if(p) {
+    memcpy(p, source, len);
+    p[len] = 0;
+    return p;
+  }
+  return NULL;
+}
+
+static void freeqpairs(void)
+{
+  int i;
+  for(i=0; i<nqpairs; i++) {
+    free(qpairs[i]);
+    qpairs[i] = NULL;
+  }
+  nqpairs = 0;
+}
+
+static char *addqpair(char *pair, size_t len)
+{
+  char *p = NULL;
+  if(nqpairs < MAX_QPAIRS) {
+    p = memdupzero(pair, len);
+    if(p)
+      qpairs[nqpairs++] = p;
+  }
+  else
+    warnf("too many query pairs");
+  return p;
+}
+
+/* convert the query string into an array of name=data pair */
+static void extractqpairs(CURLU *uh)
+{
+  char *q = NULL;
+  memset(qpairs, 0, sizeof(qpairs));
+  nqpairs = 0;
+  /* extract the query */
+  if(!curl_url_get(uh, CURLUPART_QUERY, &q, 0)) {
+    char *p = q;
+    char *amp;
+    while(*p) {
+      size_t len;
+      amp = strchr(p, '&');
+      if(!amp)
+        len = strlen(p);
+      else
+        len = amp - p;
+      addqpair(p, len);
+      if(amp)
+        p = amp + 1;
+      else
+        break;
+    }
+  }
+  curl_free(q);
+}
+
+void qpair2query(CURLU *uh)
+{
+  int i;
+  int rc;
+  char *nq=NULL;
+  for(i=0; i<nqpairs; i++) {
+    nq = curl_maprintf("%s%s%s", nq?nq:"",
+                       (nq && *nq && *qpairs[i])? "&": "", qpairs[i]);
+  }
+  if(nq) {
+    rc = curl_url_set(uh, CURLUPART_QUERY, nq, 0);
+    if(rc)
+      warnf("internal problem");
+  }
+  curl_free(nq);
 }
 
 static void singleurl(struct option *o,
@@ -645,29 +700,18 @@ static void singleurl(struct option *o,
       curl_free(opath);
     }
 
+    extractqpairs(uh);
+
     /* append query segments */
     for(p = o->append_query; p; p=p->next) {
-      char *aq = p->data;
-      char *oq;
-      char *nq;
-      /* extract the current query */
-      if(!curl_url_get(uh, CURLUPART_QUERY, &oq, 0)) {
-        /* append the new segment */
-        nq = curl_maprintf("%s&%s", oq, aq);
-        if(nq)
-          /* set the new query */
-          curl_url_set(uh, CURLUPART_QUERY, nq, 0);
-        curl_free(nq);
-        curl_free(oq);
-      }
-      else {
-        /* no existing query, set the new one */
-        curl_url_set(uh, CURLUPART_QUERY, aq, 0);
-      }
+      addqpair(p->data, strlen(p->data));
     }
 
     /* trim parts */
-    trim(uh, o);
+    trim(o);
+
+    /* put the query back */
+    qpair2query(uh);
 
     if(o->jsonout)
       json(o, uh);
@@ -686,6 +730,9 @@ static void singleurl(struct option *o,
         errorf(ERROR_URL, "not enough input for a URL");
       }
     }
+
+    freeqpairs();
+
     o->urls++;
     curl_url_cleanup(uh);
 }
