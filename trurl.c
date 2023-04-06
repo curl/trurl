@@ -51,7 +51,7 @@
 #define PROGNAME        "trurl"
 
 /* if libcurl < 7.80.0 */
-#if (defined(LIBCURL_VERNUM) && (LIBCURL_VERNUM < 0x075000))
+#if LIBCURL_VERSION_NUM < 0x075000
 #define CURLUE_NO_ZONEID 18
 #define CURLU_ALLOW_SPACE 0
 #define curl_url_strerror(error) \

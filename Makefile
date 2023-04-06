@@ -1,9 +1,7 @@
 TARGET = trurl
 OBJS = trurl.o
 LDLIBS = -lcurl
-CFLAGS := $(CFLAGS) -W -Wall -pedantic -g \
-	-D LIBCURL_VERNUM="$(shell curl-config --vernum)"
-
+CFLAGS := $(CFLAGS) -W -Wall -pedantic -g
 MANUAL = trurl.1
 
 PREFIX ?= /usr/local
