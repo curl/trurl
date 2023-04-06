@@ -608,6 +608,7 @@ static void singleurl(struct option *o,
         if(o->verify)
           errorf(ERROR_BADURL, "%s [%s]", curl_url_strerror(rc), url);
         warnf("%s [%s]", curl_url_strerror(rc), url);
+        return;
       }
       else {
         if(o->redirect)
