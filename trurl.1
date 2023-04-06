@@ -78,6 +78,9 @@ which then typically is not actually a legal URL but trurl will try to figure
 out what is meant and guess what scheme to use.
 
 Providing multiple URLs will make trurl act on all URLs in a serial fashion.
+
+If the URL cannot be parsed for whatever reason, trurl will simply move on to
+the next provided URL - unless \fI--verify\fP is used.
 .IP "--trim [component]=[what]"
 Trims data off a component. Currently this can only trim a query component.
 
