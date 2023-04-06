@@ -83,6 +83,7 @@ static const struct var variables[] = {
 #define ERROR_URL    7 /* could not get a URL out of the set components */
 #define ERROR_TRIM   8 /* a --trim problem */
 #define ERROR_BADURL 9 /* if --verify is set and the URL cannot parse */
+#define ERROR_GET   10 /* bad --get syntax */
 
 static void warnf(char *fmt, ...)
 {
@@ -326,6 +327,27 @@ static int getarg(struct option *op,
   return 0;
 }
 
+static void showqkey(const char *key, size_t klen, bool urldecode)
+{
+  int i;
+  for(i=0; i< nqpairs; i++) {
+    if(urldecode) {
+      if(!strncmp(key, qpairsdec[i], klen) &&
+         (qpairsdec[i][klen] == '=')) {
+        fputs(&qpairsdec[i][klen+1], stdout);
+        break;
+      }
+    }
+    else {
+      if(!strncmp(key, qpairs[i], klen) &&
+         (qpairs[i][klen] == '=')) {
+        fputs(&qpairs[i][klen+1], stdout);
+        break;
+      }
+    }
+  }
+}
+
 static void get(struct option *op, CURLU *uh)
 {
   FILE *stream = stdout;
@@ -342,6 +364,7 @@ static void get(struct option *op, CURLU *uh)
       else {
         /* this is meant as a variable to output */
         char *end;
+        char *cl;
         size_t vlen;
         int i;
         bool urldecode = true;
@@ -357,34 +380,45 @@ static void get(struct option *op, CURLU *uh)
           ptr++;
         }
         vlen = end - ptr;
-        for(i = 0; variables[i].name; i++) {
-          if((strlen(variables[i].name) == vlen) &&
-             !strncasecmp(ptr, variables[i].name, vlen)) {
-            char *nurl;
-            CURLUcode rc;
-            rc = curl_url_get(uh, variables[i].part, &nurl,
-                              CURLU_DEFAULT_PORT|
-                              CURLU_NO_DEFAULT_PORT|
-                              (urldecode?CURLU_URLDECODE:0));
-            switch(rc) {
-            case CURLUE_OK:
-              fprintf(stream, "%s", nurl);
-              curl_free(nurl);
-            case CURLUE_NO_SCHEME:
-            case CURLUE_NO_USER:
-            case CURLUE_NO_PASSWORD:
-            case CURLUE_NO_OPTIONS:
-            case CURLUE_NO_HOST:
-            case CURLUE_NO_PORT:
-            case CURLUE_NO_QUERY:
-            case CURLUE_NO_FRAGMENT:
-            case CURLUE_NO_ZONEID:
-              /* silently ignore */
-              break;
-            default:
-              fprintf(stderr, PROGNAME ": %s (%s)\n", curl_url_strerror(rc),
-                      variables[i].name);
-              break;
+        /* check for a colon within here */
+        cl = memchr(ptr, ':', vlen);
+        if(cl) {
+          /* deduct the colon part */
+          if(!strncmp(ptr, "query:", 6))
+            showqkey(&ptr[6], end - cl - 1, urldecode);
+          else
+            errorf(ERROR_GET, "Bad --get syntax: %s", ptr);
+        }
+        else {
+          for(i = 0; variables[i].name; i++) {
+            if((strlen(variables[i].name) == vlen) &&
+               !strncasecmp(ptr, variables[i].name, vlen)) {
+              char *nurl;
+              CURLUcode rc;
+              rc = curl_url_get(uh, variables[i].part, &nurl,
+                                CURLU_DEFAULT_PORT|
+                                CURLU_NO_DEFAULT_PORT|
+                                (urldecode?CURLU_URLDECODE:0));
+              switch(rc) {
+              case CURLUE_OK:
+                fprintf(stream, "%s", nurl);
+                curl_free(nurl);
+              case CURLUE_NO_SCHEME:
+              case CURLUE_NO_USER:
+              case CURLUE_NO_PASSWORD:
+              case CURLUE_NO_OPTIONS:
+              case CURLUE_NO_HOST:
+              case CURLUE_NO_PORT:
+              case CURLUE_NO_QUERY:
+              case CURLUE_NO_FRAGMENT:
+              case CURLUE_NO_ZONEID:
+                /* silently ignore */
+                break;
+              default:
+                fprintf(stderr, PROGNAME ": %s (%s)\n", curl_url_strerror(rc),
+                        variables[i].name);
+                break;
+              }
             }
           }
         }
