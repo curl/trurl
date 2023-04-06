@@ -16,13 +16,7 @@ so, which includes a few "extensions".
 
 Typically you set a few inputs and decide what of that you want output.
 .SH "OPTIONS"
-.IP "--accept-space"
-When set, trurl will try to accept spaces as part of the URL and instead URL
-encode such occurances accordingly.
-
-According to RFC 3986, a space cannot legally be part of a URL. This option
-provides a best-effort to convert the provided string into a valid URL.
-.IP "--append [component]=[data]"
+.IP "-a, --append [component]=[data]"
 Append data to a component. This can only append data to the path and the
 query components.
 
@@ -33,6 +27,12 @@ For query, this URL encodes and appends the new segment to the query,
 separated with an ampersand (&). If the appended segment contains an equal
 sign ('=') that one will be kept verbatim and both sides of the first
 occurrence will be URL encoded separately.
+.IP "--accept-space"
+When set, trurl will try to accept spaces as part of the URL and instead URL
+encode such occurances accordingly.
+
+According to RFC 3986, a space cannot legally be part of a URL. This option
+provides a best-effort to convert the provided string into a valid URL.
 .IP "-f, --url-file [file name]"
 Read URLs to work on from the given file. Use the file name "-" (a single
 minus) to tell trurl to read the URLs from stdin.
