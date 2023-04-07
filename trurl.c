@@ -502,7 +502,7 @@ static void set(CURLU *uh,
 static void jsonString(FILE *stream, const char *in, size_t len,
                        bool lowercase)
 {
-  const char *i = in;
+  const unsigned char *i = (unsigned char *)in;
   const char *in_end;
 
   if(!len)
@@ -511,7 +511,7 @@ static void jsonString(FILE *stream, const char *in, size_t len,
     in_end = &in[len];
 
   fputc('\"', stream);
-  for(; i < in_end; i++) {
+  for(; i < (unsigned char *)in_end; i++) {
     switch(*i) {
     case '\\':
       fputs("\\\\", stream);
@@ -535,9 +535,8 @@ static void jsonString(FILE *stream, const char *in, size_t len,
       fputs("\\t", stream);
       break;
     default:
-      if (*i < 32) {
+      if (*i < 32)
         fprintf(stream, "u%04x", *i);
-      }
       else {
         char out = *i;
         if(lowercase && (out >= 'A' && out <= 'Z'))
