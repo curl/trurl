@@ -59,7 +59,7 @@
    here such that we may at least show the numeric value the user 
    may lookup */
 #define curl_url_strerror(error) \
-  "unsupported CURLUcode error"
+  fprintf(stderr, "URL error: %u\n", (int)error)
 #endif
 
 struct var {
@@ -340,7 +340,7 @@ static int getarg(struct option *op,
   else if(!strcmp("--accept-space", flag))
     if(!CURLU_ALLOW_SPACE) {
       warnf("%s","--accept-space is not supported in this version of libcurl");
-    }
+    } 
     else {
       op->accept_space = true;
     }
