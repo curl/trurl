@@ -38,16 +38,20 @@ my @t = (
     "--url https://curl.se/we/are.html --get \"{host}\"|curl.se",
     "--url https://10.1/we/are.html --get \"{host}\"|10.0.0.1",
     "--url https://[fe80::0000:20c:29ff:fe9c:409b]:8080/we/are.html --get \"{host}\"|[fe80::20c:29ff:fe9c:409b]",
+    "--url https://[fe80::0000:20c:29ff:fe9c:409b%euth0]:8080/we/are.html --get \"{zoneid}\"|euth0",
     "--url https://[fe80::0000:20c:29ff:fe9c:409b%eth0]:8080/we/are.html --get \"{zoneid}\"|eth0",
     "--url \"https://curl.se/we/are.html?user=many#more\" --get \"{query}\"|user=many",
     "--url \"https://curl.se/we/are.html?user=many#more\" --get \"{fragment}\"|more",
     "--url https://curl.se/we/are.html -g \"{port}\"|443",
     "--url https://curl.se/hello --append path=you|https://curl.se/hello/you",
+    "--url https://curl.se/hello --append \"path=you index.html\"|https://curl.se/hello/you%20index.html",
     "--url \"https://curl.se?name=hello\" --append query=search=string|https://curl.se/?name=hello&search=string",
     "--url https://curl.se/hello --set user=:hej:|https://%3ahej%3a\@curl.se/hello",
     "--url https://curl.se/hello --set user=hej --set password=secret|https://hej:secret\@curl.se/hello",
     "--url https://curl.se/hello --set query:=user=me|https://curl.se/hello?user=me",
+    "--url https://curl.se/hello --set query=user=me|https://curl.se/hello?user%3dme",
     "--url https://curl.se/hello --set fragment=\" hello\"|https://curl.se/hello#%20hello",
+    "--url https://curl.se/hello --set fragment:=\"%20hello\"|https://curl.se/hello#%20hello",
     "localhost --append query=hello=foo|http://localhost/?hello=foo",
     "localhost -a query=hello=foo|http://localhost/?hello=foo",
     "\"https://example.com?search=hello&utm_source=tracker\" --trim query=\"utm_*\"|https://example.com/?search=hello",
@@ -68,7 +72,12 @@ my @t = (
     "ftp://hello:443/foo -s scheme=https|https://hello/foo",
     "\"https://example.com?utm_source=tra%20cker&address%20=home&here=now&thisthen\" -g {query:utm_source}|tra cker",
     "\"https://example.com?utm_source=tra%20cker&address%20=home&here=now&thisthen\" -g {:query:utm_source}|tra%20cker",
+    "\"https://example.com?utm_source=tra%20cker&address%20=home&here=now&thisthen\" -g {:query:utm_}|",
+    "\"https://example.com?utm_source=tra%20cker&address%20=home&here=now&thisthen\" -g {:query:UTM_SOURCE}|",
     "\"https://example.com?utm_source=tracker&monkey=123\" --sort-query|https://example.com/?monkey=123&utm_source=tracker",
+    "\"https://example.com?a=b&c=d&\" --sort-query|https://example.com/?a=b&c=d",
+    "\"https://example.com?a=b&c=d&\" --sort-query --trim query=a |https://example.com/?c=d",
+    "example.com:29 --set port=|http://example.com/",
 );
 
 my %json_tests = (
@@ -115,7 +124,7 @@ my %json_tests = (
                 {
                     "key" => "search",
                     "value" => "me"
-                }        
+                }
             ]
         }
     ],
