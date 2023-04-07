@@ -54,8 +54,12 @@
 #if LIBCURL_VERSION_NUM < 0x075000
 #define CURLUE_NO_ZONEID 18
 #define CURLU_ALLOW_SPACE 0
+/* curl_url_strerror is not available below this version number, 
+   we need a safe way to convert CURLUcode into a const char*
+   here such that we may at least show the numeric value the user 
+   may lookup */
 #define curl_url_strerror(error) \
-  fprintf(stderr, "URL error: %s\n", curl_easy_strerror(error))
+  "unsupported CURLUcode error"
 #endif
 
 struct var {
@@ -334,7 +338,12 @@ static int getarg(struct option *op,
   else if(!strcmp("--verify", flag))
     op->verify = true;
   else if(!strcmp("--accept-space", flag))
-    op->accept_space = true;
+    if(!CURLU_ALLOW_SPACE) {
+      warnf("%s","--accept-space is not supported in this version of libcurl");
+    }
+    else {
+      op->accept_space = true;
+    }
   else if(!strcmp("--sort-query", flag))
     op->sort_query = true;
   else
