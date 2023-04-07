@@ -78,6 +78,10 @@ my @t = (
     "\"https://example.com?a=b&c=d&\" --sort-query|https://example.com/?a=b&c=d",
     "\"https://example.com?a=b&c=d&\" --sort-query --trim query=a |https://example.com/?c=d",
     "example.com:29 --set port=|http://example.com/",
+    "--url HTTPS://example.com|https://example.com/",
+    "--url https://EXAMPLE.com|https://EXAMPLE.com/",
+    "--url https://example.com/FOO/BAR|https://example.com/FOO/BAR",
+    "--url [2001:0db8:0000:0000:0000:ff00:0042:8329]|http://[2001:db8::ff00:42:8329]/",
 );
 
 my %json_tests = (
