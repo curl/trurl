@@ -37,6 +37,18 @@
 #define strdup _strdup
 #endif
 
+#if CURL_AT_LEAST_VERSION(7,81,0)
+#define SUPPORTS_ZONEID
+#endif
+#if CURL_AT_LEAST_VERSION(7,80,0)
+#define SUPPORTS_URL_STRERROR
+#endif
+#if CURL_AT_LEAST_VERSION(7,78,0)
+#define SUPPORTS_ALLOW_SPACE
+#else
+#define CURLU_ALLOW_SPACE 0
+#endif
+
 #define OUTPUT_URL      0  /* default */
 #define OUTPUT_SCHEME   1
 #define OUTPUT_USER     2
@@ -86,6 +98,16 @@ static const struct var variables[] = {
 #define ERROR_TRIM   8 /* a --trim problem */
 #define ERROR_BADURL 9 /* if --verify is set and the URL cannot parse */
 #define ERROR_GET   10 /* bad --get syntax */
+
+#ifndef SUPPORTS_URL_STRERROR
+/* provide a fake local mockup */
+static char *curl_url_strerror(CURLUcode error)
+{
+  static char buffer[128];
+  curl_msnprintf(buffer, sizeof(buffer), "URL error %u", (int)error);
+  return buffer;
+}
+#endif
 
 static void warnf(char *fmt, ...)
 {
@@ -327,8 +349,13 @@ static int getarg(struct option *op,
     op->jsonout = true;
   else if(!strcmp("--verify", flag))
     op->verify = true;
-  else if(!strcmp("--accept-space", flag))
+  else if(!strcmp("--accept-space", flag)) {
+#ifdef SUPPORTS_ALLOW_SPACE
     op->accept_space = true;
+#else
+    warnf("built with too old libcurl version, --accept-space does not work");
+#endif
+  }
   else if(!strcmp("--sort-query", flag))
     op->sort_query = true;
   else
@@ -420,7 +447,9 @@ static void get(struct option *op, CURLU *uh)
               case CURLUE_NO_PORT:
               case CURLUE_NO_QUERY:
               case CURLUE_NO_FRAGMENT:
+#ifdef SUPPORTS_ZONEID
               case CURLUE_NO_ZONEID:
+#endif
                 /* silently ignore */
                 break;
               default:
