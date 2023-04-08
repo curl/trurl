@@ -339,7 +339,7 @@ static int getarg(struct option *op,
   else if(checkoptarg("--query-separator", flag, arg)) {
     if(op->qsep)
       errorf(ERROR_FLAG, "only one --query-separator is supported");
-    if(strlen(arg) > 1)
+    if(strlen(arg) != 1)
       errorf(ERROR_FLAG, "only single-letter query separators are supported");
     op->qsep = arg;
     *usedarg = 1;
