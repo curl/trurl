@@ -82,6 +82,8 @@ my @t = (
     "--url https://EXAMPLE.com|https://EXAMPLE.com/",
     "--url https://example.com/FOO/BAR|https://example.com/FOO/BAR",
     "--url [2001:0db8:0000:0000:0000:ff00:0042:8329]|http://[2001:db8::ff00:42:8329]/",
+    "\"https://example.com?utm=tra%20cker:address%20=home:here=now:thisthen\" --sort-query --query-separator \":\"|https://example.com/?address%20=home:here=now:thisthen:utm=tra%20cker",
+    "\"foo?a=bCd=eCe=f\" --query-separator C --trim query=d|http://foo/?a=bCe=f",
 );
 
 my %json_tests = (

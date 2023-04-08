@@ -141,6 +141,7 @@ static void help(void)
           "  -g, --get [{component}s]     - output component(s)\n"
           "  -h, --help                   - this help\n"
           "  --json                       - output URL as JSON\n"
+          "  --query-separator [letter]   - if something else than '&'\n"
           "  --redirect [URL]             - redirect to this\n"
           "  -s, --set [component]=[data] - set component content\n"
           "  --sort-query                 - alpha-sort the query pairs\n"
@@ -173,6 +174,7 @@ struct option {
   struct curl_slist *set_list;
   struct curl_slist *trim_list;
   const char *redirect;
+  const char *qsep;
   const char *format;
   FILE *url;
   bool urlopen;
@@ -332,6 +334,14 @@ static int getarg(struct option *op,
     if(op->redirect)
       errorf(ERROR_FLAG, "only one --redirect is supported");
     op->redirect = arg;
+    *usedarg = 1;
+  }
+  else if(checkoptarg("--query-separator", flag, arg)) {
+    if(op->qsep)
+      errorf(ERROR_FLAG, "only one --query-separator is supported");
+    if(strlen(arg) != 1)
+      errorf(ERROR_FLAG, "only single-letter query separators are supported");
+    op->qsep = arg;
     *usedarg = 1;
   }
   else if(checkoptarg("--trim", flag, arg)) {
@@ -730,7 +740,7 @@ static char *addqpair(char *pair, size_t len)
 }
 
 /* convert the query string into an array of name=data pair */
-static void extractqpairs(CURLU *uh)
+static void extractqpairs(CURLU *uh, struct option *o)
 {
   char *q = NULL;
   memset(qpairs, 0, sizeof(qpairs));
@@ -741,7 +751,7 @@ static void extractqpairs(CURLU *uh)
     char *amp;
     while(*p) {
       size_t len;
-      amp = strchr(p, '&');
+      amp = strchr(p, o->qsep[0]);
       if(!amp)
         len = strlen(p);
       else
@@ -756,14 +766,14 @@ static void extractqpairs(CURLU *uh)
   curl_free(q);
 }
 
-static void qpair2query(CURLU *uh)
+static void qpair2query(CURLU *uh, struct option *o)
 {
   int i;
   int rc;
   char *nq=NULL;
   for(i=0; i<nqpairs; i++) {
     nq = curl_maprintf("%s%s%s", nq?nq:"",
-                       (nq && *nq && *qpairs[i])? "&": "", qpairs[i]);
+                       (nq && *nq && *qpairs[i])? o->qsep: "", qpairs[i]);
   }
   if(nq) {
     rc = curl_url_set(uh, CURLUPART_QUERY, nq, 0);
@@ -842,7 +852,7 @@ static void singleurl(struct option *o,
       curl_free(opath);
     }
 
-    extractqpairs(uh);
+    extractqpairs(uh, o);
 
     /* append query segments */
     for(p = o->append_query; p; p=p->next) {
@@ -855,7 +865,7 @@ static void singleurl(struct option *o,
     sortquery(o);
 
     /* put the query back */
-    qpair2query(uh);
+    qpair2query(uh, o);
 
     if(o->jsonout)
       json(o, uh);
@@ -908,6 +918,8 @@ int main(int argc, const char **argv)
       argv++;
     }
   }
+  if(!o.qsep)
+    o.qsep = "&";
 
   if(o.jsonout)
     fputs("[\n", stdout);

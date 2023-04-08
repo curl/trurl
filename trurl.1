@@ -71,6 +71,12 @@ Show the help output.
 Outputs all set components of the URLs as JSON objects. All components of the
 URL that has data will get populated in the object using their component
 names.
+.IP "--query-separator [what]"
+Specify the single letter used for separating query pairs. The default is "&"
+but at least in the past sometimes semicolons ";" or even colons ":" have been
+used for this purpose. If your URL uses something other than the default
+letter, setting the right one makes sure trurl can do its query operations
+properly.
 .IP "--redirect [URL]"
 Redirect the URL to this new location. It requires that you set the base url
 with \fB--url\fP
