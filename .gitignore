@@ -53,3 +53,10 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Output files from msvc
+winbuild/bin/
+winbuild/obj/
+
+# Dependencies for msvc from vcpkg
+winbuild/vcpkg_installed/

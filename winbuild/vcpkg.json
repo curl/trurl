@@ -1,0 +1,7 @@
+{
+  "name": "trurl",
+  "version": "0.4",
+  "dependencies": [
+    "curl"
+  ]
+}
