@@ -521,12 +521,16 @@ static void set(CURLU *uh,
       for(i=0; variables[i].name; i++) {
         if((strlen(variables[i].name) == vlen) &&
            !strncasecmp(set, variables[i].name, vlen)) {
+          CURLUcode rc;
           if(varset[i])
             errorf(ERROR_SET, "A component can only be set once per URL (%s)",
                    variables[i].name);
-          curl_url_set(uh, variables[i].part, ptr[1] ? &ptr[1] : NULL,
-                       CURLU_NON_SUPPORT_SCHEME|
-                       (urlencode ? CURLU_URLENCODE : 0) );
+          rc = curl_url_set(uh, variables[i].part, ptr[1] ? &ptr[1] : NULL,
+                            CURLU_NON_SUPPORT_SCHEME|
+                            (urlencode ? CURLU_URLENCODE : 0) );
+          if(rc)
+            warnf("Error setting %s: %s", variables[i].name,
+                  curl_url_strerror(rc));
           found = true;
           varset[i] = true;
           break;
