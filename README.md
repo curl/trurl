@@ -80,3 +80,8 @@ trurl also uses `CURLUPART_ZONEID` added in libcurl 7.81.0 and
 
 It would certainly be possible to make trurl work with older libcurl versions
 if someone wanted to.
+
+### Older libcurls
+
+trurl builds with libcurl older than 7.81.0 but will then not work as
+good. For all the documented goodness, use a more modern libcurl.
