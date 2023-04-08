@@ -33,6 +33,8 @@
 
 #ifdef _MSC_VER
 #define strncasecmp _strnicmp
+#define strcasecmp _stricmp
+#define strdup _strdup
 #endif
 
 #define OUTPUT_URL      0  /* default */
