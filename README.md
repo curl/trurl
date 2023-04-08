@@ -59,7 +59,7 @@ command line tool for URL parsing and manipulation
 
 ## Install
 
-On Linux :
+**On Linux :**
 
 It's quite easy to compile the C source with GCC :
 
@@ -68,6 +68,12 @@ $ make
 cc  -W -Wall -pedantic -g   -c -o trurl.o trurl.c
 cc   trurl.o  -lcurl -o trurl
 ```
+
+**On Windows:**
+1. Download and run [Cygwin installer.](https://www.cygwin.com/install.html)
+2. Follow the instructions provided by the installer. When prompted to select packages, make sure to choose the following: curl, libcurl-devel, libcurl4, make and gcc-core.
+3. (optional) Add the Cygwin bin directory to your system PATH variable.
+4. Use `make`, just like on Linux.
 
 ## Prerequisites
 
