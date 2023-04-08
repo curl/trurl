@@ -24,3 +24,20 @@ jobs:
 
     - name: test
       run: make test
+
+  build-win:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: install cygwin
+        uses: cygwin/cygwin-install-action@master
+        with:
+          packages: curl, libcurl-devel, libcurl4, make, gcc-core
+
+      - name: make
+        run: make
+
+      - name: test
+        run: make test
