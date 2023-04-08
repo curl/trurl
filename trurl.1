@@ -15,7 +15,13 @@ It uses the RFC 3986 definition of URLs and it uses libcurl's URL parser to do
 so, which includes a few "extensions". The URL support is limited to
 "hierarchical" URLs, the ones that use "://" separators after the scheme.
 
-Typically you set a few inputs and decide what of that you want output.
+Typically you pass in one or more URLs and decide what of that you want
+output. Posssibly modifying the URL as well.
+
+trurl knows URLs and every URL consists of up to ten separate and independent
+"components". These components can be extracted, removed and updated with
+trurl and they are referred to by their respective names: scheme, user,
+password, options, host, port, path, query, fragment and zoneid.
 .SH "OPTIONS"
 .IP "-a, --append [component]=[data]"
 Append data to a component. This can only append data to the path and the
@@ -41,12 +47,12 @@ minus) to tell trurl to read the URLs from stdin.
 Each line needs to be a single valid URL and the line needs to end with a
 newline. The maximum URL length supported in a file like this is 4095 bytes.
 .IP "-g, --get [format]"
-Output data according to the provided format string. Components from the URL
-can be output when specified as \fB{component}\fP, with the name of the part
-within curly braces. The following component names are available: {url},
-{scheme}, {user}, {password}, {options}, {host}, {port}, {path}, {query},
-{fragment} and {zoneid}. All other text in the format string will be shown
-as-is.
+Output URL data according to the provided format string. Components from the
+URL can be output when specified as \fB{component}\fP, with the name of the
+part show within curly braces. The following component names are available:
+{url}, {scheme}, {user}, {password}, {options}, {host}, {port}, {path},
+{query}, {fragment} and {zoneid}. All other text in the format string will be
+shown as-is.
 
 Components are shown URL decoded by default. If you instead write the
 component prefixed with a colon like "{:path}", it gets output URL encoded.
@@ -55,21 +61,22 @@ Hosts provided as IPv6 numerical addresses will be provided within square
 brackets. Like "[fe80::20c:29ff:fe9c:409b]".
 
 Hosts provided as IPv4 numerical addresses will be "normalized" and provided
-as four dot-separated decimal numbers.
+as four dot-separated decimal numbers when output.
 
 You can access specific keys in the query string using the format
-\fB{query:key}\fP. Then the value of the first matching key will be
-output.
+\fB{query:key}\fP. Then the value of the first matching key will be output.
 .IP "-h, --help"
 Show the help output.
 .IP "--json"
-Outputs all components of the URL as a JSON object. All components of the URL
-that has data will get populated in the object using their component names.
+Outputs all set components of the URLs as JSON objects. All components of the
+URL that has data will get populated in the object using their component
+names.
 .IP "--redirect [URL]"
-Redirect the base URL to this. It requires that you set the base url with \fB--url\fP
+Redirect the URL to this new location. It requires that you set the base url
+with \fB--url\fP
 .IP "-s, --set [component][:]=[data]"
-Set this URL component. Setting blank string ("") will clear it from the
-URL.
+Set this URL component. Setting blank string ("") will clear the component
+from the URL.
 
 The following components can be set: url, scheme, user, password,
 options, host, port, path, query, fragment and zoneid.
@@ -78,9 +85,9 @@ If a simple "="-assignment is used, the data is URL encoded when applied. If
 ":=" is used, the data is assumed to already be URL encoded and will be stored
 as-is.
 .IP "--sort-query"
-The variable=content tuplets in the query component are sorted in a case
+The "variable=content" tuplets in the query component are sorted in a case
 insensitive alphabetical order. This helps making URLs identical that
-otherwise only had their query pairs in a different orders.
+otherwise only had their query pairs in different orders.
 .IP "--url [URL]"
 Set the input URL to work with. The URL may be provided without a scheme,
 which then typically is not actually a legal URL but trurl will try to figure
@@ -94,8 +101,8 @@ the next provided URL - unless \fI--verify\fP is used.
 Trims data off a component. Currently this can only trim a query component.
 
 "what" is specified as a full word or as a word prefix (using a single
-trailing asterisk) which make trurl remove tuples from the query string that
-match the instruction.
+trailing asterisk ('*')) which makes trurl remove the tuples from the query
+string that match the instruction.
 .IP "-v, --version"
 Show version information and exit.
 .IP "--verify"
