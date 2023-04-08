@@ -229,7 +229,7 @@ static void pathadd(struct option *o, const char *path)
     if(n) {
       o->append_path = n;
     }
-    free(urle);
+    curl_free(urle);
   }
 }
 
@@ -253,7 +253,7 @@ static void queryadd(struct option *o, const char *query)
     if(n) {
       o->append_query = n;
     }
-    free(urle);
+    curl_free(urle);
   }
 }
 
@@ -702,6 +702,7 @@ static char *memdupdec(char *source, size_t len)
   char *sep = memchr(source, '=', len);
   char *left = NULL;
   char *right = NULL;
+  char *str, *dup;
   int leftlen = 0;
   int rightlen = 0;
 
@@ -711,9 +712,14 @@ static char *memdupdec(char *source, size_t len)
     right = curl_easy_unescape(NULL, sep + 1 , len - (sep - source) - 1,
                                &rightlen);
 
-  return curl_maprintf("%.*s%s%.*s", leftlen, left,
-                       right ? "=":"",
-                       rightlen, right?right:"");
+  str = curl_maprintf("%.*s%s%.*s", leftlen, left,
+                      right ? "=":"",
+                      rightlen, right?right:"");
+  curl_free(right);
+  curl_free(left);
+  dup = strdup(str);
+  curl_free(str);
+  return dup;
 }
 
 
@@ -780,9 +786,12 @@ static void qpair2query(CURLU *uh, struct option *o)
   int i;
   int rc;
   char *nq=NULL;
+  char *oldnq;
   for(i=0; i<nqpairs; i++) {
+    oldnq = nq;
     nq = curl_maprintf("%s%s%s", nq?nq:"",
                        (nq && *nq && *qpairs[i])? o->qsep: "", qpairs[i]);
+    curl_free(oldnq);
   }
   if(nq) {
     rc = curl_url_set(uh, CURLUPART_QUERY, nq, 0);
