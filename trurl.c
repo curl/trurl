@@ -260,9 +260,9 @@ static void queryadd(struct option *o, const char *query)
 static void appendadd(struct option *o,
                       const char *arg)
 {
-  if(!strncasecmp("path=", arg, 5))
+  if(!strncmp("path=", arg, 5))
     pathadd(o, arg + 5);
-  else if(!strncasecmp("query=", arg, 6))
+  else if(!strncmp("query=", arg, 6))
     queryadd(o, arg + 6);
   else
     errorf(ERROR_APPEND, "--append unsupported component: %s", arg);
@@ -438,7 +438,7 @@ static void get(struct option *op, CURLU *uh)
         else {
           for(i = 0; variables[i].name; i++) {
             if((strlen(variables[i].name) == vlen) &&
-               !strncasecmp(ptr, variables[i].name, vlen)) {
+               !strncmp(ptr, variables[i].name, vlen)) {
               char *nurl;
               CURLUcode rc;
               rc = curl_url_get(uh, variables[i].part, &nurl,
@@ -520,7 +520,7 @@ static void set(CURLU *uh,
       }
       for(i=0; variables[i].name; i++) {
         if((strlen(variables[i].name) == vlen) &&
-           !strncasecmp(set, variables[i].name, vlen)) {
+           !strncmp(set, variables[i].name, vlen)) {
           CURLUcode rc;
           if(varset[i])
             errorf(ERROR_SET, "A component can only be set once per URL (%s)",
@@ -638,7 +638,7 @@ static void trim(struct option *o)
   struct curl_slist *node;
   for(node = o->trim_list; node; node=node->next) {
     char *instr = node->data;
-    if(strncasecmp(instr, "query", 5))
+    if(strncmp(instr, "query", 5))
       /* for now we can only trim query components */
       errorf(ERROR_TRIM, "Unsupported trim component: %s", instr);
     char *ptr = strchr(instr, '=');
