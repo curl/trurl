@@ -352,11 +352,16 @@ static int getarg(struct option *op,
           checkoptarg("--get", flag, arg)) {
     if(op->format)
       errorf(ERROR_FLAG, "only one --get is supported");
+    if(op->jsonout)
+      errorf(ERROR_FLAG, "--get is mututally exclusive with --json");
     op->format = arg;
     *usedarg = 1;
   }
-  else if(!strcmp("--json", flag))
+  else if(!strcmp("--json", flag)) {
+    if(op->format)
+      errorf(ERROR_FLAG, "--json is mututally exclusive with --get");
     op->jsonout = true;
+  }
   else if(!strcmp("--verify", flag))
     op->verify = true;
   else if(!strcmp("--accept-space", flag)) {
