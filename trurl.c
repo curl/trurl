@@ -60,7 +60,7 @@
 #define OUTPUT_QUERY    8
 #define OUTPUT_FRAGMENT 9
 #define OUTPUT_ZONEID   10
-#define NUM_COMPONENTS 11 /* including "url" */
+#define NUM_COMPONENTS  11 /* including "url" */
 
 #define PROGNAME        "trurl"
 
