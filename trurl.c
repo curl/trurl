@@ -438,7 +438,7 @@ static void get(struct option *op, CURLU *uh)
         else {
           for(i = 0; variables[i].name; i++) {
             if((strlen(variables[i].name) == vlen) &&
-               !strncasecmp(ptr, variables[i].name, vlen)) {
+               !strncmp(ptr, variables[i].name, vlen)) {
               char *nurl;
               CURLUcode rc;
               rc = curl_url_get(uh, variables[i].part, &nurl,
