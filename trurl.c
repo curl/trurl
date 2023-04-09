@@ -225,7 +225,7 @@ static void pathadd(struct option *o, const char *path)
   struct curl_slist *n;
   char *urle = curl_easy_escape(NULL, path, 0);
   if(urle) {
-    n = curl_slist_append(o->append_path, strdup(urle));
+    n = curl_slist_append(o->append_path, urle);
     if(n) {
       o->append_path = n;
     }
@@ -249,7 +249,7 @@ static void queryadd(struct option *o, const char *query)
   else
     urle = curl_easy_escape(NULL, query, 0);
   if(urle) {
-    n = curl_slist_append(o->append_query, strdup(urle));
+    n = curl_slist_append(o->append_query, urle);
     if(n) {
       o->append_query = n;
     }
