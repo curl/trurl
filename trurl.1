@@ -49,10 +49,10 @@ newline. The maximum URL length supported in a file like this is 4095 bytes.
 .IP "-g, --get [format]"
 Output URL data according to the provided format string. Components from the
 URL can be output when specified as \fB{component}\fP, with the name of the
-part show within curly braces. The following component names are available:
-{url}, {scheme}, {user}, {password}, {options}, {host}, {port}, {path},
-{query}, {fragment} and {zoneid}. All other text in the format string will be
-shown as-is.
+part show within curly braces. The following component names are available
+(case sensitive): {url}, {scheme}, {user}, {password}, {options}, {host},
+{port}, {path}, {query}, {fragment} and {zoneid}. All other text in the format
+string will be shown as-is.
 
 Components are shown URL decoded by default. If you instead write the
 component prefixed with a colon like "{:path}", it gets output URL encoded.
@@ -71,6 +71,12 @@ Show the help output.
 Outputs all set components of the URLs as JSON objects. All components of the
 URL that has data will get populated in the object using their component
 names.
+.IP "--query-separator [what]"
+Specify the single letter used for separating query pairs. The default is "&"
+but at least in the past sometimes semicolons ";" or even colons ":" have been
+used for this purpose. If your URL uses something other than the default
+letter, setting the right one makes sure trurl can do its query operations
+properly.
 .IP "--redirect [URL]"
 Redirect the URL to this new location. It requires that you set the base url
 with \fB--url\fP
@@ -181,8 +187,24 @@ https://curl.se/?search=hey
 .fi
 .IP "Show a specific query key value"
 .nf
-$ trurl "https://example.com?address=home&here=now&thisthen" -g '{query:address}'
+$ trurl "https://example.com?a=home&here=now&thisthen" -g '{query:a}'
 home
 .fi
+.IP "Sort the key/value pairs in the query component"
+.nf
+$ trurl "https://example.com?b=a&c=b&a=c" --sort-query
+https://example.com?a=c&b=a&c=b
+.fi
+.IP "Work with a query that uses a semicolon separator"
+.nf
+$ trurl "https://curl.se?search=fool;page=5" --trim query="search" --query-separator ";"
+https://curl.se?page=5
+.fi
+.IP "Accept spaces in the URL path"
+.nf
+$ trurl "https://curl.se/this has space/index.html" --accept-space
+https://curl.se/this%20has%20space/index.html
+.fi
+
 .SH WWW
 https://github.com/curl/trurl

@@ -8,8 +8,18 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        build:
+        - name: default
+        - name: clang UBSAN
+          install_packages: clang
+          make_opts: >
+            CC=clang
+            CFLAGS="-fsanitize=undefined,signed-integer-overflow -Wformat -Werror=format-security -Werror=array-bounds -g"
+            LDFLAGS="-fsanitize=undefined,signed-integer-overflow -g"
 
     steps:
     - uses: actions/checkout@v3
@@ -17,10 +27,33 @@ jobs:
     - name: install libcurl
       run: |
         sudo apt-get update
-        sudo apt-get install libcurl4-openssl-dev
+        sudo apt-get install libcurl4-openssl-dev ${{ matrix.build.install_packages }}
 
     - name: make
-      run: make
+      run: make ${{ matrix.build.make_opts }}
+
+    - name: sanity test
+      run: ./trurl -v
 
     - name: test
       run: make test
+
+  build-cygwin:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: install cygwin
+        uses: cygwin/cygwin-install-action@master
+        with:
+          packages: curl, libcurl-devel, libcurl4, make, gcc-core
+
+      - name: make
+        run: make
+
+      - name: sanity test
+        run: ./trurl -v
+
+      - name: test
+        run: make test
