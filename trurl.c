@@ -611,6 +611,7 @@ static void json(struct option *o, CURLU *uh)
       printf("    \"%s\": ", variables[i].name);
       jsonString(stdout, nurl, 0, false);
     }
+    curl_free(nurl);
   }
   if(nqpairs) {
     int i;
@@ -697,6 +698,7 @@ static char *memdupdec(char *source, size_t len)
   char *sep = memchr(source, '=', len);
   char *left = NULL;
   char *right = NULL;
+  char *ret = NULL;
   int leftlen = 0;
   int rightlen = 0;
 
@@ -706,9 +708,13 @@ static char *memdupdec(char *source, size_t len)
     right = curl_easy_unescape(NULL, sep + 1 , len - (sep - source) - 1,
                                &rightlen);
 
-  return curl_maprintf("%.*s%s%.*s", leftlen, left,
+
+  ret = curl_maprintf("%.*s%s%.*s", leftlen, left,
                        right ? "=":"",
                        rightlen, right?right:"");
+  curl_free(left);
+  curl_free(right);
+  return ret;
 }
 
 
