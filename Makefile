@@ -25,3 +25,6 @@ clean:
 
 test:
 	@perl test.pl
+
+checksrc:
+	./checksrc.pl trurl.c version.h

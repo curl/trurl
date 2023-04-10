@@ -29,6 +29,9 @@ jobs:
         sudo apt-get update
         sudo apt-get install libcurl4-openssl-dev ${{ matrix.build.install_packages }}
 
+    - name: code style check
+      run: make checksrc
+
     - name: make
       run: make ${{ matrix.build.make_opts }}
 
