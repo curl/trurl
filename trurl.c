@@ -616,6 +616,7 @@ static void json(struct option *o, CURLU *uh)
         fputs(",\n", stdout);
       printf("    \"%s\": ", variables[i].name);
       jsonString(stdout, nurl, 0, false);
+      curl_free(nurl);
     }
   }
   if(nqpairs) {
