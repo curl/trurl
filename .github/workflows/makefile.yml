@@ -14,12 +14,12 @@ jobs:
       matrix:
         build:
         - name: default
-        - name: clang UBSAN
+        - name: clang sanitizers
           install_packages: clang
           make_opts: >
             CC=clang
-            CFLAGS="-fsanitize=undefined,signed-integer-overflow -Wformat -Werror=format-security -Werror=array-bounds -g"
-            LDFLAGS="-fsanitize=undefined,signed-integer-overflow -g"
+            CFLAGS="-fsanitize=address,undefined,signed-integer-overflow -Wformat -Werror=format-security -Werror=array-bounds -g"
+            LDFLAGS="-fsanitize=address,undefined,signed-integer-overflow -g"
 
     steps:
     - uses: actions/checkout@v3
