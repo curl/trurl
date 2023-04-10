@@ -42,7 +42,7 @@ libcurl itself was built without IPv6 capabilities.
 
 ## URL encoding of fragments
 
-This was libcurl bug, fixed in libcurl 8.1.0
+This was a libcurl bug, fixed in libcurl 8.1.0
 
 ## Bad IPv4 numerical address
 
