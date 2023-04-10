@@ -1,22 +1,28 @@
-trurl 0.3
+trurl 0.4
 
 Changes since previous release
 
- * the set port is the same as the scheme-default, don't show
- * many more tests
- * https://curl.se/trurl is now the project's website
- * added --accept-space
- * added --trim
+ * --get supports showing {query:key}
+ * --json outputs query pairs under "params"
+ * -a is an --append shortcut
+ * add --query-separator
+ * add --sort-query
+ * install instructions for cygwin
 
 Bugfixes since previous release
 
- * setting port to a blank now clears it
- * improved the man page
- * fix --append query when no previous query exists
- * output JSON as an array
- * provide the -h list in pure alphabetical order
- * add an INSTALL variable to the Makefile
- * enable building with msvc on Windows
- * use 0644 for the man page install
- * use Test::More inside of test.pl
- * nicer JSON tests and test output
+ * build: compile with msvc again
+ * components names are lower case and case sensitive
+ * fixed the json output of UTF-8 sequences
+ * flush stdout after handling every URL
+ * mixing --json with --get is an error
+ * more test cases
+ * show error messsage when component setting fails
+ * support "--" end-of-options argument
+ * support for building with older libcurl versions
+ * checksrc: check code style in CI job and with 'make checksrc'
+
+Contributors to this release:
+
+  Dan Fandrich, Daniel Stenberg, Emanuele Torre, Håvard Bønes,
+  Krishean Draconis Sajad F. Maghrebi
