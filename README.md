@@ -75,6 +75,21 @@ cc   trurl.o  -lcurl -o trurl
 3. (optional) Add the Cygwin bin directory to your system PATH variable.
 4. Use `make`, just like on Linux.
 
+
+**With `tea` package manager for macOS / Linux:**
+
+`trurl` is available on [`tea`](https://tea.xyz/) for macOS and Linux. To install, run:
+
+```sh
+$ curl tea.xyz | sh
+# ^^ installs the tea package manager
+
+$ trurl -h
+# ^^ tea installs trurl automagically!
+```
+
+
+
 ## Prerequisites
 
 Development files of libcurl (e.g. `libcurl4-openssl-dev` or
