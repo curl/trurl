@@ -84,6 +84,12 @@ my @t = (
     "--url [2001:0db8:0000:0000:0000:ff00:0042:8329]|http://[2001:db8::ff00:42:8329]/",
     "\"https://example.com?utm=tra%20cker:address%20=home:here=now:thisthen\" --sort-query --query-separator \":\"|https://example.com/?address%20=home:here=now:thisthen:utm=tra%20cker",
     "\"foo?a=bCd=eCe=f\" --query-separator C --trim query=d|http://foo/?a=bCe=f",
+    "localhost -g '{scheme} {host'|http {host",
+    "localhost -g '[scheme] [host'|http [host",
+    # two backslashes in the source end up one in the actual command line
+    "localhost -g '\\{{scheme}\\['|{http[",
+    "localhost -g '\\\\\['|\\[",
+    "https://u:s\@foo?moo -g '[scheme][user][password][query]'|httpsusmoo",
 );
 
 my %json_tests = (
