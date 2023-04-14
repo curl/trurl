@@ -424,6 +424,7 @@ static void get(struct option *op, CURLU *uh)
         ptr++; /* pass the { */
         if(!end) {
           /* syntax error */
+          fputc('{', stream);
           continue;
         }
         /* {path} {:path} */
