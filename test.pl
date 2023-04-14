@@ -88,7 +88,7 @@ my @t = (
     "localhost -g \"[scheme] [host\"|http [host",
     # two backslashes in the source end up one in the actual command line
     "localhost -g \"\\{{scheme}\\[\"|{http[",
-    "localhost -g \"\\\\\[\"|\\[",
+    "localhost -g " . (($^O eq 'MSWin32')?"\"\\\\\[\"":"'\\\\\['") . "|\\[",
     "https://u:s\@foo?moo -g \"[scheme][user][password][query]\"|httpsusmoo",
 );
 
