@@ -490,6 +490,9 @@ static void get(struct option *op, CURLU *uh)
       case 't':
         fputc('\t', stream);
         break;
+      case '\\':
+        fputc('\\', stream);
+        break;
       default:
         /* unknown, just output this */
         fputc(*ptr, stream);
