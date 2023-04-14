@@ -433,6 +433,7 @@ static void get(struct option *op, CURLU *uh)
         ptr++; /* pass the { */
         if(!end) {
           /* syntax error */
+          fputc(startbyte, stream);
           continue;
         }
         /* {path} {:path} */
