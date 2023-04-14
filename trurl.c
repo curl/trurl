@@ -494,10 +494,10 @@ static void get(struct option *op, CURLU *uh)
         fputc('\\', stream);
         break;
       default:
-        /* unknown, just output this */
+        /* unknown, just output the backslash, and continue */
         fputc(*ptr, stream);
-        fputc(ptr[1], stream);
-        break;
+        ptr++;
+        continue;
       }
       ptr += 2;
     }
