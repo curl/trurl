@@ -405,12 +405,21 @@ static void get(struct option *op, CURLU *uh)
   FILE *stream = stdout;
   const char *ptr = op->format;
   bool done = false;
+  char startbyte = 0;
+  char endbyte = 0;
 
   while(ptr && *ptr && !done) {
-    if('{' == *ptr) {
-      if('{' == ptr[1]) {
+    if(!startbyte && (('{' == *ptr) || ('[' == *ptr))) {
+      startbyte = *ptr;
+      if('{' == *ptr)
+        endbyte = '}';
+      else
+        endbyte = ']';
+    }
+    if(startbyte == *ptr) {
+      if(startbyte == ptr[1]) {
         /* an escaped {-letter */
-        fputc('{', stream);
+        fputc(startbyte, stream);
         ptr += 2;
       }
       else {
@@ -420,10 +429,11 @@ static void get(struct option *op, CURLU *uh)
         size_t vlen;
         int i;
         bool urldecode = true;
-        end = strchr(ptr, '}');
+        end = strchr(ptr, endbyte);
         ptr++; /* pass the { */
         if(!end) {
           /* syntax error */
+          fputc(startbyte, stream);
           continue;
         }
         /* {path} {:path} */
@@ -489,6 +499,15 @@ static void get(struct option *op, CURLU *uh)
         break;
       case 't':
         fputc('\t', stream);
+        break;
+      case '\\':
+        fputc('\\', stream);
+        break;
+      case '{':
+        fputc('{', stream);
+        break;
+      case '[':
+        fputc('[', stream);
         break;
       default:
         /* unknown, just output this */
