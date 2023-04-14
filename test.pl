@@ -12,7 +12,7 @@ my @t = (
     "http://example.com|http://example.com/",
     "https://example.com|https://example.com/",
     "hp://example.com|hp://example.com/",
-    "|",
+    "|trurl error: not enough input for a URL\ntrurl error: Try trurl -h for help",
     "ftp.example.com|ftp://ftp.example.com/",
     "https://example.com/../moo|https://example.com/moo",
     "https://example.com/.././moo|https://example.com/moo",
@@ -167,21 +167,22 @@ my %json_tests = (
     ]
 );
 
-plan tests => keys(@t) + keys(%json_tests);
+my $cmd_string = ($^O eq 'MSWin32')?".\\trurl.exe":"./trurl";
 
-my ( $cmd_string, $null_device ) = ($^O eq 'MSWin32')?(".\\trurl.exe", "nul"):("./trurl", "/dev/null");
+plan tests => keys(@t) + keys(%json_tests);
 
 for my $c (@t) {
     my ($i, $o) = split(/\|/, $c);
-    # A future version should also check stderr
-    my @out = `$cmd_string $i 2>$null_device`;
+    # "2>&1" at the end of the parameters redirects stderr to stdin
+    # to check both output streams against the expected value
+    my @out = `$cmd_string $i 2>&1`;
     my $result = join("", @out);
     chomp $result;
     is( $result, $o, "$cmd_string $i" );
 }
 
 while (my($i, $o) = each %json_tests) {
-    my @out = `$cmd_string --json $i 2>$null_device`;
+    my @out = `$cmd_string --json $i 2>&1`;
     my $result_json = join("", @out);
     my $result = decode_json($result_json);
 
