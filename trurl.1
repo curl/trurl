@@ -48,11 +48,13 @@ Each line needs to be a single valid URL and the line needs to end with a
 newline. The maximum URL length supported in a file like this is 4095 bytes.
 .IP "-g, --get [format]"
 Output URL data according to the provided format string. Components from the
-URL can be output when specified as \fB{component}\fP, with the name of the
-part show within curly braces. The following component names are available
-(case sensitive): {url}, {scheme}, {user}, {password}, {options}, {host},
-{port}, {path}, {query}, {fragment} and {zoneid}. All other text in the format
-string will be shown as-is.
+URL can be output when specified as \fB{component}\fP or \fB[component]\fP,
+with the name of the part show within curly braces or brackets. You can not
+mix braces and brackets for this purpose in the same command line.
+
+The following component names are available (case sensitive): url, scheme,
+user, password, options, host, port, path, query, fragment and zoneid. All
+other text in the format string will be shown as-is.
 
 Components are shown URL decoded by default. If you instead write the
 component prefixed with a colon like "{:path}", it gets output URL encoded.
@@ -65,6 +67,20 @@ as four dot-separated decimal numbers when output.
 
 You can access specific keys in the query string using the format
 \fB{query:key}\fP. Then the value of the first matching key will be output.
+
+The "format" string supports the following backslash sequences:
+
+\&\\\\ - backslash
+
+\&\\t - tab
+
+\&\\n - newline
+
+\&\\r - carriage return
+
+\&\\{ - an open curly brace that does not start a variable
+
+\&\\[ - an open bracket that does not start a variable
 .IP "-h, --help"
 Show the help output.
 .IP "--json"
