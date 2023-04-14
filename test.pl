@@ -169,21 +169,23 @@ my %json_tests = (
 
 plan tests => keys(@t) + keys(%json_tests);
 
+my ( $cmd_string, $null_device ) = ($^O eq 'MSWin32')?(".\\trurl.exe", "nul"):("./trurl", "/dev/null");
+
 for my $c (@t) {
     my ($i, $o) = split(/\|/, $c);
     # A future version should also check stderr
-    my @out = ($^O eq 'MSWin32')?`.\\trurl.exe $i 2>nul`:`./trurl $i 2>/dev/null`;
+    my @out = `$cmd_string $i 2>$null_device`;
     my $result = join("", @out);
     chomp $result;
-    is( $result, $o, "./trurl $i" );
+    is( $result, $o, "$cmd_string $i" );
 }
 
 while (my($i, $o) = each %json_tests) {
-    my @out = ($^O eq 'MSWin32')?`.\\trurl.exe --json $i 2>nul`:`./trurl --json $i 2>/dev/null`;
+    my @out = `$cmd_string --json $i 2>$null_device`;
     my $result_json = join("", @out);
     my $result = decode_json($result_json);
 
-    is_deeply($result, $o, "./trurl --json $i");
+    is_deeply($result, $o, "$cmd_string --json $i");
 }
 
 done_testing();
