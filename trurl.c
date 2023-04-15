@@ -379,32 +379,22 @@ static int getarg(struct option *op,
   return 0;
 }
 
-static void showqkey(const char *key, size_t klen, bool urldecode, bool showall)
+static void showqkey(const char *key, size_t klen, bool urldecode,
+                     bool showall)
 {
   int i;
   bool shown = false;
+  char **qp = urldecode ? qpairsdec : qpairs;
+
   for(i = 0; i< nqpairs; i++) {
-    if(urldecode) {
-      if(!strncmp(key, qpairsdec[i], klen) &&
-         (qpairsdec[i][klen] == '=')) {
-        if(shown)
-          fputc(' ', stdout);
-        fputs(&qpairsdec[i][klen + 1], stdout);
-        if(!showall)
-          break;
-        shown = true;
-      }
-    }
-    else {
-      if(!strncmp(key, qpairs[i], klen) &&
-         (qpairs[i][klen] == '=')) {
-        if(shown)
-          fputc(' ', stdout);
-        fputs(&qpairs[i][klen + 1], stdout);
-        if(!showall)
-          break;
-        shown = true;
-      }
+    if(!strncmp(key, qp[i], klen) &&
+       (qp[i][klen] == '=')) {
+      if(shown)
+        fputc(' ', stdout);
+      fputs(&qp[i][klen + 1], stdout);
+      if(!showall)
+        break;
+      shown = true;
     }
   }
 }
