@@ -36,7 +36,7 @@ sign ('=') that one will be kept verbatim and both sides of the first
 occurrence will be URL encoded separately.
 .IP "--accept-space"
 When set, trurl will try to accept spaces as part of the URL and instead URL
-encode such occurances accordingly.
+encode such occurrences accordingly.
 
 According to RFC 3986, a space cannot legally be part of a URL. This option
 provides a best-effort to convert the provided string into a valid URL.
@@ -44,8 +44,9 @@ provides a best-effort to convert the provided string into a valid URL.
 Read URLs to work on from the given file. Use the file name "-" (a single
 minus) to tell trurl to read the URLs from stdin.
 
-Each line needs to be a single valid URL and the line needs to end with a
-newline. The maximum URL length supported in a file like this is 4095 bytes.
+Each line needs to be a single valid URL - but trurl will trim off any
+trailing spaces and tabs from the end of the line. The maximum URL length
+supported in a file like this is 4095 bytes.
 .IP "-g, --get [format]"
 Output text and URL data according to the provided format string. Components
 from the URL can be output when specified as \fB{component}\fP or
