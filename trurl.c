@@ -99,6 +99,7 @@ static const struct var variables[] = {
 #define ERROR_TRIM   8 /* a --trim problem */
 #define ERROR_BADURL 9 /* if --verify is set and the URL cannot parse */
 #define ERROR_GET   10 /* bad --get syntax */
+#define ERROR_ITER  11 /* unable to find arguments for iterator */
 
 #ifndef SUPPORTS_URL_STRERROR
 /* provide a fake local mockup */
@@ -168,6 +169,12 @@ static void show_version(void)
   exit(0);
 }
 
+struct set_iterator {
+    struct curl_slist *set_list;
+    struct set_iterator *next;
+    int len; /* length of set_list */
+};
+
 struct option {
   struct curl_slist *url_list;
   struct curl_slist *append_path;
@@ -180,6 +187,8 @@ struct option {
   FILE *url;
   bool urlopen;
   bool jsonout;
+  struct set_iterator  *iterate;
+  int iterator_len; /* amount of slist in interator */
   bool verify;
   bool accept_space;
   bool sort_query;
@@ -189,6 +198,7 @@ struct option {
   /* -- stats -- */
   unsigned int urls;
 };
+
 
 #define MAX_QPAIRS 1000
 char *qpairs[MAX_QPAIRS]; /* encoded */
@@ -299,6 +309,82 @@ static bool checkoptarg(const char *str,
   return false;
 }
 
+
+
+/* returns address of most recently added option */
+struct set_iterator *add_new_iterator(struct option *o)
+{
+  if(!o->iterate) {
+    o->iterate = malloc(sizeof(struct set_iterator));
+    if(!o->iterate)
+       errorf(ERROR_MEM, "not enough memory");
+    memset(o->iterate, 0, sizeof(struct set_iterator));
+    return o->iterate;
+  }
+
+  struct set_iterator *iter = o->iterate;
+  while(iter->next) {
+    iter = iter->next;
+  }
+
+  iter->next = malloc(sizeof(struct set_iterator));
+  if(!iter->next)
+      errorf(ERROR_MEM, "not enough memory");
+  memset(iter->next, 0, sizeof(struct set_iterator));
+  return iter->next;
+
+}
+
+static int iterate(struct option *op, const char *arg)
+{
+  int offset = 0; /* offset from start to the beginning of the arguments */
+  int arg_str_len = strlen(arg); /* total length of arguments */
+  char buffer[4096];
+  memset(buffer, '\0', 4096);
+  /* check which paramter is being iterated */
+  for(int i = 0; variables[i].name; i++) {
+    if(!strncmp(arg, variables[i].name, strlen(variables[i].name))) {
+      offset = strlen(variables[i].name);
+      strncpy(buffer, variables[i].name, offset);
+      buffer[offset++] = '=';
+    }
+  }
+
+  if(offset == 0 || offset + 1 >= arg_str_len)
+    errorf(ERROR_ITER, "Missing arguments for iterator %s", arg);
+
+  offset += 1;
+  const char *ptr = &arg[offset];
+  const char *_arg = ptr;
+
+  struct set_iterator *si = add_new_iterator(op);
+  op->iterator_len += 1;
+  ptr = &arg[offset] - 1;
+  _arg = ptr;
+  while(*ptr != '\0') {
+    bool set = false;
+    if(*ptr == ' ') {
+      strncpy(buffer + offset - 1, _arg, ptr - _arg);
+      buffer[offset + ptr - _arg - 1] = '\0';
+      _arg = ptr + 1;
+      set = true;
+    }
+    else if(*(ptr + 1)  == '\0') {
+      strncpy(buffer + offset - 1, _arg, ptr - _arg + 1);
+      buffer[offset + ptr - _arg] = '\0';
+      set = true;
+    }
+    if(set) {
+      set = false;
+      si->set_list = curl_slist_append(si->set_list, buffer);
+      si->len += 1;
+    }
+    ptr++;
+  }
+
+  return 0;
+}
+
 static int getarg(struct option *op,
                   const char *flag,
                   const char *arg,
@@ -362,6 +448,10 @@ static int getarg(struct option *op,
     if(op->format)
       errorf(ERROR_FLAG, "--json is mututally exclusive with --get");
     op->jsonout = true;
+  }
+  else if(checkoptarg("--iterate", flag, arg)) {
+      iterate(op, arg);
+      *usedarg = 1;
   }
   else if(!strcmp("--verify", flag))
     op->verify = true;
@@ -532,6 +622,7 @@ static void set(CURLU *uh,
   bool varset[NUM_COMPONENTS];
   memset(varset, 0, sizeof(varset));
   for(node =  o->set_list; node; node = node->next) {
+
     char *set = node->data;
     int i;
     char *ptr = strchr(set, '=');
@@ -547,7 +638,7 @@ static void set(CURLU *uh,
         if((strlen(variables[i].name) == vlen) &&
            !strncmp(set, variables[i].name, vlen)) {
           CURLUcode rc;
-          if(varset[i])
+          if(varset[i] && !o->iterate)
             errorf(ERROR_SET, "A component can only be set once per URL (%s)",
                    variables[i].name);
           rc = curl_url_set(uh, variables[i].part, ptr[1] ? &ptr[1] : NULL,
@@ -637,6 +728,7 @@ static void json(struct option *o, CURLU *uh)
       jsonString(stdout, nurl, 0, false);
       curl_free(nurl);
     }
+    curl_free(nurl);
   }
   if(nqpairs) {
     int i;
@@ -932,6 +1024,51 @@ static void singleurl(struct option *o,
     curl_url_cleanup(uh);
 }
 
+static void permute_urls(struct curl_slist **lists, int num_lists,
+        char **out, int current_list, struct option *o,
+        const char *url) {
+  if(current_list == num_lists) {
+    for(int i = 0; i < num_lists; i++)
+      o->set_list = curl_slist_append(o->set_list, out[i]);
+    singleurl(o, url);
+    return;
+  }
+  struct curl_slist *current_slist = lists[current_list];
+  do {
+    out[current_list] = current_slist->data;
+    permute_urls(lists, num_lists, out, current_list + 1, o, url);
+    current_slist = current_slist->next;
+  } while(current_slist);
+}
+
+static void manyulrs(struct option *o, const char *url)
+{
+  struct set_iterator *cur = o->iterate;
+  struct curl_slist **list_of_sets =
+      malloc(o->iterator_len* sizeof(struct curl_slist *));
+  if(!list_of_sets)
+      errorf(ERROR_MEM, "out of memory");
+  memset(list_of_sets, 0, o->iterator_len * sizeof(struct curl_slist *));
+  char **currentcomb = malloc(o->iterator_len * sizeof(char *));
+  if(!currentcomb)
+      errorf(ERROR_MEM, "out of memory");
+  for(int i = 0; i < o->iterator_len; i++) {
+    list_of_sets[i] = cur->set_list;
+    cur = cur->next;
+  }
+  permute_urls(list_of_sets, o->iterator_len, currentcomb, 0, o, url);
+  cur = o->iterate;
+  struct set_iterator *prev;
+  free(currentcomb);
+  for(int i = 0; i < o->iterator_len; i++) {
+    curl_slist_free_all(list_of_sets[i]);
+    prev = cur;
+    cur = cur->next;
+    free(prev);
+  }
+  free(list_of_sets);
+}
+
 int main(int argc, const char **argv)
 {
   int exit_status = 0;
@@ -987,12 +1124,17 @@ int main(int argc, const char **argv)
     node = o.url_list;
     do {
       if(node) {
-        const char *url = node->data;
-        singleurl(&o, url);
+        if(o.iterate)
+          manyulrs(&o, node->data);
+        else
+          singleurl(&o, node->data);
         node = node->next;
       }
       else
-        singleurl(&o, NULL);
+        if(o.iterate)
+          manyulrs(&o, NULL);
+        else
+          singleurl(&o, NULL);
     } while(node);
   }
   if(o.jsonout)

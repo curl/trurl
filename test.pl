@@ -90,6 +90,9 @@ my @t = (
     "localhost -g '\\{{scheme}\\['|{http[",
     "localhost -g '\\\\\['|\\[",
     "https://u:s\@foo?moo -g '[scheme][user][password][query]'|httpsusmoo",
+    "test.org --iterate \"port=30 40\"|http://test.org:30/\nhttp://test.org:40/",
+    "test.org --iterate \"scheme=ftp https\"|ftp://test.org/\nhttps://test.org/",
+    "test.org --iterate \"scheme=ftp https\" --iterate \"port=30 40\"|ftp://test.org:30/\nftp://test.org:40/\nhttps://test.org:30/\nhttps://test.org:40/",
 );
 
 my %json_tests = (
