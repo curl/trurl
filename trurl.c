@@ -728,7 +728,6 @@ static void json(struct option *o, CURLU *uh)
       jsonString(stdout, nurl, 0, false);
       curl_free(nurl);
     }
-    curl_free(nurl);
   }
   if(nqpairs) {
     int i;
