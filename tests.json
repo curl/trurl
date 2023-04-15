@@ -648,6 +648,14 @@
         }
     },
     {
+        "cmdline": "\"hej?a=b&a=c&a=d&b=a\" -g '{query-all:a}'",
+        "expected": {
+            "stderr": "",
+            "returncode": 0,
+            "stdout": "b c d"
+        }
+    },
+    {
         "cmdline": "\"https://example.com?utm=tra%20cker&address%20=home&here=now&thisthen\" --json",
         "expected": {
             "stderr": "",
