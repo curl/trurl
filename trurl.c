@@ -972,11 +972,25 @@ int main(int argc, const char **argv)
         if(eol[-1] == '\r')
           /* CRLF detected */
           eol--;
+      }
+      else if(feof(o.url))
+        /* end of file */
+        eol = strlen(buffer) + buffer;
+      else {
+        /* no newline but not end of file means that this line is truncated
+           and we are lost */
+        break;
+      }
+
+      /* trim trailing spaces and tabs */
+      while((eol > buffer) &&
+            ((eol[-1] == ' ') || eol[-1] == '\t'))
+        eol--;
+
+      if(eol > buffer) {
+        /* if ther is actual content left to deal with */
         *eol = 0; /* end of URL */
         singleurl(&o, buffer);
-      }
-      else {
-        /* no newline or no content, skip */
       }
     }
     if(o.urlopen)
