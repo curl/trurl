@@ -379,23 +379,22 @@ static int getarg(struct option *op,
   return 0;
 }
 
-static void showqkey(const char *key, size_t klen, bool urldecode)
+static void showqkey(const char *key, size_t klen, bool urldecode,
+                     bool showall)
 {
   int i;
+  bool shown = false;
+  char **qp = urldecode ? qpairsdec : qpairs;
+
   for(i = 0; i< nqpairs; i++) {
-    if(urldecode) {
-      if(!strncmp(key, qpairsdec[i], klen) &&
-         (qpairsdec[i][klen] == '=')) {
-        fputs(&qpairsdec[i][klen + 1], stdout);
+    if(!strncmp(key, qp[i], klen) &&
+       (qp[i][klen] == '=')) {
+      if(shown)
+        fputc(' ', stdout);
+      fputs(&qp[i][klen + 1], stdout);
+      if(!showall)
         break;
-      }
-    }
-    else {
-      if(!strncmp(key, qpairs[i], klen) &&
-         (qpairs[i][klen] == '=')) {
-        fputs(&qpairs[i][klen + 1], stdout);
-        break;
-      }
+      shown = true;
     }
   }
 }
@@ -442,12 +441,14 @@ static void get(struct option *op, CURLU *uh)
           ptr++;
         }
         vlen = end - ptr;
-        /* check for a colon within here */
+        /* check for the last colon within here */
         cl = memchr(ptr, ':', vlen);
         if(cl) {
           /* deduct the colon part */
-          if(!strncmp(ptr, "query:", 6))
-            showqkey(&ptr[6], end - cl - 1, urldecode);
+          if(!strncmp(ptr, "query-all:", 10))
+            showqkey(&ptr[10], end - cl - 1, urldecode, true);
+          else if(!strncmp(ptr, "query:", 6))
+            showqkey(&ptr[6], end - cl - 1, urldecode, false);
           else
             errorf(ERROR_GET, "Bad --get syntax: %s", ptr);
         }

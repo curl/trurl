@@ -90,6 +90,7 @@ my @t = (
     "localhost -g '\\{{scheme}\\['|{http[",
     "localhost -g '\\\\\['|\\[",
     "https://u:s\@foo?moo -g '[scheme][user][password][query]'|httpsusmoo",
+    "\"hej?a=b&a=c&a=d&b=a\" -g '{query-all:a}'|b c d",
 );
 
 my %json_tests = (
