@@ -68,7 +68,9 @@ as four dot-separated decimal numbers when output.
 
 You can access specific keys in the query string using the format
 \fB{query:key}\fP. Then the value of the first matching key will be output
-using a case sensitive match.
+using a case sensitive match. When extracting a URL decoded query key that
+contains %00, such octet will be replaced with a single period '.' in the
+output.
 
 You can access specific keys in the query string and out all values using the
 format \fB{query-all:key}\fP. This looks for 'key' case sensitively and will

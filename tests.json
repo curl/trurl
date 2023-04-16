@@ -656,6 +656,14 @@
         }
     },
     {
+        "cmdline": "https://curl.se?name=mr%00smith --get {query:name}",
+        "expected": {
+            "stderr": "",
+            "returncode": 0,
+            "stdout": "mr.smith"
+        }
+    },
+    {
         "cmdline": "\"https://example.com?utm=tra%20cker&address%20=home&here=now&thisthen\" --json",
         "expected": {
             "stderr": "",

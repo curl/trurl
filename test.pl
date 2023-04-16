@@ -91,6 +91,7 @@ my @t = (
     "localhost -g '\\\\\['|\\[",
     "https://u:s\@foo?moo -g '[scheme][user][password][query]'|httpsusmoo",
     "\"hej?a=b&a=c&a=d&b=a\" -g '{query-all:a}'|b c d",
+    "https://curl.se?name=mr%00smith --get {query:name}|mr.smith",
 );
 
 my %json_tests = (
