@@ -115,7 +115,7 @@ def main():
 
     if len(sys.argv) > 1:
         if sys.argv[1][0].isnumeric():
-            # run only test cases sepereated by ","
+            # run only test cases separated by ","
             testIndexesToRun = []
 
             for caseIndex in sys.argv[1].split(","):
