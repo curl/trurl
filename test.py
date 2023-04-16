@@ -7,7 +7,6 @@ import sys
 import shlex
 from dataclasses import dataclass, asdict
 
-IGNORESTDERR = True
 TESTFILE = "./tests.json"
 if sys.platform == "win32" or sys.platform == "cygwin":
     BASECMD = "./trurl.exe"  # windows
@@ -63,9 +62,6 @@ class TestCase:
 
         # assume stderr is always going to be string
         stderr = output.stderr.decode().strip()
-
-        if (IGNORESTDERR):
-            self.expected.pop("stderr")
 
         self.commandOutput = CommandOutput(stdout, output.returncode, stderr)
         return True
@@ -137,8 +133,13 @@ def main():
                 test.printVerbose()
 
     # finally print the results to terminal
+
+    run = print
+    if (numTestsPassed != len(testIndexesToRun)):
+        run = sys.exit
+
     print("finished:")
-    print(f"{numTestsPassed}/{len(testIndexesToRun)} tests passed")
+    run(f"{numTestsPassed}/{len(testIndexesToRun)} tests passed")
 
 
 if __name__ == "__main__":
