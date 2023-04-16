@@ -1,6 +1,6 @@
 TARGET = trurl
 OBJS = trurl.o
-LDLIBS = -lcurl
+LDLIBS != curl-config --libs
 CFLAGS := $(CFLAGS) -W -Wall -pedantic -g
 MANUAL = trurl.1
 
@@ -11,6 +11,7 @@ MANDIR ?= $(DESTDIR)$(PREFIX)/share/man/man1
 INSTALL = install
 
 $(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) -o $(TARGET) $(LDLIBS)
 
 trurl.o:trurl.c version.h
 
