@@ -101,6 +101,7 @@ static const struct var variables[] = {
 #define ERROR_TRIM   8 /* a --trim problem */
 #define ERROR_BADURL 9 /* if --verify is set and the URL cannot parse */
 #define ERROR_GET   10 /* bad --get syntax */
+#define ERROR_ITER  11 /* bad --iterate syntax */
 
 #ifndef SUPPORTS_URL_STRERROR
 /* provide a fake local mockup */
@@ -143,6 +144,7 @@ static void help(void)
           "  -f, --url-file [file/-]      - read URLs from file or stdin\n"
           "  -g, --get [{component}s]     - output component(s)\n"
           "  -h, --help                   - this help\n"
+          "  --iterate [component]=[list] - create multiple URL outputs\n"
           "  --json                       - output URL as JSON\n"
           "  --query-separator [letter]   - if something else than '&'\n"
           "  --redirect [URL]             - redirect to this\n"
@@ -170,12 +172,21 @@ static void show_version(void)
   exit(0);
 }
 
+struct iterinfo {
+  CURLU *uh;
+  const char *part;
+  size_t plen;
+  char *ptr;
+  unsigned int varmask; /* sets 1 << [component] */
+};
+
 struct option {
   struct curl_slist *url_list;
   struct curl_slist *append_path;
   struct curl_slist *append_query;
   struct curl_slist *set_list;
   struct curl_slist *trim_list;
+  struct curl_slist *iter_list;
   const char *redirect;
   const char *qsep;
   const char *format;
@@ -280,6 +291,15 @@ static void setadd(struct option *o,
     o->set_list = n;
 }
 
+static void iteradd(struct option *o,
+                    const char *iter) /* [component]=[data] */
+{
+  struct curl_slist *n;
+  n = curl_slist_append(o->iter_list, iter);
+  if(n)
+    o->iter_list = n;
+}
+
 static void trimadd(struct option *o,
                     const char *trim) /* [component]=[data] */
 {
@@ -331,6 +351,10 @@ static int getarg(struct option *op,
   else if(checkoptarg("-s", flag, arg) ||
           checkoptarg("--set", flag, arg)) {
     setadd(op, arg);
+    *usedarg = 1;
+  }
+  else if(checkoptarg("--iterate", flag, arg)) {
+    iteradd(op, arg);
     *usedarg = 1;
   }
   else if(checkoptarg("--redirect", flag, arg)) {
@@ -401,6 +425,17 @@ static void showqkey(const char *key, size_t klen, bool urldecode,
   }
 }
 
+/* component to variable pointer */
+static const struct var *comp2var(const char *name, size_t vlen)
+{
+  int i;
+  for(i = 0; variables[i].name; i++)
+    if((strlen(variables[i].name) == vlen) &&
+       !strncmp(name, variables[i].name, vlen))
+      return &variables[i];
+  return NULL;
+}
+
 static void get(struct option *op, CURLU *uh)
 {
   FILE *stream = stdout;
@@ -428,7 +463,6 @@ static void get(struct option *op, CURLU *uh)
         char *end;
         char *cl;
         size_t vlen;
-        int i;
         bool urldecode = true;
         end = strchr(ptr, endbyte);
         ptr++; /* pass the { */
@@ -455,37 +489,35 @@ static void get(struct option *op, CURLU *uh)
             errorf(ERROR_GET, "Bad --get syntax: %s", ptr);
         }
         else {
-          for(i = 0; variables[i].name; i++) {
-            if((strlen(variables[i].name) == vlen) &&
-               !strncmp(ptr, variables[i].name, vlen)) {
-              char *nurl;
-              CURLUcode rc;
-              rc = curl_url_get(uh, variables[i].part, &nurl,
-                                CURLU_DEFAULT_PORT|
-                                CURLU_NO_DEFAULT_PORT|
-                                (urldecode?CURLU_URLDECODE:0));
-              switch(rc) {
-              case CURLUE_OK:
-                fprintf(stream, "%s", nurl);
-                curl_free(nurl);
-              case CURLUE_NO_SCHEME:
-              case CURLUE_NO_USER:
-              case CURLUE_NO_PASSWORD:
-              case CURLUE_NO_OPTIONS:
-              case CURLUE_NO_HOST:
-              case CURLUE_NO_PORT:
-              case CURLUE_NO_QUERY:
-              case CURLUE_NO_FRAGMENT:
+          const struct var *v = comp2var(ptr, vlen);
+          if(v) {
+            char *nurl;
+            CURLUcode rc;
+            rc = curl_url_get(uh, v->part, &nurl,
+                              CURLU_DEFAULT_PORT|
+                              CURLU_NO_DEFAULT_PORT|
+                              (urldecode?CURLU_URLDECODE:0));
+            switch(rc) {
+            case CURLUE_OK:
+              fprintf(stream, "%s", nurl);
+              curl_free(nurl);
+            case CURLUE_NO_SCHEME:
+            case CURLUE_NO_USER:
+            case CURLUE_NO_PASSWORD:
+            case CURLUE_NO_OPTIONS:
+            case CURLUE_NO_HOST:
+            case CURLUE_NO_PORT:
+            case CURLUE_NO_QUERY:
+            case CURLUE_NO_FRAGMENT:
 #ifdef SUPPORTS_ZONEID
-              case CURLUE_NO_ZONEID:
+            case CURLUE_NO_ZONEID:
 #endif
-                /* silently ignore */
-                break;
-              default:
-                fprintf(stderr, PROGNAME ": %s (%s)\n", curl_url_strerror(rc),
-                        variables[i].name);
-                break;
-              }
+              /* silently ignore */
+              break;
+            default:
+              fprintf(stderr, PROGNAME ": %s (%s)\n", curl_url_strerror(rc),
+                      v->name);
+              break;
             }
           }
         }
@@ -528,47 +560,52 @@ static void get(struct option *op, CURLU *uh)
   fputc('\n', stream);
 }
 
+static const struct var *setone(CURLU *uh, struct option *o,
+                                const char *setline)
+{
+  char *ptr = strchr(setline, '=');
+  const struct var *v = NULL;
+  (void)o;
+  if(ptr && (ptr > setline)) {
+    size_t vlen = ptr - setline;
+    bool urlencode = true;
+    bool found = false;
+    if(ptr[-1] == ':') {
+      urlencode = false;
+      vlen--;
+    }
+    v = comp2var(setline, vlen);
+    if(v) {
+      CURLUcode rc;
+      rc = curl_url_set(uh, v->part, ptr[1] ? &ptr[1] : NULL,
+                        CURLU_NON_SUPPORT_SCHEME|
+                        (urlencode ? CURLU_URLENCODE : 0) );
+      if(rc)
+        warnf("Error setting %s: %s", v->name, curl_url_strerror(rc));
+      found = true;
+    }
+    if(!found)
+      errorf(ERROR_SET, "unknown component: %.*s", (int)vlen, setline);
+  }
+  else
+    errorf(ERROR_SET, "invalid --set syntax: %s", setline);
+  return v;
+}
+
 static void set(CURLU *uh,
                 struct option *o)
 {
   struct curl_slist *node;
-  bool varset[NUM_COMPONENTS];
-  memset(varset, 0, sizeof(varset));
+  unsigned int mask = 0;
   for(node =  o->set_list; node; node = node->next) {
+    const struct var *v;
     char *set = node->data;
-    int i;
-    char *ptr = strchr(set, '=');
-    if(ptr && (ptr > set)) {
-      size_t vlen = ptr-set;
-      bool urlencode = true;
-      bool found = false;
-      if(ptr[-1] == ':') {
-        urlencode = false;
-        vlen--;
-      }
-      for(i = 0; variables[i].name; i++) {
-        if((strlen(variables[i].name) == vlen) &&
-           !strncmp(set, variables[i].name, vlen)) {
-          CURLUcode rc;
-          if(varset[i])
-            errorf(ERROR_SET, "A component can only be set once per URL (%s)",
-                   variables[i].name);
-          rc = curl_url_set(uh, variables[i].part, ptr[1] ? &ptr[1] : NULL,
-                            CURLU_NON_SUPPORT_SCHEME|
-                            (urlencode ? CURLU_URLENCODE : 0) );
-          if(rc)
-            warnf("Error setting %s: %s", variables[i].name,
-                  curl_url_strerror(rc));
-          found = true;
-          varset[i] = true;
-          break;
-        }
-      }
-      if(!found)
-        errorf(ERROR_SET, "Set unknown component: %s", set);
+    v = setone(uh, o, set);
+    if(v) {
+      if(mask & (1 << v->part))
+        errorf(ERROR_SET, "duplicate --set for component %s", v->name);
+      mask |= (1 << v->part);
     }
-    else
-      errorf(ERROR_SET, "invalid --set syntax: %s", set);
   }
 }
 
@@ -851,10 +888,13 @@ static void sortquery(struct option *o)
 }
 
 static void singleurl(struct option *o,
-                      const char *url) /* might be NULL */
+                      const char *url, /* might be NULL */
+                      struct iterinfo *iinfo,
+                      struct curl_slist *iter)
 {
-    struct curl_slist *p;
-    CURLU *uh = curl_url();
+  CURLU *uh = iinfo->uh;
+  if(!uh) {
+    uh = curl_url();
     if(!uh)
       errorf(ERROR_MEM, "out of memory");
     if(url) {
@@ -875,8 +915,72 @@ static void singleurl(struct option *o,
                        CURLU_GUESS_SCHEME|CURLU_NON_SUPPORT_SCHEME);
       }
     }
+  }
+  do {
+    char iterbuf[1024];
+    struct curl_slist *p;
     /* set everything */
     set(uh, o);
+
+    if(iter) {
+      /* "part=item1 item2 item2" */
+      const char *part;
+      size_t plen;
+      const char *w;
+      size_t wlen;
+      char *sep;
+      bool urlencode = true;
+      const struct var *v;
+
+      if(!iinfo->ptr) {
+        part = iter->data;
+        sep = strchr(part, '=');
+        if(!sep)
+          errorf(ERROR_ITER, "wrong iterate syntax");
+        plen = sep - part;
+        if(sep[-1] == ':') {
+          urlencode = false;
+          plen--;
+        }
+        w = sep + 1;
+        /* store for next lap */
+        iinfo->part = part;
+        iinfo->plen = plen;
+        v = comp2var(part, plen);
+        if(!v)
+          errorf(ERROR_ITER, "bad component for iterate");
+        if(iinfo->varmask & (1<<v->part))
+          errorf(ERROR_ITER, "duplicate component for iterate: %s", v->name);
+      }
+      else {
+        part = iinfo->part;
+        plen = iinfo->plen;
+        v = comp2var(part, plen);
+        w = iinfo->ptr;
+      }
+
+      sep = strchr(w, ' ');
+      if(sep) {
+        wlen = sep - w;
+        iinfo->ptr = sep + 1; /* next word is here */
+      }
+      else {
+        /* last word */
+        wlen = strlen(w);
+        iinfo->ptr = NULL;
+      }
+      curl_msnprintf(iterbuf, sizeof(iterbuf), "%.*s%s=%.*s", (int)plen, part,
+                     urlencode ? "" : ":",
+                     (int)wlen, w);
+      setone(uh, o, iterbuf);
+      if(iter && iter->next) {
+        struct iterinfo info;
+        memset(&info, 0, sizeof(info));
+        info.uh = uh;
+        info.varmask = iinfo->varmask | (1 << v->part);
+        singleurl(o, url, &info, iter->next);
+      }
+    }
 
     /* append path segments */
     for(p = o->append_path; p; p = p->next) {
@@ -918,7 +1022,9 @@ static void singleurl(struct option *o,
     /* put the query back */
     qpair2query(uh, o);
 
-    if(o->jsonout)
+    if(iter && iter->next)
+      ;
+    else if(o->jsonout)
       json(o, uh);
     else if(o->format) {
       /* custom output format */
@@ -941,6 +1047,9 @@ static void singleurl(struct option *o,
     freeqpairs();
 
     o->urls++;
+
+  } while(iinfo->ptr);
+  if(!iinfo->uh)
     curl_url_cleanup(uh);
 }
 
@@ -1001,8 +1110,10 @@ int main(int argc, const char **argv)
 
       if(eol > buffer) {
         /* if there is actual content left to deal with */
+        struct iterinfo iinfo;
+        memset(&iinfo, 0, sizeof(iinfo));
         *eol = 0; /* end of URL */
-        singleurl(&o, buffer);
+        singleurl(&o, buffer, &iinfo, o.iter_list);
       }
     }
     if(o.urlopen)
@@ -1014,11 +1125,16 @@ int main(int argc, const char **argv)
     do {
       if(node) {
         const char *url = node->data;
-        singleurl(&o, url);
+        struct iterinfo iinfo;
+        memset(&iinfo, 0, sizeof(iinfo));
+        singleurl(&o, url, &iinfo, o.iter_list);
         node = node->next;
       }
-      else
-        singleurl(&o, NULL);
+      else {
+        struct iterinfo iinfo;
+        memset(&iinfo, 0, sizeof(iinfo));
+        singleurl(&o, NULL, &iinfo, o.iter_list);
+      }
     } while(node);
   }
   if(o.jsonout)
@@ -1026,6 +1142,7 @@ int main(int argc, const char **argv)
   /* we're done with libcurl, so clean it up */
   curl_slist_free_all(o.url_list);
   curl_slist_free_all(o.set_list);
+  curl_slist_free_all(o.iter_list);
   curl_slist_free_all(o.trim_list);
   curl_slist_free_all(o.append_path);
   curl_slist_free_all(o.append_query);

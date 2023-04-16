@@ -664,6 +664,46 @@
         }
     },
     {
+        "cmdline": "https://curl.se --iterate \"port=80 81 443\"",
+        "expected": {
+            "stderr": "",
+            "returncode": 0,
+            "stdout": "https://curl.se:80/\nhttps://curl.se:81/\nhttps://curl.se/"
+        }
+    },
+    {
+        "cmdline": "https://curl.se --iterate 'port=81 443' --iterate scheme='sftp moo'",
+        "expected": {
+            "stderr": "",
+            "returncode": 0,
+            "stdout": "sftp://curl.se:81/\nmoo://curl.se:81/\nsftp://curl.se:443/\nmoo://curl.se:443/"
+        }
+    },
+    {
+        "cmdline": "https://curl.se --iterate 'port=81 443'  --iterate scheme='sftp moo' --iterate port='2 1'",
+        "expected": {
+            "stderr": "trurl error: duplicate component for iterate: port\ntrurl error: Try trurl -h for help",
+            "returncode": 11,
+            "stdout": ""
+        }
+    },
+    {
+        "cmdline": "https://curl.se -s host=localhost --iterate port='22 23'",
+        "expected": {
+            "stderr": "",
+            "returncode": 0,
+            "stdout": "https://localhost:22/\nhttps://localhost:23/"
+        }
+    },
+    {
+        "cmdline": "localhost --iterate host='one two' -g '{host} {port}'",
+        "expected": {
+            "stderr": "",
+            "returncode": 0,
+            "stdout": "one 80\ntwo 80"
+        }
+    },
+    {
         "cmdline": "\"https://example.com?utm=tra%20cker&address%20=home&here=now&thisthen\" --json",
         "expected": {
             "stderr": "",
@@ -757,6 +797,29 @@
                     "url": "http://other.com/",
                     "scheme": "http",
                     "host": "other.com",
+                    "port": "80",
+                    "path": "/"
+                }
+            ]
+        }
+    },
+    {
+        "cmdline": "localhost --iterate host=\"one two\" --json",
+        "expected": {
+            "stderr": "",
+            "returncode": 0,
+            "stdout": [
+                {
+                    "url": "http://one/",
+                    "scheme": "http",
+                    "host": "one",
+                    "port": "80",
+                    "path": "/"
+                },
+                {
+                    "url": "http://two/",
+                    "scheme": "http",
+                    "host": "two",
                     "port": "80",
                     "path": "/"
                 }

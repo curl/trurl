@@ -92,6 +92,11 @@ my @t = (
     "https://u:s\@foo?moo -g '[scheme][user][password][query]'|httpsusmoo",
     "\"hej?a=b&a=c&a=d&b=a\" -g '{query-all:a}'|b c d",
     "https://curl.se?name=mr%00smith --get {query:name}|mr.smith",
+    "https://curl.se --iterate \"port=80 81 443\"|https://curl.se:80/\nhttps://curl.se:81/\nhttps://curl.se/",
+    "https://curl.se --iterate 'port=81 443' --iterate scheme='sftp moo'|sftp://curl.se:81/\nmoo://curl.se:81/\nsftp://curl.se:443/\nmoo://curl.se:443/",
+    "https://curl.se --iterate 'port=81 443'  --iterate scheme='sftp moo' --iterate port='2 1'|",
+    "https://curl.se -s host=localhost --iterate port='22 23'|https://localhost:22/\nhttps://localhost:23/",
+
 );
 
 my %json_tests = (

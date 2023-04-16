@@ -93,6 +93,10 @@ The "format" string supports the following backslash sequences:
 All other text in the format string will be shown as-is.
 .IP "-h, --help"
 Show the help output.
+.IP "--iterate [component]=[item1 item2 ...]"
+Set the component to multiple values and output the result once for each
+iteration. Several combined iterations are allowed to generate combinations,
+but only one \fI--iterate\fP option per component.
 .IP "--json"
 Outputs all set components of the URLs as JSON objects. All components of the
 URL that has data will get populated in the object using their component
