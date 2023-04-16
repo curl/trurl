@@ -65,6 +65,8 @@
 
 #define PROGNAME        "trurl"
 
+#define REPLACE_NULL_BYTE '.' /* for query:key extractions */
+
 struct var {
   const char *name;
   CURLUPart part;
@@ -730,9 +732,18 @@ static char *memdupdec(char *source, size_t len)
 
   left = curl_easy_unescape(NULL, source, sep ? (size_t)(sep - source) : len,
                             &leftlen);
-  if(sep)
+  if(sep) {
+    char *p;
+    int plen;
     right = curl_easy_unescape(NULL, sep + 1, len - (sep - source) - 1,
                                &rightlen);
+
+    /* convert null bytes to periods */
+    for(plen = rightlen, p = right; plen; plen--, p++) {
+      if(!*p)
+        *p = REPLACE_NULL_BYTE;
+    }
+  }
 
   str = curl_maprintf("%.*s%s%.*s", leftlen, left,
                       right ? "=":"",
