@@ -24,7 +24,7 @@ clean:
 	rm -f $(OBJS) $(TARGET)
 
 test:
-	@perl test.pl
+	@python3 test.py
 
 checksrc:
 	./checksrc.pl trurl.c version.h
