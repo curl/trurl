@@ -35,7 +35,7 @@
         "cmdline": "",
         "expected": {
             "stdout": "",
-            "stderr": "",
+            "stderr": "trurl error: not enough input for a URL\ntrurl error: Try trurl -h for help",
             "returncode": 7
         }
     },
