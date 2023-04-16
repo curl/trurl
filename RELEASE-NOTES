@@ -17,7 +17,7 @@ Bugfixes since previous release
  * flush stdout after handling every URL
  * mixing --json with --get is an error
  * more test cases
- * show error messsage when component setting fails
+ * show error message when component setting fails
  * support "--" end-of-options argument
  * support for building with older libcurl versions
  * checksrc: check code style in CI job and with 'make checksrc'

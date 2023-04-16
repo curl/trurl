@@ -876,7 +876,7 @@ static void singleurl(struct option *o,
       curl_url_get(uh, CURLUPART_PATH, &opath, 0);
 
       /* does the existing path end with a slash, then don't
-         add one inbetween */
+         add one in between */
       olen = strlen(opath);
 
       /* append the new segment */
@@ -988,7 +988,7 @@ int main(int argc, const char **argv)
         eol--;
 
       if(eol > buffer) {
-        /* if ther is actual content left to deal with */
+        /* if there is actual content left to deal with */
         *eol = 0; /* end of URL */
         singleurl(&o, buffer);
       }
