@@ -1,7 +1,8 @@
 TARGET = trurl
 OBJS = trurl.o
 LDLIBS != curl-config --libs
-CFLAGS := $(CFLAGS) -W -Wall -pedantic -g
+CFLAGS != curl-config --cflags
+CFLAGS += -W -Wall -pedantic -g
 MANUAL = trurl.1
 
 PREFIX ?= /usr/local
