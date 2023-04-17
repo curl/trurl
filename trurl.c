@@ -167,8 +167,8 @@ static void help(void)
 static void show_version(void)
 {
   curl_version_info_data *data = curl_version_info(CURLVERSION_NOW);
-  fprintf(stdout, "%s version %s libcurl/%s\n", PROGNAME, TRURL_VERSION_TXT,
-          data->version);
+  fprintf(stdout, "%s version %s libcurl/%s [built-with %s]\n",
+          PROGNAME, TRURL_VERSION_TXT, data->version, LIBCURL_VERSION);
   exit(0);
 }
 
