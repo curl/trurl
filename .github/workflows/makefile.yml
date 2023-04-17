@@ -60,3 +60,18 @@ jobs:
 
       - name: test
         run: make test
+
+  build-macos:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: make
+        run: make
+
+      - name: sanity test
+        run: ./trurl -v
+
+      - name: test
+        run: make test
