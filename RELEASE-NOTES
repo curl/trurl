@@ -1,28 +1,21 @@
-trurl 0.4
+trurl 0.5
 
 Changes since previous release
 
- * --get supports showing {query:key}
- * --json outputs query pairs under "params"
- * -a is an --append shortcut
- * add --query-separator
- * add --sort-query
- * install instructions for cygwin
+ o --get supports variables in [brackets] as well
+ o --get {query-all:key} outputs all values for 'key' in the query
+ o switched to test.py for tests
+ o --iterate is a new option
 
 Bugfixes since previous release
 
- * build: compile with msvc again
- * components names are lower case and case sensitive
- * fixed the json output of UTF-8 sequences
- * flush stdout after handling every URL
- * mixing --json with --get is an error
- * more test cases
- * show error message when component setting fails
- * support "--" end-of-options argument
- * support for building with older libcurl versions
- * checksrc: check code style in CI job and with 'make checksrc'
+ o handle %00 sequences in {query:key} output
+ o support reading URL from a file without a newline
+ o bmake compatible makefile
+ o fixed a json memory-leak
+ o CI builds with the the clang address sanitizer
 
 Contributors to this release:
 
   Dan Fandrich, Daniel Stenberg, Emanuele Torre, Håvard Bønes,
-  Krishean Draconis Sajad F. Maghrebi
+  Michael Ablassmeier, Nekobit
