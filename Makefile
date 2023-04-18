@@ -12,7 +12,7 @@ INSTALL ?= install
 PYTHON3 ?= python3
 
 $(TARGET): $(OBJS)
-	$(CC) $(OBJS) -o $(TARGET) $(LDLIBS) $(LDFLAGS)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $(TARGET) $(LDLIBS)
 
 trurl.o:trurl.c version.h
 
