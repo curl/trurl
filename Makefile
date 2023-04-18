@@ -31,6 +31,9 @@ clean:
 test:
 	@$(PYTHON3) test.py
 
+test-memory:
+	@$(PYTHON3) test.py --with-valgrind
+
 .PHONY: checksrc
 checksrc:
 	./checksrc.pl trurl.c version.h
