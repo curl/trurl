@@ -14,8 +14,11 @@ jobs:
       matrix:
         build:
         - name: default
+          install_packages: valgrind
+          test: test-memory
         - name: clang sanitizers
           install_packages: clang
+          test: test
           make_opts: >
             CC=clang
             CFLAGS="-fsanitize=address,undefined,signed-integer-overflow -Wformat -Werror=format-security -Werror=array-bounds -g"
@@ -39,7 +42,7 @@ jobs:
       run: ./trurl -v
 
     - name: test
-      run: make test
+      run: make ${{matrix.build.test}}
 
   build-cygwin:
     runs-on: windows-latest

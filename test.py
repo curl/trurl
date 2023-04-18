@@ -9,6 +9,8 @@ from dataclasses import dataclass, asdict
 
 TESTFILE = "./tests.json"
 BASECMD = "./trurl"
+VALGRINDTEST = "valgrind"
+VALGRINDARGS = ["--error-exitcode=1", "--leak-check=full", "-q"]
 
 RED = "\033[91m"  # used to mark unsuccessful tests
 NOCOLOR = "\033[0m"
@@ -29,13 +31,19 @@ class TestCase:
         self.commandOutput: CommandOutput = None
         self.testPassed: bool = False
 
-    def runCommand(self, cmdfilter: Optional[str]):
+    def runCommand(self, cmdfilter: Optional[str], runWithValgrind: bool):
         # Skip test if none of the arguments contain the keyword
         if cmdfilter and all(cmdfilter not in arg for arg in self.arguments):
             return False
 
+        cmd = [BASECMD]
+        args = self.arguments
+        if runWithValgrind:
+            cmd = [VALGRINDTEST]
+            args = VALGRINDARGS + [BASECMD] + self.arguments
+
         output = subprocess.run(
-            [BASECMD] + self.arguments,
+            cmd + args,
             capture_output=True,
             encoding="utf-8"
         )
@@ -72,7 +80,8 @@ class TestCase:
         print(NOCOLOR, end="")
 
         for item in self.expected:
-            itemFail = self.expected[item] != asdict(self.commandOutput)[item]
+            itemFail = self.expected[item] != asdict(self.commandOutput)[item]\
+                    and self.commandOutput.returncode == 1
 
             print(f"--- {item} --- ")
             print("expected: ")
@@ -97,15 +106,17 @@ def main():
     # if argv[1] exists and starts with int
     cmdfilter = ""
     testIndexesToRun = list(range(len(allTests)))
+    runWithValgrind = False
 
-    if len(sys.argv) > 1:
-        if sys.argv[1][0].isnumeric():
+    for arg in sys.argv[1:]:
+        if arg[0].isnumeric():
             # run only test cases separated by ","
             testIndexesToRun = []
 
-            for caseIndex in sys.argv[1].split(","):
+            for caseIndex in arg.split(","):
                 testIndexesToRun.append(int(caseIndex))
-
+        elif arg == "--with-valgrind":
+            runWithValgrind = True
         else:
             cmdfilter = sys.argv[1]
 
@@ -113,7 +124,7 @@ def main():
     for testIndex in testIndexesToRun:
         test = TestCase(testIndex, **allTests[testIndex])
 
-        if test.runCommand(cmdfilter):
+        if test.runCommand(cmdfilter, runWithValgrind):
             if test.test():  # passed
                 test.printConcise()
                 numTestsPassed += 1
