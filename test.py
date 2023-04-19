@@ -44,7 +44,10 @@ class TestCase:
             stdout = output.stdout
         else:
             # if we dont expect string, parse to json
-            stdout = json.loads(output.stdout)
+            try:
+                stdout = json.loads(output.stdout)
+            except json.decoder.JSONDecodeError:
+                stdout = None
 
         # assume stderr is always going to be string
         stderr = output.stderr
