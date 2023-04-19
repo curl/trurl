@@ -1412,5 +1412,47 @@
                 }
             ]
         }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--json",
+                "-s",
+                "scheme=irc",
+                "-s",
+                "host=curl.se"
+            ]
+        },
+        "expected": {
+            "stdout": [
+                {
+                    "url": "irc://curl.se/",
+                    "scheme": "irc",
+                    "host": "curl.se",
+                    "path": "/"
+                }
+            ],
+            "returncode": 0,
+            "stderr": ""
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--json",
+                "-s",
+                "host=curl.se"
+            ]
+        },
+        "expected": {
+            "stdout": [
+                {
+                    "host": "curl.se",
+                    "path": "/"
+                }
+            ],
+            "returncode": 0,
+            "stderr": ""
+        }
     }
 ]
