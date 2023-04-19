@@ -8,10 +8,7 @@ import shlex
 from dataclasses import dataclass, asdict
 
 TESTFILE = "./tests.json"
-if sys.platform == "win32" or sys.platform == "cygwin":
-    BASECMD = "./trurl.exe"  # windows
-else:
-    BASECMD = "./trurl"  # linux
+BASECMD = "./trurl"
 
 RED = "\033[91m"  # used to mark unsuccessful tests
 NOCOLOR = "\033[0m"
