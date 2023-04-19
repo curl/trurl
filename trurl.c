@@ -663,6 +663,7 @@ static void jsonString(FILE *stream, const char *in, size_t len,
 static void json(struct option *o, CURLU *uh)
 {
   int i;
+  bool first = true;
   (void)o;
   printf("%s  {\n", o->urls?",\n":"");
   for(i = 0; variables[i].name; i++) {
@@ -671,8 +672,9 @@ static void json(struct option *o, CURLU *uh)
                                 (i?CURLU_DEFAULT_PORT:0)|
                                 CURLU_URLDECODE);
     if(!rc) {
-      if(i)
+      if(!first)
         fputs(",\n", stdout);
+      first = false;
       printf("    \"%s\": ", variables[i].name);
       jsonString(stdout, nurl, 0, false);
       curl_free(nurl);
