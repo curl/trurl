@@ -935,6 +935,7 @@ static void singleurl(struct option *o,
   do {
     char iterbuf[1024];
     struct curl_slist *p;
+    bool url_is_invalid = false;
     /* set everything */
     set(uh, o);
 
@@ -1038,7 +1039,38 @@ static void singleurl(struct option *o,
     /* put the query back */
     qpair2query(uh, o);
 
+    /* make sure the URL is still valid */
+    if(!url || o->redirect || o->set_list || o->append_path) {
+      char *ourl = NULL;
+      CURLUcode rc = curl_url_get(uh, CURLUPART_URL, &ourl, 0);
+      if(rc) {
+        VERIFY(o, ERROR_URL, "not enough input for a URL");
+        url_is_invalid = true;
+      }
+      else {
+        rc = urlfromstring(o, uh, ourl);
+        if(rc) {
+          VERIFY(o, ERROR_BADURL, "%s [%s]", curl_url_strerror(rc),
+                 ourl);
+          url_is_invalid = true;
+        }
+        else {
+          char *nurl = NULL;
+          rc = curl_url_get(uh, CURLUPART_URL, &nurl, 0);
+          if(rc || strcmp(ourl, nurl)) {
+            VERIFY(o, ERROR_BADURL, "url became invalid");
+            url_is_invalid = true;
+          }
+          if(!rc)
+            curl_free(nurl);
+        }
+        curl_free(ourl);
+      }
+    }
+
     if(iter && iter->next)
+      ;
+    else if(url_is_invalid)
       ;
     else if(o->jsonout)
       json(o, uh);
@@ -1052,9 +1084,6 @@ static void singleurl(struct option *o,
       if(!curl_url_get(uh, CURLUPART_URL, &nurl, CURLU_NO_DEFAULT_PORT)) {
         printf("%s\n", nurl);
         curl_free(nurl);
-      }
-      else {
-        errorf(ERROR_URL, "not enough input for a URL");
       }
     }
 
