@@ -1445,14 +1445,9 @@
             ]
         },
         "expected": {
-            "stdout": [
-                {
-                    "host": "curl.se",
-                    "path": "/"
-                }
-            ],
-            "returncode": 0,
-            "stderr": ""
+            "stdout": [],
+            "returncode": 7,
+            "stderr": "trurl error: not enough input for a URL\ntrurl error: Try trurl -h for help\n"
         }
     },
     {
