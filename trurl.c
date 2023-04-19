@@ -134,6 +134,16 @@ static void errorf(int exit_code, char *fmt, ...)
   exit(exit_code);
 }
 
+#define VERIFY(op, exit_code, ...) \
+  do { \
+    if(op->verify) { \
+      /* make sure to terminate the JSON array */ \
+      if(op->jsonout) \
+        fputs("\n]\n", stdout); \
+      errorf(exit_code, __VA_ARGS__); \
+    } else \
+      warnf(__VA_ARGS__); \
+  } while(0)
 
 static void help(void)
 {
@@ -906,9 +916,7 @@ static void singleurl(struct option *o,
                      (o->accept_space ?
                       (CURLU_ALLOW_SPACE|CURLU_URLENCODE) : 0));
       if(rc) {
-        if(o->verify)
-          errorf(ERROR_BADURL, "%s [%s]", curl_url_strerror(rc), url);
-        warnf("%s [%s]", curl_url_strerror(rc), url);
+        VERIFY(o, ERROR_BADURL, "%s [%s]", curl_url_strerror(rc), url);
         return;
       }
       else {

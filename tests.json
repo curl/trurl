@@ -1454,5 +1454,29 @@
             "returncode": 0,
             "stderr": ""
         }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--verify",
+                "--json",
+                "ftp://example.org",
+                "",
+                "git://curl.se/"
+            ]
+        },
+        "expected": {
+            "stdout": [
+                {
+                    "url": "ftp://example.org/",
+                    "scheme": "ftp",
+                    "host": "example.org",
+                    "port": "21",
+                    "path": "/"
+                }
+            ],
+            "returncode": 9,
+            "stderr": "trurl error: No host part in the URL []\ntrurl error: Try trurl -h for help\n"
+        }
     }
 ]
