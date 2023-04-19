@@ -6,7 +6,7 @@
             ]
         },
         "expected": {
-            "stdout": "http://example.com/",
+            "stdout": "http://example.com/\n",
             "stderr": "",
             "returncode": 0
         }
@@ -18,7 +18,7 @@
             ]
         },
         "expected": {
-            "stdout": "http://example.com/",
+            "stdout": "http://example.com/\n",
             "stderr": "",
             "returncode": 0
         }
@@ -30,7 +30,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://example.com/",
+            "stdout": "https://example.com/\n",
             "stderr": "",
             "returncode": 0
         }
@@ -42,7 +42,7 @@
             ]
         },
         "expected": {
-            "stdout": "hp://example.com/",
+            "stdout": "hp://example.com/\n",
             "stderr": "",
             "returncode": 0
         }
@@ -53,7 +53,7 @@
         },
         "expected": {
             "stdout": "",
-            "stderr": "trurl error: not enough input for a URL\ntrurl error: Try trurl -h for help",
+            "stderr": "trurl error: not enough input for a URL\ntrurl error: Try trurl -h for help\n",
             "returncode": 7
         }
     },
@@ -64,7 +64,7 @@
             ]
         },
         "expected": {
-            "stdout": "ftp://ftp.example.com/",
+            "stdout": "ftp://ftp.example.com/\n",
             "stderr": "",
             "returncode": 0
         }
@@ -76,7 +76,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://example.com/moo",
+            "stdout": "https://example.com/moo\n",
             "stderr": "",
             "returncode": 0
         }
@@ -88,7 +88,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://example.com/moo",
+            "stdout": "https://example.com/moo\n",
             "stderr": "",
             "returncode": 0
         }
@@ -100,7 +100,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://example.com/moo",
+            "stdout": "https://example.com/moo\n",
             "stderr": "",
             "returncode": 0
         }
@@ -114,7 +114,7 @@
             ]
         },
         "expected": {
-            "stdout": "http://localhost/moo",
+            "stdout": "http://localhost/moo\n",
             "stderr": "",
             "returncode": 0
         }
@@ -128,7 +128,7 @@
             ]
         },
         "expected": {
-            "stdout": "http://localhost/moo",
+            "stdout": "http://localhost/moo\n",
             "stderr": "",
             "returncode": 0
         }
@@ -143,7 +143,7 @@
             ]
         },
         "expected": {
-            "stdout": "http://moo/",
+            "stdout": "http://moo/\n",
             "stderr": "",
             "returncode": 0
         }
@@ -158,7 +158,7 @@
             ]
         },
         "expected": {
-            "stdout": "http://moo/",
+            "stdout": "http://moo/\n",
             "stderr": "",
             "returncode": 0
         }
@@ -175,7 +175,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://moo:999/",
+            "stdout": "https://moo:999/\n",
             "stderr": "",
             "returncode": 0
         }
@@ -192,7 +192,7 @@
             ]
         },
         "expected": {
-            "stdout": "ftps://moo/hello",
+            "stdout": "ftps://moo/hello\n",
             "stderr": "",
             "returncode": 0
         }
@@ -207,7 +207,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://example.com/",
+            "stdout": "https://example.com/\n",
             "stderr": "",
             "returncode": 0
         }
@@ -222,7 +222,7 @@
             ]
         },
         "expected": {
-            "stdout": "ftp://example.com/",
+            "stdout": "ftp://example.com/\n",
             "stderr": "",
             "returncode": 0
         }
@@ -237,7 +237,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://curl.se/we/here.html",
+            "stdout": "https://curl.se/we/here.html\n",
             "stderr": "",
             "returncode": 0
         }
@@ -252,7 +252,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://curl.se:8080/are.html",
+            "stdout": "https://curl.se:8080/are.html\n",
             "stderr": "",
             "returncode": 0
         }
@@ -266,7 +266,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://curl.se/",
+            "stdout": "https://curl.se/\n",
             "stderr": "",
             "returncode": 0
         }
@@ -282,7 +282,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://curl.se/",
+            "stdout": "https://curl.se/\n",
             "stderr": "",
             "returncode": 0
         }
@@ -297,7 +297,7 @@
             ]
         },
         "expected": {
-            "stdout": "/we/are.html",
+            "stdout": "/we/are.html\n",
             "stderr": "",
             "returncode": 0
         }
@@ -312,7 +312,7 @@
             ]
         },
         "expected": {
-            "stdout": "443",
+            "stdout": "443\n",
             "stderr": "",
             "returncode": 0
         }
@@ -327,7 +327,7 @@
             ]
         },
         "expected": {
-            "stdout": "https",
+            "stdout": "https\n",
             "stderr": "",
             "returncode": 0
         }
@@ -342,7 +342,7 @@
             ]
         },
         "expected": {
-            "stdout": "hello",
+            "stdout": "hello\n",
             "stderr": "",
             "returncode": 0
         }
@@ -357,7 +357,7 @@
             ]
         },
         "expected": {
-            "stdout": "secret",
+            "stdout": "secret\n",
             "stderr": "",
             "returncode": 0
         }
@@ -372,7 +372,7 @@
             ]
         },
         "expected": {
-            "stdout": "crazy",
+            "stdout": "crazy\n",
             "stderr": "",
             "returncode": 0
         }
@@ -387,7 +387,7 @@
             ]
         },
         "expected": {
-            "stdout": "curl.se",
+            "stdout": "curl.se\n",
             "stderr": "",
             "returncode": 0
         }
@@ -402,7 +402,7 @@
             ]
         },
         "expected": {
-            "stdout": "10.0.0.1",
+            "stdout": "10.0.0.1\n",
             "stderr": "",
             "returncode": 0
         }
@@ -417,7 +417,7 @@
             ]
         },
         "expected": {
-            "stdout": "[fe80::20c:29ff:fe9c:409b]",
+            "stdout": "[fe80::20c:29ff:fe9c:409b]\n",
             "stderr": "",
             "returncode": 0
         }
@@ -432,7 +432,7 @@
             ]
         },
         "expected": {
-            "stdout": "euth0",
+            "stdout": "euth0\n",
             "stderr": "",
             "returncode": 0
         }
@@ -447,7 +447,7 @@
             ]
         },
         "expected": {
-            "stdout": "eth0",
+            "stdout": "eth0\n",
             "stderr": "",
             "returncode": 0
         }
@@ -462,7 +462,7 @@
             ]
         },
         "expected": {
-            "stdout": "user=many",
+            "stdout": "user=many\n",
             "stderr": "",
             "returncode": 0
         }
@@ -477,7 +477,7 @@
             ]
         },
         "expected": {
-            "stdout": "more",
+            "stdout": "more\n",
             "stderr": "",
             "returncode": 0
         }
@@ -492,7 +492,7 @@
             ]
         },
         "expected": {
-            "stdout": "443",
+            "stdout": "443\n",
             "stderr": "",
             "returncode": 0
         }
@@ -507,7 +507,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://curl.se/hello/you",
+            "stdout": "https://curl.se/hello/you\n",
             "stderr": "",
             "returncode": 0
         }
@@ -522,7 +522,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://curl.se/hello/you%20index.html",
+            "stdout": "https://curl.se/hello/you%20index.html\n",
             "stderr": "",
             "returncode": 0
         }
@@ -537,7 +537,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://curl.se/?name=hello&search=string",
+            "stdout": "https://curl.se/?name=hello&search=string\n",
             "stderr": "",
             "returncode": 0
         }
@@ -552,7 +552,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://%3ahej%3a@curl.se/hello",
+            "stdout": "https://%3ahej%3a@curl.se/hello\n",
             "stderr": "",
             "returncode": 0
         }
@@ -569,7 +569,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://hej:secret@curl.se/hello",
+            "stdout": "https://hej:secret@curl.se/hello\n",
             "stderr": "",
             "returncode": 0
         }
@@ -584,7 +584,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://curl.se/hello?user=me",
+            "stdout": "https://curl.se/hello?user=me\n",
             "stderr": "",
             "returncode": 0
         }
@@ -599,7 +599,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://curl.se/hello?user%3dme",
+            "stdout": "https://curl.se/hello?user%3dme\n",
             "stderr": "",
             "returncode": 0
         }
@@ -614,7 +614,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://curl.se/hello#%20hello",
+            "stdout": "https://curl.se/hello#%20hello\n",
             "stderr": "",
             "returncode": 0
         }
@@ -629,7 +629,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://curl.se/hello#%20hello",
+            "stdout": "https://curl.se/hello#%20hello\n",
             "stderr": "",
             "returncode": 0
         }
@@ -643,7 +643,7 @@
             ]
         },
         "expected": {
-            "stdout": "http://localhost/?hello=foo",
+            "stdout": "http://localhost/?hello=foo\n",
             "stderr": "",
             "returncode": 0
         }
@@ -657,7 +657,7 @@
             ]
         },
         "expected": {
-            "stdout": "http://localhost/?hello=foo",
+            "stdout": "http://localhost/?hello=foo\n",
             "stderr": "",
             "returncode": 0
         }
@@ -671,7 +671,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://example.com/?search=hello",
+            "stdout": "https://example.com/?search=hello\n",
             "stderr": "",
             "returncode": 0
         }
@@ -685,7 +685,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://example.com/?search=hello&more=data",
+            "stdout": "https://example.com/?search=hello&more=data\n",
             "stderr": "",
             "returncode": 0
         }
@@ -699,7 +699,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://example.com/?search=hello&more=data",
+            "stdout": "https://example.com/?search=hello&more=data\n",
             "stderr": "",
             "returncode": 0
         }
@@ -713,7 +713,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://example.com/",
+            "stdout": "https://example.com/\n",
             "stderr": "",
             "returncode": 0
         }
@@ -727,7 +727,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://example.com/?search=hello&more=data",
+            "stdout": "https://example.com/?search=hello&more=data\n",
             "stderr": "",
             "returncode": 0
         }
@@ -745,7 +745,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://example.com/",
+            "stdout": "https://example.com/\n",
             "stderr": "",
             "returncode": 0
         }
@@ -759,7 +759,7 @@
             ]
         },
         "expected": {
-            "stdout": "gopher://localhost/%20with%20space",
+            "stdout": "gopher://localhost/%20with%20space\n",
             "stderr": "",
             "returncode": 0
         }
@@ -773,7 +773,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://localhost/?with+space",
+            "stdout": "https://localhost/?with+space\n",
             "stderr": "",
             "returncode": 0
         }
@@ -789,7 +789,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://curl.se/",
+            "stdout": "https://curl.se/\n",
             "stderr": "",
             "returncode": 0
         }
@@ -803,7 +803,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://example.com/?moo",
+            "stdout": "https://example.com/?moo\n",
             "stderr": "",
             "returncode": 0
         }
@@ -817,7 +817,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://example.com/?moo",
+            "stdout": "https://example.com/?moo\n",
             "stderr": "",
             "returncode": 0
         }
@@ -833,7 +833,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://example.com/?moo",
+            "stdout": "https://example.com/?moo\n",
             "stderr": "",
             "returncode": 0
         }
@@ -845,7 +845,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://hello/foo",
+            "stdout": "https://hello/foo\n",
             "stderr": "",
             "returncode": 0
         }
@@ -857,7 +857,7 @@
             ]
         },
         "expected": {
-            "stdout": "ftp://hello/foo",
+            "stdout": "ftp://hello/foo\n",
             "stderr": "",
             "returncode": 0
         }
@@ -871,7 +871,7 @@
             ]
         },
         "expected": {
-            "stdout": "ftp://hello:443/foo",
+            "stdout": "ftp://hello:443/foo\n",
             "stderr": "",
             "returncode": 0
         }
@@ -885,7 +885,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://hello/foo",
+            "stdout": "https://hello/foo\n",
             "stderr": "",
             "returncode": 0
         }
@@ -899,7 +899,7 @@
             ]
         },
         "expected": {
-            "stdout": "tra cker",
+            "stdout": "tra cker\n",
             "stderr": "",
             "returncode": 0
         }
@@ -913,7 +913,7 @@
             ]
         },
         "expected": {
-            "stdout": "tra%20cker",
+            "stdout": "tra%20cker\n",
             "stderr": "",
             "returncode": 0
         }
@@ -927,7 +927,7 @@
             ]
         },
         "expected": {
-            "stdout": "",
+            "stdout": "\n",
             "stderr": "",
             "returncode": 0
         }
@@ -941,7 +941,7 @@
             ]
         },
         "expected": {
-            "stdout": "",
+            "stdout": "\n",
             "stderr": "",
             "returncode": 0
         }
@@ -954,7 +954,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://example.com/?monkey=123&utm_source=tracker",
+            "stdout": "https://example.com/?monkey=123&utm_source=tracker\n",
             "stderr": "",
             "returncode": 0
         }
@@ -967,7 +967,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://example.com/?a=b&c=d",
+            "stdout": "https://example.com/?a=b&c=d\n",
             "stderr": "",
             "returncode": 0
         }
@@ -982,7 +982,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://example.com/?c=d",
+            "stdout": "https://example.com/?c=d\n",
             "stderr": "",
             "returncode": 0
         }
@@ -996,7 +996,7 @@
             ]
         },
         "expected": {
-            "stdout": "http://example.com/",
+            "stdout": "http://example.com/\n",
             "stderr": "",
             "returncode": 0
         }
@@ -1009,7 +1009,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://example.com/",
+            "stdout": "https://example.com/\n",
             "stderr": "",
             "returncode": 0
         }
@@ -1022,7 +1022,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://EXAMPLE.com/",
+            "stdout": "https://EXAMPLE.com/\n",
             "stderr": "",
             "returncode": 0
         }
@@ -1035,7 +1035,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://example.com/FOO/BAR",
+            "stdout": "https://example.com/FOO/BAR\n",
             "stderr": "",
             "returncode": 0
         }
@@ -1048,7 +1048,7 @@
             ]
         },
         "expected": {
-            "stdout": "http://[2001:db8::ff00:42:8329]/",
+            "stdout": "http://[2001:db8::ff00:42:8329]/\n",
             "stderr": "",
             "returncode": 0
         }
@@ -1063,7 +1063,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://example.com/?address%20=home:here=now:thisthen:utm=tra%20cker",
+            "stdout": "https://example.com/?address%20=home:here=now:thisthen:utm=tra%20cker\n",
             "stderr": "",
             "returncode": 0
         }
@@ -1079,7 +1079,7 @@
             ]
         },
         "expected": {
-            "stdout": "http://foo/?a=bCe=f",
+            "stdout": "http://foo/?a=bCe=f\n",
             "stderr": "",
             "returncode": 0
         }
@@ -1095,7 +1095,7 @@
         "expected": {
             "stderr": "",
             "returncode": 0,
-            "stdout": "http {host"
+            "stdout": "http {host\n"
         }
     },
     {
@@ -1109,7 +1109,7 @@
         "expected": {
             "stderr": "",
             "returncode": 0,
-            "stdout": "http [host"
+            "stdout": "http [host\n"
         }
     },
     {
@@ -1123,7 +1123,7 @@
         "expected": {
             "stderr": "",
             "returncode": 0,
-            "stdout": "{http["
+            "stdout": "{http[\n"
         }
     },
     {
@@ -1137,7 +1137,7 @@
         "expected": {
             "stderr": "",
             "returncode": 0,
-            "stdout": "\\["
+            "stdout": "\\[\n"
         }
     },
     {
@@ -1151,7 +1151,7 @@
         "expected": {
             "stderr": "",
             "returncode": 0,
-            "stdout": "httpsusmoo"
+            "stdout": "httpsusmoo\n"
         }
     },
     {
@@ -1165,7 +1165,7 @@
         "expected": {
             "stderr": "",
             "returncode": 0,
-            "stdout": "b c d"
+            "stdout": "b c d\n"
         }
     },
     {
@@ -1179,7 +1179,7 @@
         "expected": {
             "stderr": "",
             "returncode": 0,
-            "stdout": "mr.smith"
+            "stdout": "mr.smith\n"
         }
     },
     {
@@ -1193,7 +1193,7 @@
         "expected": {
             "stderr": "",
             "returncode": 0,
-            "stdout": "https://curl.se:80/\nhttps://curl.se:81/\nhttps://curl.se/"
+            "stdout": "https://curl.se:80/\nhttps://curl.se:81/\nhttps://curl.se/\n"
         }
     },
     {
@@ -1209,7 +1209,7 @@
         "expected": {
             "stderr": "",
             "returncode": 0,
-            "stdout": "sftp://curl.se:81/\nmoo://curl.se:81/\nsftp://curl.se:443/\nmoo://curl.se:443/"
+            "stdout": "sftp://curl.se:81/\nmoo://curl.se:81/\nsftp://curl.se:443/\nmoo://curl.se:443/\n"
         }
     },
     {
@@ -1225,7 +1225,7 @@
             ]
         },
         "expected": {
-            "stderr": "trurl error: duplicate component for iterate: port\ntrurl error: Try trurl -h for help",
+            "stderr": "trurl error: duplicate component for iterate: port\ntrurl error: Try trurl -h for help\n",
             "returncode": 11,
             "stdout": ""
         }
@@ -1243,7 +1243,7 @@
         "expected": {
             "stderr": "",
             "returncode": 0,
-            "stdout": "https://localhost:22/\nhttps://localhost:23/"
+            "stdout": "https://localhost:22/\nhttps://localhost:23/\n"
         }
     },
     {
@@ -1259,7 +1259,7 @@
         "expected": {
             "stderr": "",
             "returncode": 0,
-            "stdout": "one 80\ntwo 80"
+            "stdout": "one 80\ntwo 80\n"
         }
     },
     {

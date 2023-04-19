@@ -21,22 +21,11 @@ class CommandOutput:
     stderr: str
 
 
-def stripDict(d):
-    new = {}
-    for key in d:
-        if type(d[key]) == str:
-            new[key] = d[key].strip()
-        else:
-            new[key] = d[key]
-
-    return new
-
-
 class TestCase:
     def __init__(self, testIndex, **testCase):
         self.testIndex = testIndex
         self.arguments = testCase["input"]["arguments"]
-        self.expected = stripDict(testCase["expected"])
+        self.expected = testCase["expected"]
         self.commandOutput: CommandOutput = None
         self.testPassed: bool = False
 
@@ -48,17 +37,17 @@ class TestCase:
         output = subprocess.run(
             [BASECMD] + self.arguments,
             capture_output=True,
+            encoding="utf-8"
         )
 
-        # testresult is bytes by default, change to string and remove line endings with strip if we expect a string
         if type(self.expected["stdout"]) == str:
-            stdout = output.stdout.decode().strip()
+            stdout = output.stdout
         else:
             # if we dont expect string, parse to json
             stdout = json.loads(output.stdout)
 
         # assume stderr is always going to be string
-        stderr = output.stderr.decode().strip()
+        stderr = output.stderr
 
         self.commandOutput = CommandOutput(stdout, output.returncode, stderr)
         return True
