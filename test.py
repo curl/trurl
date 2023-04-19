@@ -75,12 +75,14 @@ class TestCase:
             itemFail = self.expected[item] != asdict(self.commandOutput)[item]
 
             print(f"--- {item} --- ")
-            print("expected: ")
-            print(f"'{self.expected[item]}'")
+            print("expected:")
+            print(f"{self.expected[item]!r}")
             print("got:")
-            print(RED if itemFail else "", end="")
-            print(f"'{asdict(self.commandOutput)[item]}'")
-            print(NOCOLOR, end="")
+            if itemFail:
+                print(RED, end="")
+            print(f"{asdict(self.commandOutput)[item]!r}")
+            if itemFail:
+                print(NOCOLOR, end="")
 
         print()
 
