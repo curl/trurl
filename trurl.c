@@ -897,6 +897,16 @@ static void sortquery(struct option *o)
   }
 }
 
+static CURLUcode urlfromstring(struct option *o,
+                               CURLU *uh,
+                               const char *url)
+{
+  return curl_url_set(uh, CURLUPART_URL, url,
+                      CURLU_GUESS_SCHEME|CURLU_NON_SUPPORT_SCHEME|
+                      (o->accept_space ?
+                       (CURLU_ALLOW_SPACE|CURLU_URLENCODE) : 0));
+}
+
 static void singleurl(struct option *o,
                       const char *url, /* might be NULL */
                       struct iterinfo *iinfo,
@@ -908,11 +918,7 @@ static void singleurl(struct option *o,
     if(!uh)
       errorf(ERROR_MEM, "out of memory");
     if(url) {
-      CURLUcode rc =
-        curl_url_set(uh, CURLUPART_URL, url,
-                     CURLU_GUESS_SCHEME|CURLU_NON_SUPPORT_SCHEME|
-                     (o->accept_space ?
-                      (CURLU_ALLOW_SPACE|CURLU_URLENCODE) : 0));
+      CURLUcode rc = urlfromstring(o, uh, url);
       if(rc) {
         VERIFY(o, ERROR_BADURL, "%s [%s]", curl_url_strerror(rc), url);
         return;
