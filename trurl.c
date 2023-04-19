@@ -1176,6 +1176,7 @@ int main(int argc, const char **argv)
       else {
         struct iterinfo iinfo;
         memset(&iinfo, 0, sizeof(iinfo));
+        o.verify = true;
         singleurl(&o, NULL, &iinfo, o.iter_list);
       }
     } while(node);

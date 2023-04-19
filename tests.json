@@ -1473,5 +1473,18 @@
             "returncode": 9,
             "stderr": "trurl error: No host part in the URL []\ntrurl error: Try trurl -h for help\n"
         }
+    },
+    {
+        "input": {
+            "arguments": [
+                "-s",
+                "scheme=imap"
+            ]
+        },
+        "expected": {
+            "stdout": "",
+            "returncode": 7,
+            "stderr": "trurl error: not enough input for a URL\ntrurl error: Try trurl -h for help\n"
+        }
     }
 ]
