@@ -28,7 +28,7 @@ clean:
 	rm -f $(OBJS) $(TARGET)
 
 .PHONY: test
-test:
+test: $(TARGET)
 	@$(PYTHON3) test.py
 
 test-memory:
