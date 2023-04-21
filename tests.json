@@ -417,7 +417,7 @@
             ]
         },
         "expected": {
-            "stdout": "[fe80::20c:29ff:fe9c:409b]\n",
+            "stdout": "[fe80::0000:20c:29ff:fe9c:409b]\n",
             "stderr": "",
             "returncode": 0
         }
@@ -1048,7 +1048,7 @@
             ]
         },
         "expected": {
-            "stdout": "http://[2001:db8::ff00:42:8329]/\n",
+            "stdout": "http://[2001:0db8:0000:0000:0000:ff00:0042:8329]/\n",
             "stderr": "",
             "returncode": 0
         }
