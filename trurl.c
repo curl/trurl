@@ -570,12 +570,10 @@ static void get(struct option *op, CURLU *uh)
   fputc('\n', stream);
 }
 
-static const struct var *setone(CURLU *uh, struct option *o,
-                                const char *setline)
+static const struct var *setone(CURLU *uh, const char *setline)
 {
   char *ptr = strchr(setline, '=');
   const struct var *v = NULL;
-  (void)o;
   if(ptr && (ptr > setline)) {
     size_t vlen = ptr - setline;
     bool urlencode = true;
@@ -610,7 +608,7 @@ static void set(CURLU *uh,
   for(node =  o->set_list; node; node = node->next) {
     const struct var *v;
     char *set = node->data;
-    v = setone(uh, o, set);
+    v = setone(uh, set);
     if(v) {
       if(mask & (1 << v->part))
         errorf(ERROR_SET, "duplicate --set for component %s", v->name);
@@ -982,7 +980,7 @@ static void singleurl(struct option *o,
       curl_msnprintf(iterbuf, sizeof(iterbuf), "%.*s%s=%.*s", (int)plen, part,
                      urlencode ? "" : ":",
                      (int)wlen, w);
-      setone(uh, o, iterbuf);
+      setone(uh, iterbuf);
       if(iter && iter->next) {
         struct iterinfo info;
         memset(&info, 0, sizeof(info));
