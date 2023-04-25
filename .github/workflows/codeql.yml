@@ -42,6 +42,11 @@ jobs:
       with:
         languages: ${{ matrix.language }}
 
+    - name: install libcurl
+      run: |
+        sudo apt-get update
+        sudo apt-get install libcurl4-openssl-dev
+
     - name: build
       run: make
 
