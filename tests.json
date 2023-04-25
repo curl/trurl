@@ -1524,17 +1524,68 @@
                     "port": "443",
                     "path": "/",
                     "query": "",
+                    "params": []
+                }
+            ],
+            "returncode": 0,
+            "stderr": ""
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--json",
+                "--trim",
+                "query=f*",
+                "localhost?foo&bar=ar"
+            ]
+        },
+        "expected": {
+            "stdout": [
+                {
+                    "url": "http://localhost/?bar=ar",
+                    "scheme": "http",
+                    "host": "localhost",
+                    "port": "80",
+                    "path": "/",
+                    "query": "bar=ar",
                     "params": [
                         {
-                            "key": "",
-                            "value": ""
+                            "key": "bar",
+                            "value": "ar"
+                        }
+                    ]
+                }
+            ],
+            "returncode": 0,
+            "stderr": ""
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "https://example.com?search=hello&utm_source=tracker&utm_block&testing",
+                "--trim",
+                "query=utm_*",
+                "--json"
+            ]
+        },
+        "expected": {
+            "stdout": [
+                {
+                    "url": "https://example.com/?search=hello&testing",
+                    "scheme": "https",
+                    "host": "example.com",
+                    "port": "443",
+                    "path": "/",
+                    "query": "search=hello&testing",
+                    "params": [
+                        {
+                            "key": "search",
+                            "value": "hello"
                         },
                         {
-                            "key": "",
-                            "value": ""
-                        },
-                        {
-                            "key": "",
+                            "key": "testing",
                             "value": ""
                         }
                     ]
@@ -1544,4 +1595,5 @@
             "stderr": ""
         }
     }
-]
+
+            ]

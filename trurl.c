@@ -689,14 +689,20 @@ static void json(struct option *o, CURLU *uh)
       curl_free(nurl);
     }
   }
+  first = true;
   if(nqpairs) {
     int i;
     fputs(",\n    \"params\": [\n", stdout);
     for(i = 0 ; i < nqpairs; i++) {
       const char *sep = strchr(qpairsdec[i], '=');
       const char *value = sep ? sep + 1 : "";
-      if(i)
+
+      /* don't print out empty/trimmed values */
+      if(!qpairsdec[i][0])
+          continue;
+      if(!first)
         fputs(",\n", stdout);
+      first = false;
       fputs("      {\n        \"key\": ", stdout);
       jsonString(stdout, qpairsdec[i],
                  sep ? (size_t)(sep - qpairsdec[i]) : strlen(qpairsdec[i]),
