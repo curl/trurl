@@ -1486,5 +1486,55 @@
             "returncode": 7,
             "stderr": "trurl error: not enough input for a URL\ntrurl error: Try trurl -h for help\n"
         }
+    },
+    {
+        "input": {
+            "arguments": [
+                "-g",
+                "{query:}",
+                "http://localhost/?=bar"
+            ]
+        },
+        "expected": {
+            "stdout": "bar\n",
+            "returncode": 0,
+            "stderr": ""
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--json",
+                "https://curl.se/?&&&"
+            ]
+        },
+        "expected": {
+            "stdout": [
+                {
+                    "url": "https://curl.se/",
+                    "scheme": "https",
+                    "host": "curl.se",
+                    "port": "443",
+                    "path": "/",
+                    "query": "",
+                    "params": [
+                        {
+                            "key": "",
+                            "value": ""
+                        },
+                        {
+                            "key": "",
+                            "value": ""
+                        },
+                        {
+                            "key": "",
+                            "value": ""
+                        }
+                    ]
+                }
+            ],
+            "returncode": 0,
+            "stderr": ""
+        }
     }
 ]

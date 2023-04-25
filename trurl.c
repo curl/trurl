@@ -218,6 +218,12 @@ char *qpairs[MAX_QPAIRS]; /* encoded */
 char *qpairsdec[MAX_QPAIRS]; /* decoded */
 int nqpairs; /* how many is stored */
 
+static char *strurldecode(const char *url, int inlength, int *outlength)
+{
+  return curl_easy_unescape(NULL, inlength ? url : "", inlength,
+                            outlength);
+}
+
 static void urladd(struct option *o, const char *url)
 {
   struct curl_slist *n;
@@ -621,12 +627,7 @@ static void jsonString(FILE *stream, const char *in, size_t len,
                        bool lowercase)
 {
   const unsigned char *i = (unsigned char *)in;
-  const char *in_end;
-
-  if(!len)
-    in_end = in + strlen(in);
-  else
-    in_end = &in[len];
+  const char *in_end = &in[len];
 
   fputc('\"', stream);
   for(; i < (unsigned char *)in_end; i++) {
@@ -684,7 +685,7 @@ static void json(struct option *o, CURLU *uh)
         fputs(",\n", stdout);
       first = false;
       printf("    \"%s\": ", variables[i].name);
-      jsonString(stdout, nurl, 0, false);
+      jsonString(stdout, nurl, strlen(nurl), false);
       curl_free(nurl);
     }
   }
@@ -692,7 +693,8 @@ static void json(struct option *o, CURLU *uh)
     int i;
     fputs(",\n    \"params\": [\n", stdout);
     for(i = 0 ; i < nqpairs; i++) {
-      char *sep = strchr(qpairsdec[i], '=');
+      const char *sep = strchr(qpairsdec[i], '=');
+      const char *value = sep ? sep + 1 : "";
       if(i)
         fputs(",\n", stdout);
       fputs("      {\n        \"key\": ", stdout);
@@ -700,7 +702,7 @@ static void json(struct option *o, CURLU *uh)
                  sep ? (size_t)(sep - qpairsdec[i]) : strlen(qpairsdec[i]),
                  false);
       fputs(",\n        \"value\": ", stdout);
-      jsonString(stdout, sep ? sep + 1 : "", 0, false);
+      jsonString(stdout, value, strlen(value), false);
       fputs("\n      }", stdout);
     }
     fputs("\n    ]", stdout);
@@ -777,13 +779,12 @@ static char *memdupdec(char *source, size_t len)
   int leftlen = 0;
   int rightlen = 0;
 
-  left = curl_easy_unescape(NULL, source, sep ? (size_t)(sep - source) : len,
-                            &leftlen);
+  left = strurldecode(source, sep ? (size_t)(sep - source) : len,
+                      &leftlen);
   if(sep) {
     char *p;
     int plen;
-    right = curl_easy_unescape(NULL, sep + 1, len - (sep - source) - 1,
-                               &rightlen);
+    right = strurldecode(sep + 1, len - (sep - source) - 1, &rightlen);
 
     /* convert null bytes to periods */
     for(plen = rightlen, p = right; plen; plen--, p++) {
