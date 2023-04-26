@@ -1,0 +1,131 @@
+name: Release CI
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    name: "Linux Build"
+
+    strategy:
+      matrix:
+        build:
+        - name: default
+          install_packages: valgrind
+          test: test-memory
+        - name: clang sanitizers
+          install_packages: clang
+          test: test
+          make_opts: >
+            CC=clang
+            CFLAGS="-fsanitize=address,undefined,signed-integer-overflow -Wformat -Werror=format-security -Werror=array-bounds -g"
+            LDFLAGS="-fsanitize=address,undefined,signed-integer-overflow -g"
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: install libcurl
+      run: |
+        sudo apt-get update
+        sudo apt-get install libcurl4-openssl-dev ${{ matrix.build.install_packages }}
+    - name: code style check
+      run: make checksrc
+
+    - name: make
+      run: make ${{ matrix.build.make_opts }}
+
+    - name: sanity test
+      run: ./trurl -v
+
+    - name: test
+      run: make ${{matrix.build.test}}
+
+    - name: rename
+      run: mv trurl trurl-linux
+
+    - name: artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: Linux
+        path: ./trurl-linux
+
+  build-cygwin:
+    runs-on: windows-latest
+    name: "Windows Build"
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: install cygwin
+        uses: cygwin/cygwin-install-action@master
+        with:
+          packages: curl, libcurl-devel, libcurl4, make, gcc-core, python39
+
+      - name: make
+        run: make
+
+      - name: sanity test
+        run: ./trurl -v
+
+      - name: test
+        run: make test
+
+      - name: rename
+        run: mv trurl.EXE trurl-windows.exe
+
+      - name: artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: Windows
+          path: ./trurl-windows.exe
+
+  build-macos:
+    runs-on: macos-latest
+    name: "MacOS Build"
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip3 install -r requirements.txt
+      - name: make
+        run: make
+
+      - name: sanity test
+        run: ./trurl -v
+
+      - name: test
+        run: make test
+
+      - name: rename
+        run: mv trurl trurl-macos
+
+      - name: artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: Macos
+          path: ./trurl-macos
+
+  tagged-release:
+    name: "Tagged Release"
+    runs-on: ubuntu-latest
+    needs: [build-linux, build-cygwin, build-macos]
+
+    steps:
+      - uses: actions/download-artifact@v3
+
+      - name: Display structure of downloaded files
+        run: ls -R
+
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          files: |
+            ./trurl-linux
+            ./trurl-windows.exe
+            ./trurl-macos
