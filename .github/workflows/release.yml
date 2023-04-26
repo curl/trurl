@@ -127,6 +127,6 @@ jobs:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
           files: |
-            ./trurl-linux
-            ./trurl-windows.exe
-            ./trurl-macos
+            ./Linux/trurl-linux
+            ./Windows/trurl-windows.exe
+            ./Macos/trurl-macos
