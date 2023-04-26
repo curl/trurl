@@ -171,12 +171,12 @@ static void help(void)
     "  -v, --version                    - show version\n"
     "      --verify                     - return error on (first) bad URL\n"
     " URL COMPONENTS:\n"
-    "  ", stderr);
+    "  ", stdout);
   for(i = 0; i< NUM_COMPONENTS; i++) {
-    fprintf(stderr, "%s%s", i?", ":"", variables[i].name);
+    printf("%s%s", i?", ":"", variables[i].name);
   }
-  fprintf(stderr, "\n");
-  exit(0);
+  fputs("\n", stdout);
+  exit(1);
 }
 
 static void show_version(void)
