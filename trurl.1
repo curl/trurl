@@ -81,6 +81,11 @@ is how International Domain Names are converted into plain ascii, by using the
 form \fB{puny:yrl}\fP and \fB{puny:host}\fP. If the host name is not using
 IDN, this option provides the regular ascii name.
 
+You can determine if a port is explicitly defined in a url by using the "raw" 
+keyword in your format string, which would look like \fB{raw:port}\fP. If the 
+port is explicitly defined trurl will return the port number, if it is not
+explicitly defined then trurl will return an empty string.
+
 The "format" string supports the following backslash sequences:
 
 \&\\\\ - backslash
