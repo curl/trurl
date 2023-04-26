@@ -85,6 +85,7 @@ static const struct var variables[] = {
   {"options",  CURLUPART_OPTIONS},
   {"host",     CURLUPART_HOST},
   {"port",     CURLUPART_PORT},
+  {"raw_port", CURLUPART_PORT},
   {"path",     CURLUPART_PATH},
   {"query",    CURLUPART_QUERY},
   {"fragment", CURLUPART_FRAGMENT},
@@ -487,6 +488,7 @@ static void get(struct option *op, CURLU *uh)
         bool urldecode = true;
         bool punycode = false;
         bool handled = true;
+        bool rawport = false;
         end = strchr(ptr, endbyte);
         ptr++; /* pass the { */
         if(!end) {
@@ -517,6 +519,12 @@ static void get(struct option *op, CURLU *uh)
             vlen = end - ptr;
             handled = false;
           }
+          else if(!strncmp(ptr, "raw:", 4)) {
+            rawport = true;
+            ptr = cl + 1;
+            vlen = end - ptr;
+            handled = false;
+          }
           else
             errorf(ERROR_GET, "Bad --get syntax: %s", ptr);
         }
@@ -528,7 +536,7 @@ static void get(struct option *op, CURLU *uh)
             char *nurl;
             CURLUcode rc;
             rc = curl_url_get(uh, v->part, &nurl,
-                              CURLU_DEFAULT_PORT|
+                              (rawport?0:CURLU_DEFAULT_PORT)|
                               CURLU_NO_DEFAULT_PORT|
 #ifdef SUPPORTS_PUNYCODE
                               (punycode?CURLU_PUNYCODE:0)|
@@ -694,20 +702,37 @@ static void json(struct option *o, CURLU *uh)
 {
   int i;
   bool first = true;
+  bool explicit_port = false;
   (void)o;
   printf("%s  {\n", o->urls?",\n":"");
   for(i = 0; variables[i].name; i++) {
     char *nurl;
+    int port = i?CURLU_DEFAULT_PORT:0;
+    if(i && !strcmp(variables[i].name, "raw_port")) {
+      explicit_port = true;
+      port = 0;
+    }
     CURLUcode rc = curl_url_get(uh, variables[i].part, &nurl,
-                                (i?CURLU_DEFAULT_PORT:0)|
+                                port |
                                 CURLU_URLDECODE);
-    if(!rc) {
+    if(!rc && !explicit_port) {
       if(!first)
         fputs(",\n", stdout);
       first = false;
       printf("    \"%s\": ", variables[i].name);
       jsonString(stdout, nurl, strlen(nurl), false);
       curl_free(nurl);
+    }
+    else if(explicit_port) {
+      fputs(",\n", stdout);
+      printf("    \"%s\": ", variables[i].name);
+      if(nurl) {
+        jsonString(stdout, nurl, strlen(nurl), false);
+        curl_free(nurl);
+      }
+      else
+        jsonString(stdout, "", 0, false);
+      explicit_port = false;
     }
   }
   first = true;
