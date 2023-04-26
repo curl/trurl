@@ -153,25 +153,25 @@ static void errorf(int exit_code, char *fmt, ...)
 static void help(void)
 {
   int i;
-  fprintf(stderr, "Usage: " PROGNAME " [options] [URL]\n"
-          "  -a, --append [component]=[data] - append data to component\n"
-          "  --accept-space               - give in to this URL abuse\n"
-          "  -f, --url-file [file/-]      - read URLs from file or stdin\n"
-          "  -g, --get [{component}s]     - output component(s)\n"
-          "  -h, --help                   - this help\n"
-          "  --iterate [component]=[list] - create multiple URL outputs\n"
-          "  --json                       - output URL as JSON\n"
-          "  --query-separator [letter]   - if something else than '&'\n"
-          "  --redirect [URL]             - redirect to this\n"
-          "  -s, --set [component]=[data] - set component content\n"
-          "  --sort-query                 - alpha-sort the query pairs\n"
-          "  --trim [component]=[what]    - trim component\n"
-          "  --url [URL]                  - URL to work with\n"
-          "  -v, --version                - show version\n"
-          "  --verify                     - return error on (first) bad URL\n"
-          " URL COMPONENTS:\n"
-          "  "
-    );
+  fputs(
+    "Usage: " PROGNAME " [options] [URL]\n"
+    "  -a, --append [component]=[data]  - append data to component\n"
+    "      --accept-space               - give in to this URL abuse\n"
+    "  -f, --url-file [file/-]          - read URLs from file or stdin\n"
+    "  -g, --get [{component}s]         - output component(s)\n"
+    "  -h, --help                       - this help\n"
+    "      --iterate [component]=[list] - create multiple URL outputs\n"
+    "      --json                       - output URL as JSON\n"
+    "      --query-separator [letter]   - if something else than '&'\n"
+    "      --redirect [URL]             - redirect to this\n"
+    "  -s, --set [component]=[data]     - set component content\n"
+    "      --sort-query                 - alpha-sort the query pairs\n"
+    "      --trim [component]=[what]    - trim component\n"
+    "      --url [URL]                  - URL to work with\n"
+    "  -v, --version                    - show version\n"
+    "      --verify                     - return error on (first) bad URL\n"
+    " URL COMPONENTS:\n"
+    "  ", stderr);
   for(i = 0; i< NUM_COMPONENTS; i++) {
     fprintf(stderr, "%s%s", i?", ":"", variables[i].name);
   }
