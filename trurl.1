@@ -76,6 +76,11 @@ You can access specific keys in the query string and out all values using the
 format \fB{query-all:key}\fP. This looks for 'key' case sensitively and will
 output all values for that key space-separated.
 
+You can access the url and host components in their "punycoded" version, which
+is how International Domain Names are converted into plain ascii, by using the
+form \fB{puny:yrl}\fP and \fB{puny:host}\fP. If the host name is not using
+IDN, this option provides the regular ascii name.
+
 The "format" string supports the following backslash sequences:
 
 \&\\\\ - backslash

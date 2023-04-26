@@ -29,6 +29,8 @@
 #include <curl/curl.h>
 #include <curl/mprintf.h>
 
+#include <locale.h> /* for setlocale() */
+
 #include "version.h"
 
 #ifdef _MSC_VER
@@ -47,6 +49,9 @@
 #define SUPPORTS_ALLOW_SPACE
 #else
 #define CURLU_ALLOW_SPACE 0
+#endif
+#if CURL_AT_LEAST_VERSION(7,88,0)
+#define SUPPORTS_PUNYCODE
 #endif
 
 #define OUTPUT_URL      0  /* default */
@@ -480,6 +485,8 @@ static void get(struct option *op, CURLU *uh)
         char *cl;
         size_t vlen;
         bool urldecode = true;
+        bool punycode = false;
+        bool handled = true;
         end = strchr(ptr, endbyte);
         ptr++; /* pass the { */
         if(!end) {
@@ -501,10 +508,21 @@ static void get(struct option *op, CURLU *uh)
             showqkey(&ptr[10], end - cl - 1, urldecode, true);
           else if(!strncmp(ptr, "query:", 6))
             showqkey(&ptr[6], end - cl - 1, urldecode, false);
+          else if(!strncmp(ptr, "puny:", 5)) {
+            punycode = true;
+#ifndef SUPPORTS_PUNYCODE
+            warnf("Built without punycode support");
+#endif
+            ptr = cl + 1;
+            vlen = end - ptr;
+            handled = false;
+          }
           else
             errorf(ERROR_GET, "Bad --get syntax: %s", ptr);
         }
-        else {
+        else
+          handled = false;
+        if(!handled) {
           const struct var *v = comp2var(ptr, vlen);
           if(v) {
             char *nurl;
@@ -512,6 +530,9 @@ static void get(struct option *op, CURLU *uh)
             rc = curl_url_get(uh, v->part, &nurl,
                               CURLU_DEFAULT_PORT|
                               CURLU_NO_DEFAULT_PORT|
+#ifdef SUPPORTS_PUNYCODE
+                              (punycode?CURLU_PUNYCODE:0)|
+#endif
                               (urldecode?CURLU_URLDECODE:0));
             switch(rc) {
             case CURLUE_OK:
@@ -1103,6 +1124,7 @@ int main(int argc, const char **argv)
   struct option o;
   struct curl_slist *node;
   memset(&o, 0, sizeof(o));
+  setlocale(LC_ALL, "");
   curl_global_init(CURL_GLOBAL_ALL);
 
   for(argc--, argv++; argc > 0; argc--, argv++) {
