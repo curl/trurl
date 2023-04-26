@@ -1594,6 +1594,36 @@
             "returncode": 0,
             "stderr": ""
         }
+    },
+    {
+        "input": {
+            "arguments": [
+                "https://räksmörgås.se",
+                "-g",
+                "{puny:url}"
+            ]
+        },
+        "minbuildtime": "7.88.0",
+        "expected": {
+            "stderr": "",
+            "returncode": 0,
+            "stdout": "https://xn--rksmrgs-5wao1o.se:443/\n"
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "https://räksmörgås.se",
+                "-g",
+                "{puny:host}"
+            ]
+        },
+        "minbuildtime": "7.88.0",
+        "expected": {
+            "stderr": "",
+            "returncode": 0,
+            "stdout": "xn--rksmrgs-5wao1o.se\n"
+        }
     }
 
             ]
