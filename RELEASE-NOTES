@@ -1,21 +1,29 @@
-trurl 0.5
+trurl 0.6
 
 Changes since previous release
 
- o --get supports variables in [brackets] as well
- o --get {query-all:key} outputs all values for 'key' in the query
- o switched to test.py for tests
- o --iterate is a new option
+ o offer {puny:host} and {puny:url} for --get
+ o provide built-with libcurl version info for --version
+ o support for skipping tests
+ o test.py replaced test.pl
+ o test.py supports --with-valgrind
+ o tests.json: extended and updated
+ o URL-QUIRKS: specify if they are build-time or run-time requirements
 
 Bugfixes since previous release
 
- o handle %00 sequences in {query:key} output
- o support reading URL from a file without a newline
- o bmake compatible makefile
- o fixed a json memory-leak
- o CI builds with the the clang address sanitizer
+ o Makefile: fix build with GNU Make 3.x
+ o Makefile: make test target depend on trurl
+ o several new CI jobs
+ o test.py: don't crash if stdout is not valid JSON
+ o test: print failed tests more nicely.
+ o trurl: fix query splitting
+ o trurl: json: print comma only after printing the first valid component
+ o trurl: make sure to terminate the JSON array when aborting with --verify
+ o trurl: no url file/arguments implies --verify
+ o trurl: reparse the URL after modifying it to make sure it is still valid
 
 Contributors to this release:
 
-  Dan Fandrich, Daniel Stenberg, Emanuele Torre, Håvard Bønes,
-  Michael Ablassmeier, Nekobit
+  Daniel Stenberg, Emanuele Torre, Jacob Mealey, Krishean Draconis,
+  Ruoyu Zhong
