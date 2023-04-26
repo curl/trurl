@@ -176,7 +176,7 @@ static void help(void)
     fprintf(stderr, "%s%s", i?", ":"", variables[i].name);
   }
   fprintf(stderr, "\n");
-  exit(1);
+  exit(0);
 }
 
 static void show_version(void)
