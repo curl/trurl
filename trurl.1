@@ -255,16 +255,27 @@ $ cat urllist.txt | trurl --url-file -
 .fi
 .IP "Output JSON"
 .nf
-$ trurl "https://fake.host/hello#frag" --set user=::moo:: --json
+$ trurl "https://fake.host/search?q=answers&user=me#frag" --json
 [
   {
-    "url": "https://%3a%3amoo%3a%3a@fake.host/hello#frag",
+    "url": "https://fake.host/search?q=answers&user=me#frag",
     "scheme": "https",
-    "user": "::moo::",
     "host": "fake.host",
     "port": "443",
-    "path": "/hello",
-    "fragment": "frag"
+    "raw_port": "",
+    "path": "/search",
+    "query": "q=answers&user=me",
+    "fragment": "frag",
+    "params": [
+      {
+        "key": "q",
+        "value": "answers"
+      },
+      {
+        "key": "user",
+        "value": "me"
+      }
+    ]
   }
 ]
 .fi
