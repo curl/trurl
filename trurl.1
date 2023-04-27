@@ -106,7 +106,8 @@ Show the help output.
 .IP "--iterate [component]=[item1 item2 ...]"
 Set the component to multiple values and output the result once for each
 iteration. Several combined iterations are allowed to generate combinations,
-but only one \fI--iterate\fP option per component.
+but only one \fI--iterate\fP option per component. The listed items to iterate
+over should be separated by single spaces.
 .IP "--json"
 Outputs all set components of the URLs as JSON objects. All components of the
 URL that has data will get populated in the object using their component
@@ -303,6 +304,13 @@ https://curl.se?page=5
 .nf
 $ trurl "https://curl.se/this has space/index.html" --accept-space
 https://curl.se/this%20has%20space/index.html
+.fi
+.IP "Create multiple variations of a URL with different schemes"
+.nf
+$ trurl "https://curl.se/path/index.html" --iterate "scheme=http ftp sftp"
+http://curl.se/path/index.html
+ftp://curl.se/path/index.html
+sftp://curl.se/path/index.html
 .fi
 .SH WWW
 https://curl.se/trurl
