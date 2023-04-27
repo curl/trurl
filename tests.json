@@ -1656,6 +1656,7 @@
                     "options": "crazy",
                     "host": "[ff00::1234]",
                     "port": "1234",
+                    "raw_port": "1234",
                     "path": "/path",
                     "query": "a=b&c=d",
                     "fragment": "fragment",
