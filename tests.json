@@ -1624,6 +1624,43 @@
             "returncode": 0,
             "stdout": "xn--rksmrgs-5wao1o.se\n"
         }
+    },
+    {
+        "minruntime": "7.65.0",
+        "input": {
+            "arguments": [
+                "imaps://user:pasword;crazy@[ff00::1234%hello]:1234/path?a=b&c=d#fragment",
+                "--json"
+            ]
+        },
+        "expected": {
+            "returncode": 0,
+            "stdout": [
+                {
+                    "url": "imaps://user:pasword;crazy@[ff00::1234%25hello]:1234/path?a=b&c=d#fragment",
+                    "scheme": "imaps",
+                    "user": "user",
+                    "password": "pasword",
+                    "options": "crazy",
+                    "host": "[ff00::1234]",
+                    "port": "1234",
+                    "path": "/path",
+                    "query": "a=b&c=d",
+                    "fragment": "fragment",
+                    "zoneid": "hello",
+                    "params": [
+                        {
+                            "key": "a",
+                            "value": "b"
+                        },
+                        {
+                            "key": "c",
+                            "value": "d"
+                        }
+                    ]
+                }
+            ]
+        }
     }
 
-            ]
+]
