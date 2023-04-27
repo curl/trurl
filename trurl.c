@@ -85,7 +85,6 @@ static const struct var variables[] = {
   {"options",  CURLUPART_OPTIONS},
   {"host",     CURLUPART_HOST},
   {"port",     CURLUPART_PORT},
-  {"raw_port", CURLUPART_PORT},
   {"path",     CURLUPART_PATH},
   {"query",    CURLUPART_QUERY},
   {"fragment", CURLUPART_FRAGMENT},
@@ -702,20 +701,14 @@ static void json(struct option *o, CURLU *uh)
 {
   int i;
   bool first = true;
-  bool explicit_port = false;
   (void)o;
   printf("%s  {\n", o->urls?",\n":"");
   for(i = 0; variables[i].name; i++) {
     char *nurl;
-    int port = i?CURLU_DEFAULT_PORT:0;
-    if(i && !strcmp(variables[i].name, "raw_port")) {
-      explicit_port = true;
-      port = 0;
-    }
     CURLUcode rc = curl_url_get(uh, variables[i].part, &nurl,
-                                port |
+                                (i?CURLU_DEFAULT_PORT:0)|
                                 CURLU_URLDECODE);
-    if(!rc && !explicit_port) {
+    if(!rc) {
       if(!first)
         fputs(",\n", stdout);
       first = false;
@@ -723,16 +716,18 @@ static void json(struct option *o, CURLU *uh)
       jsonString(stdout, nurl, strlen(nurl), false);
       curl_free(nurl);
     }
-    else if(explicit_port) {
+    /* if we're printing the port, show if it's explicit or not */
+    if(variables[i].part == CURLUPART_PORT) {
+      rc = curl_url_get(uh, variables[i].part, &nurl,
+                CURLU_URLDECODE);
       fputs(",\n", stdout);
-      printf("    \"%s\": ", variables[i].name);
-      if(nurl) {
+      printf("    \"raw_port\": ");
+      if(!rc) {
         jsonString(stdout, nurl, strlen(nurl), false);
         curl_free(nurl);
       }
       else
         jsonString(stdout, "", 0, false);
-      explicit_port = false;
     }
   }
   first = true;
