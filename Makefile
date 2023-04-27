@@ -31,7 +31,8 @@ clean:
 test: $(TARGET)
 	@$(PYTHON3) test.py
 
-test-memory:
+.PHONY: test-memory
+test-memory: $(TARGET)
 	@$(PYTHON3) test.py --with-valgrind
 
 .PHONY: checksrc

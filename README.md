@@ -1,75 +1,142 @@
 # trurl
 
-command line tool for URL parsing and manipulation
+Command line tool for URL parsing and manipulation
 
-[video presentation](https://youtu.be/oDL7DVszr2w)
+[Video presentation](https://youtu.be/oDL7DVszr2w)
 
-## Example command lines
+## Examples
 
-~~~
-  $ trurl --url https://curl.se --set host=example.com
-  https://example.com/
+**Replace the host name of a URL:**
 
-  $ trurl --set host=example.com --set scheme=ftp
-  ftp://example.com/
+```text
+$ trurl --url https://curl.se --set host=example.com
+https://example.com/
+```
 
-  $ trurl --url https://curl.se/we/are.html --redirect here.html
-  https://curl.se/we/here.html
+**Create a URL by setting components:**
 
-  $ trurl --url https://curl.se/we/../are.html --set port=8080
-  https://curl.se:8080/are.html
+```text
+$ trurl --set host=example.com --set scheme=ftp
+ftp://example.com/
+```
 
-  $ trurl --url https://curl.se/we/are.html --get '{path}'
-  /we/are.html
+**Redirect a URL:**
 
-  $ trurl --url https://curl.se/we/are.html --get '{port}'
-  443
+```text
+$ trurl --url https://curl.se/we/are.html --redirect here.html
+https://curl.se/we/here.html
+```
 
-  $ trurl https://example.com/hello.html --get '{scheme} {port} {path}'
-  https 443 /hello.html
+**Change port number:**
 
-  $ trurl --url https://curl.se/hello --append path=you
-  https://curl.se/hello/you
+```text
+$ trurl --url https://curl.se/we/../are.html --set port=8080
+https://curl.se:8080/are.html
+```
 
-  $ trurl --url "https://curl.se?name=hello" --append query=search=string
-  https://curl.se/?name=hello&search=string
+**Extract the path from a URL:**
 
-  $ trurl --url-file url-list.txt --get '{host}'
-  [one host name per URL in the input file]
+```text
+$ trurl --url https://curl.se/we/are.html --get '{path}'
+/we/are.html
+```
 
-  $ cat url-list.txt | trurl --url-file - --get '{host}'
-  [one host name per URL in the input file]
+**Extract the port from a URL:**
 
-  $ trurl "https://fake.host/hello#frag" --set user=::moo:: --json
-  [
-    {
-      "url": "https://%3a%3amoo%3a%3a@fake.host/hello#frag",
-      "scheme": "https",
-      "user": "::moo::",
-      "host": "fake.host",
-      "port": "443",
-      "path": "/hello",
-      "fragment": "frag"
-    }
-  ]
+```text
+$ trurl --url https://curl.se/we/are.html --get '{port}'
+443
+```
 
-  $ trurl "https://example.com?search=hello&utm_source=tracker" --trim query="utm_*"
-  https://example.com/?search=hello
-~~~
+**Append a path segment to a URL:**
+
+```text
+$ trurl --url https://curl.se/hello --append path=you
+https://curl.se/hello/you
+```
+
+**Append a query segment to a URL:**
+
+```text
+$ trurl --url "https://curl.se?name=hello" --append query=search=string
+https://curl.se/?name=hello&search=string
+```
+
+**Read URLs from stdin:**
+
+```text
+$ cat urllist.txt | trurl --url-file -
+...
+```
+
+**Output JSON:**
+
+```text
+$ trurl "https://fake.host/hello#frag" --set user=::moo:: --json
+[
+  {
+    "url": "https://%3a%3amoo%3a%3a@fake.host/hello#frag",
+    "scheme": "https",
+    "user": "::moo::",
+    "host": "fake.host",
+    "port": "443",
+    "path": "/hello",
+    "fragment": "frag"
+  }
+]
+```
+
+**Remove tracking tuples from query:**
+
+```text
+$ trurl "https://curl.se?search=hey&utm_source=tracker" --trim query="utm_*"
+https://curl.se/?search=hey
+```
+
+**Show a specific query key value:**
+
+```text
+$ trurl "https://example.com?a=home&here=now&thisthen" -g '{query:a}'
+home
+```
+
+**Sort the key/value pairs in the query component:**
+
+```text
+$ trurl "https://example.com?b=a&c=b&a=c" --sort-query
+https://example.com?a=c&b=a&c=b
+```
+
+**Work with a query that uses a semicolon separator:**
+
+```text
+$ trurl "https://curl.se?search=fool;page=5" --trim query="search" --query-separator ";"
+https://curl.se?page=5
+```
+
+**Accept spaces in the URL path:**
+
+```text
+$ trurl "https://curl.se/this has space/index.html" --accept-space
+https://curl.se/this%20has%20space/index.html
+```
 
 ## Install
 
-**On Linux :**
+### Linux
 
-It's quite easy to compile the C source with GCC :
+It's quite easy to compile the C source with GCC:
 
-```
+```text
 $ make
 cc  -W -Wall -pedantic -g   -c -o trurl.o trurl.c
 cc   trurl.o  -lcurl -o trurl
 ```
 
-**On Windows:**
+trurl is also available in [some Linux distributions](https://github.com/curl/trurl/discussions/51). You can try searching for it using the package manager of your preferred distribution.
+
+### Windows
+
 1. Download and run [Cygwin installer.](https://www.cygwin.com/install.html)
 2. Follow the instructions provided by the installer. When prompted to select packages, make sure to choose the following: curl, libcurl-devel, libcurl4, make and gcc-core.
 3. (optional) Add the Cygwin bin directory to your system PATH variable.
