@@ -2,7 +2,7 @@
 .\" man -l trurl.1
 .\" Written by Daniel Stenberg
 .\"
-.TH trurl 1 "April 3, 2023" "trurl" "trurl Manual"
+.TH trurl 1 "April 27, 2023" "trurl" "trurl Manual"
 .SH NAME
 trurl \- transpose URLs
 .SH SYNOPSIS
@@ -105,7 +105,7 @@ but only one \fI--iterate\fP option per component.
 .IP "--json"
 Outputs all set components of the URLs as JSON objects. All components of the
 URL that has data will get populated in the object using their component
-names.
+names. See below for details on the format.
 .IP "--query-separator [what]"
 Specify the single letter used for separating query pairs. The default is "&"
 but at least in the past sometimes semicolons ";" or even colons ":" have been
@@ -149,6 +149,51 @@ Show version information and exit.
 .IP "--verify"
 When a URL is provided, return error immediately if it does not parse as a
 valid URL. In normal cases, trurl can forgive a bad URL input.
+.SH "JSON output format"
+The \fI--json\fP option outputs a JSON array with one or more objects. One for
+each URL.
+
+Each URL JSON object contains a number of properties, a series of key/value
+pairs. The exact set depends on the given URL.
+.IP "url"
+This key exists in every object. It is the complete URL, in a URL encoded
+format.
+.IP "scheme"
+The URL scheme.
+.IP "user"
+The URL decoded user name.
+.IP "password"
+The URL decoded password.
+.IP "options"
+The URL decoded options. Note that only a few URL schemes support the
+"options" component.
+.IP "host"
+The URL decoded and normalized host name. It might be a UTF-8 name if an IDN
+name was used. It can also be a normalized IPv4 or IPv6 address. An IPv6
+address always starts with a bracket (\fB[\fP) - and no other host names can
+contain such a symbol.
+.IP "port"
+The provided port number. If the port number was not provided in the URL, but
+the scheme is a known one, the default port for that scheme will be provided
+here.
+.IP "path"
+The URL decoded path. Including the leading slash.
+.IP "query"
+The URL decoded full query, excluding the question mark separator.
+.IP "fragment"
+The URL decoded fragment, excluding the pound sign separator.
+.IP "zoneid"
+The zone id, which can only be present in an IPv6 address. When this key is
+present, then \fBhost\fP is an IPv6 numerical address.
+.IP "params"
+This key contains an array of query key/value objects. Each such pair is
+listed with "key" and "value" and their respective contents in the output.
+
+The key/values are extracted from the query where they are separated by
+amperands (\fB&\fP) - or the user sets with \fB--query-separator\fP.
+
+The query pairs are listed in the order of appearance in a left-to-right
+order, but can be made alpha-sorted with \fB--sort-query\fP
 .SH EXAMPLES
 .IP "Replace the host name of a URL"
 .nf
