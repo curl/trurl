@@ -181,6 +181,9 @@ contain such a symbol.
 The provided port number. If the port number was not provided in the URL, but
 the scheme is a known one, the default port for that scheme will be provided
 here.
+.IP "raw_port"
+The port number exactly as provided in the URL. This will be a zero length
+string if there was no explicit port number provided.
 .IP "path"
 The URL decoded path. Including the leading slash.
 .IP "query"
