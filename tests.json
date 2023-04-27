@@ -1674,6 +1674,32 @@
                 }
             ]
         }
+    },
+    {
+        "input": {
+            "arguments": [
+                "http://example.com/",
+                "--get",
+                "port: {port}, raw port: {raw:port}"
+            ]
+        },
+        "expected": {
+            "returncode": 0,
+            "stdout": "port: 80, raw port: \n"
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "http://example.com:8080/",
+                "--get",
+                "port: {port}, raw port: {raw:port}"
+            ]
+        },
+        "expected": {
+            "returncode": 0,
+            "stdout": "port: 8080, raw port: 8080\n"
+        }
     }
 
 ]
