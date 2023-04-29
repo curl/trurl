@@ -1,4 +1,4 @@
-name: Makefile CI
+name: build
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build:
+  ubuntu:
     runs-on: ubuntu-latest
 
     strategy:
@@ -44,7 +44,7 @@ jobs:
     - name: test
       run: make ${{matrix.build.test}}
 
-  build-cygwin:
+  cygwin:
     runs-on: windows-latest
 
     steps:
@@ -64,7 +64,7 @@ jobs:
       - name: test
         run: make test
 
-  build-macos:
+  macos:
     runs-on: macos-latest
 
     steps:
