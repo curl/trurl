@@ -357,32 +357,32 @@ static int getarg(struct option *op,
     help();
   else if(checkoptarg("--url", flag, arg)) {
     urladd(op, arg);
-    *usedarg = 1;
+    *usedarg = true;
   }
   else if(checkoptarg("-f", flag, arg) ||
           checkoptarg("--url-file", flag, arg)) {
     urlfile(op, arg);
-    *usedarg = 1;
+    *usedarg = true;
   }
   else if(checkoptarg("-a", flag, arg) ||
           checkoptarg("--append", flag, arg)) {
     appendadd(op, arg);
-    *usedarg = 1;
+    *usedarg = true;
   }
   else if(checkoptarg("-s", flag, arg) ||
           checkoptarg("--set", flag, arg)) {
     setadd(op, arg);
-    *usedarg = 1;
+    *usedarg = true;
   }
   else if(checkoptarg("--iterate", flag, arg)) {
     iteradd(op, arg);
-    *usedarg = 1;
+    *usedarg = true;
   }
   else if(checkoptarg("--redirect", flag, arg)) {
     if(op->redirect)
       errorf(ERROR_FLAG, "only one --redirect is supported");
     op->redirect = arg;
-    *usedarg = 1;
+    *usedarg = true;
   }
   else if(checkoptarg("--query-separator", flag, arg)) {
     if(op->qsep)
@@ -390,11 +390,11 @@ static int getarg(struct option *op,
     if(strlen(arg) != 1)
       errorf(ERROR_FLAG, "only single-letter query separators are supported");
     op->qsep = arg;
-    *usedarg = 1;
+    *usedarg = true;
   }
   else if(checkoptarg("--trim", flag, arg)) {
     trimadd(op, arg);
-    *usedarg = 1;
+    *usedarg = true;
   }
   else if(checkoptarg("-g", flag, arg) ||
           checkoptarg("--get", flag, arg)) {
@@ -403,7 +403,7 @@ static int getarg(struct option *op,
     if(op->jsonout)
       errorf(ERROR_FLAG, "--get is mututally exclusive with --json");
     op->format = arg;
-    *usedarg = 1;
+    *usedarg = true;
   }
   else if(!strcmp("--json", flag)) {
     if(op->format)
