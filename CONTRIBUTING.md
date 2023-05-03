@@ -27,7 +27,7 @@ It is also important to be prepared for feedback on your PR and adjust it prompt
 The trurl repository has a few small helper tools to make development easier. 
 
 **checksrc.pl** is used to ensure the code style is correct. It accepts C files as command line arguments, and returns nothing if the code style is valid. If the 
-code style is incorrect, checksrc.pl will provide the line the error is on and a brief discription of what is wrong. You may run `make checksrc` to scan the entire 
+code style is incorrect, checksrc.pl will provide the line the error is on and a brief description of what is wrong. You may run `make checksrc` to scan the entire
 repository for style compliance. 
 
 **test.py** is used to run automated tests for trurl. It loads in tests from `test.json` (described below) and reports the number of tests passed. You may specify 
