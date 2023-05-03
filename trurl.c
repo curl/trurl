@@ -732,21 +732,21 @@ static void json(struct option *o, CURLU *uh)
   }
   first = true;
   if(nqpairs) {
-    int i;
+    int j;
     fputs(",\n    \"params\": [\n", stdout);
-    for(i = 0 ; i < nqpairs; i++) {
-      const char *sep = strchr(qpairsdec[i], '=');
+    for(j = 0 ; j < nqpairs; j++) {
+      const char *sep = strchr(qpairsdec[j], '=');
       const char *value = sep ? sep + 1 : "";
 
       /* don't print out empty/trimmed values */
-      if(!qpairsdec[i][0])
+      if(!qpairsdec[j][0])
           continue;
       if(!first)
         fputs(",\n", stdout);
       first = false;
       fputs("      {\n        \"key\": ", stdout);
-      jsonString(stdout, qpairsdec[i],
-                 sep ? (size_t)(sep - qpairsdec[i]) : strlen(qpairsdec[i]),
+      jsonString(stdout, qpairsdec[j],
+                 sep ? (size_t)(sep - qpairsdec[j]) : strlen(qpairsdec[j]),
                  false);
       fputs(",\n        \"value\": ", stdout);
       jsonString(stdout, value, strlen(value), false);
