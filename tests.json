@@ -401,7 +401,7 @@
                 "{host}"
             ]
         },
-        "minruntime": "7.77.0",
+        "required": ["normalize-ipv4"],
         "expected": {
             "stdout": "10.0.0.1\n",
             "stderr": "",
@@ -417,7 +417,7 @@
                 "{host}"
             ]
         },
-        "minruntime": "7.81.0",
+        "required": ["zone-id"],
         "expected": {
             "stdout": "[fe80::20c:29ff:fe9c:409b]\n",
             "stderr": "",
@@ -760,8 +760,7 @@
                 "gopher://localhost/ with space"
             ]
         },
-        "minruntime": "7.78.0",
-        "minbuildtime": "7.78.0",
+        "required": ["white-space"],
         "expected": {
             "stdout": "gopher://localhost/%20with%20space\n",
             "stderr": "",
@@ -776,8 +775,7 @@
                 "https://localhost/?with space"
             ]
         },
-        "minruntime": "7.78.0",
-        "minbuildtime": "7.78.0",
+        "required": ["white-space"],
         "expected": {
             "stdout": "https://localhost/?with+space\n",
             "stderr": "",
@@ -1053,7 +1051,7 @@
                 "[2001:0db8:0000:0000:0000:ff00:0042:8329]"
             ]
         },
-        "minruntime": "7.81.0",
+        "required": ["zone-id"],
         "expected": {
             "stdout": "http://[2001:db8::ff00:42:8329]/\n",
             "stderr": "",
@@ -1615,7 +1613,7 @@
                 "{puny:url}"
             ]
         },
-        "minbuildtime": "7.88.0",
+        "required": ["punycode"],
         "expected": {
             "stderr": "",
             "returncode": 0,
@@ -1630,7 +1628,7 @@
                 "{puny:host}"
             ]
         },
-        "minbuildtime": "7.88.0",
+        "required": ["punycode"],
         "expected": {
             "stderr": "",
             "returncode": 0,
@@ -1638,7 +1636,6 @@
         }
     },
     {
-        "minruntime": "7.65.0",
         "input": {
             "arguments": [
                 "imaps://user:pasword;crazy@[ff00::1234%hello]:1234/path?a=b&c=d#fragment",
