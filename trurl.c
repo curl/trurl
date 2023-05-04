@@ -485,7 +485,9 @@ static void get(struct option *op, CURLU *uh)
         char *cl;
         size_t vlen;
         bool urldecode = true;
+#ifdef SUPPORTS_PUNYCODE
         bool punycode = false;
+#endif
         bool handled = true;
         bool rawport = false;
         end = strchr(ptr, endbyte);
@@ -510,9 +512,10 @@ static void get(struct option *op, CURLU *uh)
           else if(!strncmp(ptr, "query:", 6))
             showqkey(&ptr[6], end - cl - 1, urldecode, false);
           else if(!strncmp(ptr, "puny:", 5)) {
-            punycode = true;
 #ifndef SUPPORTS_PUNYCODE
             warnf("Built without punycode support");
+#else
+            punycode = true;
 #endif
             ptr = cl + 1;
             vlen = end - ptr;
