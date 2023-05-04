@@ -8,7 +8,6 @@ import shlex
 from subprocess import PIPE, run
 from dataclasses import dataclass, asdict
 from typing import Any, Optional
-from packaging.version import parse as parse_version
 
 PROGNAME = "trurl"
 TESTFILE = "tests.json"
@@ -134,11 +133,7 @@ def main(argc, argv):
             stdout=PIPE, stderr=PIPE,
             encoding="utf-8"
         )
-        version_re = r' libcurl\/([\w\.\-]+) \[built\-with ([\w\.\-]+)\]$'
-        match = re.findall(version_re, output.stdout)
-        libcurl_runtime, libcurl_buildtime = match[0]
-        libcurl_runtime = parse_version(libcurl_runtime)
-        libcurl_buildtime = parse_version(libcurl_buildtime)
+        features = output.stdout.split('\n')[1].split()[1:]
 
         with open(path.join(baseDir, TESTFILE), "r") as file:
             allTests = json.load(file)
@@ -166,24 +161,11 @@ def main(argc, argv):
         numTestsPassed = 0
         numTestsSkipped = 0
         for testIndex in testIndexesToRun:
-            # skip tests if the run-time libcurl version is too low
-            if "minruntime" in allTests[testIndex]:
-                minruntime = allTests[testIndex]["minruntime"]
-                minruntime = parse_version(minruntime)
-                if libcurl_runtime < minruntime:
-                    skipMessage = "libcurl run-time version is too low: "
-                    skipMessage += f"{libcurl_runtime} < {minruntime}"
-                    print(f"{testIndex + 1}: skipped\t{skipMessage}")
-                    numTestsSkipped += 1
-                    continue
-            # skip tests if the build-time libcurl version is too low
-            if "minbuildtime" in allTests[testIndex]:
-                minbuildtime = allTests[testIndex]["minbuildtime"]
-                minbuildtime = parse_version(minbuildtime)
-                if libcurl_buildtime < minbuildtime:
-                    skipMessage = "libcurl build-time version is too low: "
-                    skipMessage += f"{libcurl_buildtime} < {minbuildtime}"
-                    print(f"{testIndex + 1}: skipped\t{skipMessage}")
+            # skip tests if required features are not met
+            if "required" in allTests[testIndex]:
+                required = allTests[testIndex]["required"]
+                if not set(required).issubset(set(features)):
+                    print(f"Missing feature, skipping test {testIndex + 1}.")
                     numTestsSkipped += 1
                     continue
 

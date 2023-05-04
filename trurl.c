@@ -40,6 +40,9 @@
 #define strdup _strdup
 #endif
 
+#if CURL_AT_LEAST_VERSION(7,77,0)
+#define SUPPORTS_NORM_IPV4
+#endif
 #if CURL_AT_LEAST_VERSION(7,81,0)
 #define SUPPORTS_ZONEID
 #endif
@@ -186,6 +189,32 @@ static void show_version(void)
   curl_version_info_data *data = curl_version_info(CURLVERSION_NOW);
   fprintf(stdout, "%s version %s libcurl/%s [built-with %s]\n",
           PROGNAME, TRURL_VERSION_TXT, data->version, LIBCURL_VERSION);
+  /* puny code isn't guaranteed based on the version, so it must be polled
+   * from libcurl */
+  bool supports_puny = false;
+#ifdef SUPPORTS_PUNYCODE
+  const char *const *feature_name = data->feature_names;
+  while(*feature_name && !supports_puny) {
+    supports_puny = !strncmp(*feature_name, "IDN", 3);
+    feature_name++;
+  }
+#endif
+
+  fprintf(stdout, "features: %s", supports_puny?"punycode ":"");
+#ifdef SUPPORTS_ALLOW_SPACE
+  fprintf(stdout, "white-space ");
+#endif
+#ifdef SUPPORTS_ZONEID
+  fprintf(stdout, "zone-id ");
+#endif
+#ifdef SUPPORTS_URL_STRERROR
+  fprintf(stdout, "url-strerror ");
+#endif
+#ifdef SUPPORTS_NORM_IPV4
+  fprintf(stdout, "normalize-ipv4");
+#endif
+
+  fprintf(stdout, "\n");
   exit(0);
 }
 
