@@ -7,7 +7,7 @@ import json
 import shlex
 from subprocess import PIPE, run
 from dataclasses import dataclass, asdict
-from typing import Any, Optional
+from typing import Any, Optional, TextIO
 from packaging.version import parse as parse_version
 
 PROGNAME = "trurl"
@@ -78,30 +78,33 @@ class TestCase:
         self.testPassed = all(tests)
         return self.testPassed
 
-    def printVerbose(self):
-        print(RED, end="")
-        self.printConcise()
-        print(NOCOLOR, end="")
+    def _printVerbose(self, output: TextIO):
+        self._printConcise(output)
 
         for item in self.expected:
-            itemFail = self.expected[item] != asdict(self.commandOutput)[item]\
-                    and self.commandOutput.returncode == 1
+            itemFail = self.expected[item] != asdict(self.commandOutput)[item] \
+                or self.commandOutput.returncode == 1
 
-            print(f"--- {item} --- ")
-            print("expected:")
-            print(f"{self.expected[item]!r}")
-            print("got:")
-            if itemFail:
-                print(RED, end="")
-            print(f"{asdict(self.commandOutput)[item]!r}")
-            if itemFail:
-                print(NOCOLOR, end="")
+            print(f"--- {item} --- ", file=output)
+            print("expected:", file=output)
+            print(f"{self.expected[item]!r}", file=output)
+            print("got:", file=output)
+            print(f"{RED if itemFail else NOCOLOR}", file=output, end="")
+            print(f"{asdict(self.commandOutput)[item]!r}", file=output, end="")
+            print(f"{NOCOLOR}", file=output)
 
-        print()
+        print(file=output)
 
-    def printConcise(self):
+    def _printConcise(self, output: TextIO):
         result = 'passed' if self.testPassed else 'failed'
-        print(f"{self.testIndex}: {result}\t{shlex.join(self.arguments)}")
+        print(f"{NOCOLOR if self.testPassed else RED}{self.testIndex}: {result}\t{shlex.join(self.arguments)}{NOCOLOR}", file=output)
+
+    def printDetail(self, verbose: bool = False, failed: bool = False):
+        output: TextIO = sys.stderr if failed else sys.stdout
+        if verbose:
+            self._printVerbose(output)
+        else:
+            self._printConcise(output)
 
 
 def main(argc, argv):
@@ -180,12 +183,12 @@ def main(argc, argv):
             test = TestCase(testIndex + 1, baseCmd, **allTests[testIndex])
 
             if test.runCommand(cmdfilter, runWithValgrind):
-                if test.test():  # passed
-                    test.printConcise()
+                passed = test.test()
+                if passed:
+                    test.printDetail(verbose=False)
                     numTestsPassed += 1
-
                 else:
-                    test.printVerbose()
+                    test.printDetail(verbose=True, failed=True)
                     numTestsFailed += 1
 
         # finally print the results to terminal
