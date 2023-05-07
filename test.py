@@ -97,8 +97,9 @@ class TestCase:
 
     def _printConcise(self, output: TextIO):
         result = 'passed' if self.testPassed else 'failed'
+        text = f"{self.testIndex}: {result}\t{shlex.join(self.arguments)}"
         print(f"{NOCOLOR if self.testPassed else RED}", file=output, end="")
-        print(f"{self.testIndex}: {result}\t{shlex.join(self.arguments)}", file=output, end="")
+        print(text, file=output, end="")
         print(f"{NOCOLOR}", file=output)
 
     def printDetail(self, verbose: bool = False, failed: bool = False):
