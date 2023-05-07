@@ -82,7 +82,7 @@ class TestCase:
         self._printConcise(output)
 
         for item in self.expected:
-            itemFail = self.expected[item] != asdict(self.commandOutput)[item] \
+            itemFail = self.expected[item] != asdict(self.commandOutput)[item]\
                 or self.commandOutput.returncode == 1
 
             print(f"--- {item} --- ", file=output)
@@ -97,7 +97,9 @@ class TestCase:
 
     def _printConcise(self, output: TextIO):
         result = 'passed' if self.testPassed else 'failed'
-        print(f"{NOCOLOR if self.testPassed else RED}{self.testIndex}: {result}\t{shlex.join(self.arguments)}{NOCOLOR}", file=output)
+        print(f"{NOCOLOR if self.testPassed else RED}", file=output, end="")
+        print(f"{self.testIndex}: {result}\t{shlex.join(self.arguments)}", file=output, end="")
+        print(f"{NOCOLOR}", file=output)
 
     def printDetail(self, verbose: bool = False, failed: bool = False):
         output: TextIO = sys.stderr if failed else sys.stdout
