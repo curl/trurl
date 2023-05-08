@@ -85,22 +85,30 @@ class TestCase:
             itemFail = self.expected[item] != asdict(self.commandOutput)[item]\
                 or self.commandOutput.returncode == 1
 
+            header = RED if itemFail else ""
+            text = f"{asdict(self.commandOutput)[item]!r}"
+            footer = NOCOLOR if itemFail else ""
+
             print(f"--- {item} --- ", file=output)
             print("expected:", file=output)
             print(f"{self.expected[item]!r}", file=output)
             print("got:", file=output)
-            print(f"{RED if itemFail else NOCOLOR}", file=output, end="")
-            print(f"{asdict(self.commandOutput)[item]!r}", file=output, end="")
-            print(f"{NOCOLOR}", file=output)
+            print(f"{header}{text}{footer}", file=output)
 
         print(file=output)
 
     def _printConcise(self, output: TextIO):
-        result = 'passed' if self.testPassed else 'failed'
+        if self.testPassed:
+            header = ""
+            result = "passed"
+            footer = ""
+        else:
+            header = RED
+            result = "failed"
+            footer = NOCOLOR
+
         text = f"{self.testIndex}: {result}\t{shlex.join(self.arguments)}"
-        print(f"{NOCOLOR if self.testPassed else RED}", file=output, end="")
-        print(text, file=output, end="")
-        print(f"{NOCOLOR}", file=output)
+        print(f"{header}{text}{footer}", file=output)
 
     def printDetail(self, verbose: bool = False, failed: bool = False):
         output: TextIO = sys.stderr if failed else sys.stdout
