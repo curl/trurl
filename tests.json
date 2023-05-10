@@ -1700,6 +1700,21 @@
             "returncode": 0,
             "stdout": "port: 8080, raw port: 8080\n"
         }
+    },
+    {
+        "input": {
+            "arguments": [
+                "localhost",
+                "-s",
+                "host=foo",
+                "--iterate",
+                "host=bar baz"
+            ]
+        },
+        "expected": {
+            "stdout": "",
+            "returncode": 11,
+            "stderr": "trurl error: duplicate --iterate and --set for component host\ntrurl error: Try trurl -h for help\n"
+        }
     }
-
 ]

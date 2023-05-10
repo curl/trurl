@@ -637,8 +637,8 @@ static const struct var *setone(CURLU *uh, const char *setline)
   return v;
 }
 
-static void set(CURLU *uh,
-                struct option *o)
+static unsigned int set(CURLU *uh,
+                        struct option *o)
 {
   struct curl_slist *node;
   unsigned int mask = 0;
@@ -652,6 +652,7 @@ static void set(CURLU *uh,
       mask |= (1 << v->part);
     }
   }
+  return mask; /* the set components */
 }
 
 static void jsonString(FILE *stream, const char *in, size_t len,
@@ -985,8 +986,10 @@ static void singleurl(struct option *o,
     char iterbuf[1024];
     struct curl_slist *p;
     bool url_is_invalid = false;
+    unsigned setmask = 0;
+
     /* set everything */
-    set(uh, o);
+    setmask = set(uh, o);
 
     if(iter) {
       /* "part=item1 item2 item2" */
@@ -1017,6 +1020,9 @@ static void singleurl(struct option *o,
           errorf(ERROR_ITER, "bad component for iterate");
         if(iinfo->varmask & (1<<v->part))
           errorf(ERROR_ITER, "duplicate component for iterate: %s", v->name);
+        if(setmask & (1 << v->part))
+          errorf(ERROR_ITER, "duplicate --iterate and --set for component %s",
+                 v->name);
       }
       else {
         part = iinfo->part;
