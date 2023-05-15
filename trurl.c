@@ -685,7 +685,7 @@ static void jsonString(FILE *stream, const char *in, size_t len,
       fputs("\\t", stream);
       break;
     default:
-      if (*i < 32)
+      if(*i < 32)
         fprintf(stream, "u%04x", *i);
       else {
         char out = *i;
@@ -743,7 +743,7 @@ static void json(struct option *o, CURLU *uh)
 
       /* don't print out empty/trimmed values */
       if(!qpairsdec[j][0])
-          continue;
+        continue;
       if(!first)
         fputs(",\n", stdout);
       first = false;
