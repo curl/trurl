@@ -126,6 +126,9 @@ over should be separated by single spaces.
 Outputs all set components of the URLs as JSON objects. All components of the
 URL that has data will get populated in the object using their component
 names. See below for details on the format.
+.IP "--no-guess-scheme"
+Disables libcurl's scheme guessing feature. URLs that do not contain a scheme
+will be treated as invalid URLs.
 .IP "--query-separator [what]"
 Specify the single letter used for separating query pairs. The default is "&"
 but at least in the past sometimes semicolons ";" or even colons ":" have been
@@ -157,7 +160,8 @@ otherwise only had their query pairs in different orders.
 .IP "--url [URL]"
 Set the input URL to work with. The URL may be provided without a scheme,
 which then typically is not actually a legal URL but trurl will try to figure
-out what is meant and guess what scheme to use.
+out what is meant and guess what scheme to use (unless \fI--no-guess-scheme\fP
+is used).
 
 Providing multiple URLs will make trurl act on all URLs in a serial fashion.
 
