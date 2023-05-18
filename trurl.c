@@ -953,9 +953,7 @@ static void sortquery(struct option *o)
   }
 }
 
-static CURLUcode urlfromstring(struct option *o,
-                               CURLU *uh,
-                               const char *url)
+static CURLUcode seturl(struct option *o, CURLU *uh, const char *url)
 {
   return curl_url_set(uh, CURLUPART_URL, url,
                       (o->no_guess_scheme ?
@@ -976,16 +974,20 @@ static void singleurl(struct option *o,
     if(!uh)
       errorf(ERROR_MEM, "out of memory");
     if(url) {
-      CURLUcode rc = urlfromstring(o, uh, url);
+      CURLUcode rc = seturl(o, uh, url);
       if(rc) {
         curl_free(uh);
         VERIFY(o, ERROR_BADURL, "%s [%s]", curl_url_strerror(rc), url);
         return;
       }
-      else {
-        if(o->redirect)
-          curl_url_set(uh, CURLUPART_URL, o->redirect,
-                       CURLU_GUESS_SCHEME|CURLU_NON_SUPPORT_SCHEME);
+      if(o->redirect) {
+        rc = seturl(o, uh, o->redirect);
+        if(rc) {
+          curl_url_cleanup(uh);
+          VERIFY(o, ERROR_BADURL, "invalid redirection: %s [%s]",
+                 curl_url_strerror(rc), o->redirect);
+          return;
+        }
       }
     }
   }
@@ -1110,7 +1112,7 @@ static void singleurl(struct option *o,
         url_is_invalid = true;
       }
       else {
-        rc = urlfromstring(o, uh, ourl);
+        rc = seturl(o, uh, ourl);
         if(rc) {
           VERIFY(o, ERROR_BADURL, "%s [%s]", curl_url_strerror(rc),
                  ourl);
