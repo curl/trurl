@@ -1716,5 +1716,19 @@
             "returncode": 11,
             "stderr": "trurl error: duplicate --iterate and --set for component host\ntrurl error: Try trurl -h for help\n"
         }
+    },
+    {
+        "input": {
+            "arguments": [
+                "emanuele6://curl.se/trurl",
+                "",
+                "https://example.org"
+            ]
+        },
+        "expected": {
+            "stdout": "emanuele6://curl.se/trurl\nhttps://example.org/\n",
+            "returncode": 0,
+            "stderr": "trurl note: No host part in the URL []\n"
+        }
     }
 ]
