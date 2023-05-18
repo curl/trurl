@@ -6,7 +6,7 @@
 .SH NAME
 trurl \- transpose URLs
 .SH SYNOPSIS
-.B trurl [options]
+.B trurl [options / URLs]
 .SH DESCRIPTION
 .B trurl
 parses, manipulates and outputs URLs and parts of URLs.
@@ -16,13 +16,23 @@ so, which includes a few "extensions". The URL support is limited to
 "hierarchical" URLs, the ones that use "://" separators after the scheme.
 
 Typically you pass in one or more URLs and decide what of that you want
-output. Posssibly modifying the URL as well.
+output. Possibly modifying the URL as well.
 
 trurl knows URLs and every URL consists of up to ten separate and independent
 "components". These components can be extracted, removed and updated with
 trurl and they are referred to by their respective names: scheme, user,
 password, options, host, port, path, query, fragment and zoneid.
 .SH "OPTIONS"
+Options start with one or two dashes. Many of the options require an additional
+value next to them.
+
+Any other argument is interpreted as a URL argument, and is treated as if it
+was following a \fI--url\fP option.
+
+The first argument that is exactly two dashes ("--"), marks the end of
+options; any argument after the end of options is interpreted as a URL
+argument even if it starts with a dash.
+
 .IP "-a, --append [component]=[data]"
 Append data to a component. This can only append data to the path and the
 query components.
@@ -44,9 +54,13 @@ provides a best-effort to convert the provided string into a valid URL.
 Read URLs to work on from the given file. Use the file name "-" (a single
 minus) to tell trurl to read the URLs from stdin.
 
-Each line needs to be a single valid URL - but trurl will trim off any
-trailing spaces and tabs from the end of the line. The maximum URL length
-supported in a file like this is 4095 bytes.
+Each line needs to be a single valid URL. trurl will remove one carriage return
+character at the end of the line if present, trim off all the trailing space and
+tab characters, and skip all empty (after trimming) lines.
+
+The maximum line length supported in a file like this is 4094 bytes. Lines that
+exceed that length are skipped, and a warning is printed to stderr when they are
+encountered.
 .IP "-g, --get [format]"
 Output text and URL data according to the provided format string. Components
 from the URL can be output when specified as \fB{component}\fP or
@@ -77,12 +91,12 @@ format \fB{query-all:key}\fP. This looks for 'key' case sensitively and will
 output all values for that key space-separated.
 
 You can access the url and host components in their "punycoded" version, which
-is how International Domain Names are converted into plain ascii, by using the
+is how International Domain Names are converted into plain ASCII, by using the
 form \fB{puny:url}\fP and \fB{puny:host}\fP. If the host name is not using
-IDN, this option provides the regular ascii name.
+IDN, this option provides the regular ASCII name.
 
-You can determine if a port is explicitly defined in a url by using the "raw" 
-keyword in your format string, which would look like \fB{raw:port}\fP. If the 
+You can determine if a port is explicitly defined in a URL by using the "raw"
+keyword in your format string, which would look like \fB{raw:port}\fP. If the
 port is explicitly defined trurl will return the port number, if it is not
 explicitly defined then trurl will return an empty string.
 
@@ -119,8 +133,9 @@ used for this purpose. If your URL uses something other than the default
 letter, setting the right one makes sure trurl can do its query operations
 properly.
 .IP "--redirect [URL]"
-Redirect the URL to this new location. It requires that you set the base url
-with \fB--url\fP
+Redirect the URL to this new location.
+The redirection is performed on the base URL, so, if no base URL is specified,
+no redirection will be performed.
 .IP "-s, --set [component][:]=[data]"
 Set this URL component. Setting blank string ("") will clear the component
 from the URL.
@@ -131,6 +146,10 @@ options, host, port, path, query, fragment and zoneid.
 If a simple "="-assignment is used, the data is URL encoded when applied. If
 ":=" is used, the data is assumed to already be URL encoded and will be stored
 as-is.
+
+If no URL or \fI--url-file\fP argument is provided, trurl will try to create
+a URL using the components provided by the \fI--set\fP options. If not enough
+components are specified, this will fail.
 .IP "--sort-query"
 The "variable=content" tuplets in the query component are sorted in a case
 insensitive alphabetical order. This helps making URLs identical that
@@ -199,7 +218,7 @@ This key contains an array of query key/value objects. Each such pair is
 listed with "key" and "value" and their respective contents in the output.
 
 The key/values are extracted from the query where they are separated by
-amperands (\fB&\fP) - or the user sets with \fB--query-separator\fP.
+ampersands (\fB&\fP) - or the user sets with \fB--query-separator\fP.
 
 The query pairs are listed in the order of appearance in a left-to-right
 order, but can be made alpha-sorted with \fB--sort-query\fP
