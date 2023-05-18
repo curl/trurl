@@ -1748,6 +1748,33 @@
     {
         "input": {
             "arguments": [
+                "--verify",
+                "-f",
+                "testfiles/test0000.txt"
+            ]
+        },
+        "expected": {
+            "stdout": "http://example.org/\n",
+            "returncode": 0,
+            "stderr": "trurl note: skipping long line\n"
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "-f",
+                "testfiles/test0001.txt"
+            ]
+        },
+        "expected": {
+            "stdout": "https://curl.se/\nhttps://docs.python.org/\ngit://github.com/curl/curl.git\nhttp://example.org/\nxyz://hello/?hi\n",
+            "returncode": 0,
+            "stderr": ""
+        }
+    },
+    {
+        "input": {
+            "arguments": [
                 "--no-guess-scheme",
                 "foo",
                 "hi",
