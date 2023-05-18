@@ -1730,5 +1730,36 @@
             "returncode": 0,
             "stderr": "trurl note: No host part in the URL []\n"
         }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--verify",
+                "--no-guess-scheme",
+                "hello"
+            ]
+        },
+        "expected": {
+            "stdout": "",
+            "returncode": 9,
+            "stderr": "trurl error: Bad scheme [hello]\ntrurl error: Try trurl -h for help\n"
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--no-guess-scheme",
+                "foo",
+                "hi",
+                "https://example.org",
+                "hey",
+                "git://curl.se"
+            ]
+        },
+        "expected": {
+            "stdout": "https://example.org/\ngit://curl.se/\n",
+            "returncode": 0,
+            "stderr": "trurl note: Bad scheme [foo]\ntrurl note: Bad scheme [hi]\ntrurl note: Bad scheme [hey]\n"
+        }
     }
 ]

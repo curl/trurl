@@ -162,6 +162,7 @@ static void help(void)
     "  -h, --help                       - this help\n"
     "      --iterate [component]=[list] - create multiple URL outputs\n"
     "      --json                       - output URL as JSON\n"
+    "      --no-guess-scheme            - require scheme in URLs\n"
     "      --query-separator [letter]   - if something else than '&'\n"
     "      --redirect [URL]             - redirect to this\n"
     "  -s, --set [component]=[data]     - set component content\n"
@@ -211,6 +212,7 @@ struct option {
   bool verify;
   bool accept_space;
   bool sort_query;
+  bool no_guess_scheme;
   bool end_of_options;
   unsigned char output;
 
@@ -419,6 +421,8 @@ static int getarg(struct option *op,
     warnf("built with too old libcurl version, --accept-space does not work");
 #endif
   }
+  else if(!strcmp("--no-guess-scheme", flag))
+    op->no_guess_scheme = true;
   else if(!strcmp("--sort-query", flag))
     op->sort_query = true;
   else
@@ -954,7 +958,9 @@ static CURLUcode urlfromstring(struct option *o,
                                const char *url)
 {
   return curl_url_set(uh, CURLUPART_URL, url,
-                      CURLU_GUESS_SCHEME|CURLU_NON_SUPPORT_SCHEME|
+                      (o->no_guess_scheme ?
+                       0 : CURLU_GUESS_SCHEME)|
+                      CURLU_NON_SUPPORT_SCHEME|
                       (o->accept_space ?
                        (CURLU_ALLOW_SPACE|CURLU_URLENCODE) : 0));
 }
