@@ -1,0 +1,11 @@
+https://curl.se/
+
+https://docs.python.org/   
+   
+git://github.com/curl/curl.git
+	
+http://example.org	   	
+     		
+
+
+xyz://hello/?hi

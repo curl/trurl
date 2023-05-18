@@ -22,6 +22,7 @@
  *
  ***************************************************************************/
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1195,20 +1196,36 @@ int main(int argc, const char **argv)
   if(o.url) {
     /* this is a file to read URLs from */
     char buffer[4096]; /* arbitrary max */
-    while(fgets(buffer, sizeof(buffer), o.url)) {
+    bool end_of_file = false;
+    while(!end_of_file && fgets(buffer, sizeof(buffer), o.url)) {
       char *eol = strchr(buffer, '\n');
       if(eol && (eol > buffer)) {
         if(eol[-1] == '\r')
           /* CRLF detected */
           eol--;
       }
-      else if(feof(o.url))
+      else if(eol == buffer) {
+        /* empty line */
+        continue;
+      }
+      else if(feof(o.url)) {
         /* end of file */
         eol = strlen(buffer) + buffer;
+        end_of_file = true;
+      }
       else {
-        /* no newline but not end of file means that this line is truncated
-           and we are lost */
-        break;
+        /* line too long */
+        int ch;
+        warnf("skipping long line");
+        do {
+          ch = getc(o.url);
+        } while(ch != EOF && ch != '\n');
+        if(ch == EOF) {
+          if(ferror(o.url))
+            warnf("getc: %s", strerror(errno));
+          end_of_file = true;
+        }
+        continue;
       }
 
       /* trim trailing spaces and tabs */
@@ -1224,6 +1241,9 @@ int main(int argc, const char **argv)
         singleurl(&o, buffer, &iinfo, o.iter_list);
       }
     }
+
+    if(!end_of_file && ferror(o.url))
+      warnf("fgets: %s", strerror(errno));
     if(o.urlopen)
       fclose(o.url);
   }
