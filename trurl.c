@@ -976,7 +976,7 @@ static void singleurl(struct option *o,
     if(url) {
       CURLUcode rc = seturl(o, uh, url);
       if(rc) {
-        curl_free(uh);
+        curl_url_cleanup(uh);
         VERIFY(o, ERROR_BADURL, "%s [%s]", curl_url_strerror(rc), url);
         return;
       }
