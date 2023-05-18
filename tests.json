@@ -1788,5 +1788,35 @@
             "returncode": 0,
             "stderr": "trurl note: Bad scheme [foo]\ntrurl note: Bad scheme [hi]\ntrurl note: Bad scheme [hey]\n"
         }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--accept-space",
+                "--redirect",
+                "https://example.org/a b",
+                "https://curl.se"
+            ]
+        },
+        "expected": {
+            "stdout": "https://example.org/a%20b\n",
+            "returncode": 0,
+            "stderr": ""
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--verify",
+                "--redirect",
+                "https://example.org/a b",
+                "https://curl.se"
+            ]
+        },
+        "expected": {
+            "stdout": "",
+            "returncode": 9,
+            "stderr": true
+        }
     }
 ]
