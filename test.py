@@ -26,6 +26,17 @@ class CommandOutput:
     stderr: str
 
 
+def testComponent(value, exp):
+    if isinstance(exp, bool):
+        result = value == 0 or value not in ("", [])
+        if exp:
+            return result
+        else:
+            return not result
+
+    return value == exp
+
+
 class TestCase:
     def __init__(self, testIndex, baseCmd, **testCase):
         self.testIndex = testIndex
@@ -52,14 +63,14 @@ class TestCase:
             encoding="utf-8"
         )
 
-        if type(self.expected["stdout"]) == str:
-            stdout = output.stdout
-        else:
+        if isinstance(self.expected["stdout"], list):
             # if we dont expect string, parse to json
             try:
                 stdout = json.loads(output.stdout)
             except json.decoder.JSONDecodeError:
                 stdout = None
+        else:
+            stdout = output.stdout
 
         # assume stderr is always going to be string
         stderr = output.stderr
@@ -69,13 +80,9 @@ class TestCase:
 
     def test(self):
         # return true only if stdout, stderr and errorcode is equal to the ones found in testfile
-
-        tests = []
-        for item in self.expected:
-            passed = self.expected[item] == asdict(self.commandOutput)[item]
-            tests.append(passed)
-
-        self.testPassed = all(tests)
+        self.testPassed = all(
+            testComponent(asdict(self.commandOutput)[k], exp)
+            for k, exp in self.expected.items())
         return self.testPassed
 
     def printVerbose(self):
@@ -83,17 +90,20 @@ class TestCase:
         self.printConcise()
         print(NOCOLOR, end="")
 
-        for item in self.expected:
-            itemFail = self.expected[item] != asdict(self.commandOutput)[item]\
-                    and self.commandOutput.returncode == 1
+        for component, exp in self.expected.items():
+            value = asdict(self.commandOutput)[component]
+            itemFail = self.commandOutput.returncode == 1 and \
+                not testComponent(value, exp)
 
-            print(f"--- {item} --- ")
+            print(f"--- {component} --- ")
             print("expected:")
-            print(f"{self.expected[item]!r}")
+            print("nothing" if exp is False else
+                  "something" if exp is True else
+                  f"{exp!r}")
             print("got:")
             if itemFail:
                 print(RED, end="")
-            print(f"{asdict(self.commandOutput)[item]!r}")
+            print(f"{value!r}")
             if itemFail:
                 print(NOCOLOR, end="")
 
