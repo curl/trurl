@@ -311,6 +311,8 @@ static void setadd(struct option *o,
 {
   struct curl_slist *n;
   n = curl_slist_append(o->set_list, set);
+  if(!strncmp("url=", set, 4))
+      errorf(ERROR_SET, "--set does not support url, use --redirect instead");
   if(n)
     o->set_list = n;
 }
