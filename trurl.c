@@ -76,13 +76,18 @@
 
 #define REPLACE_NULL_BYTE '.' /* for query:key extractions */
 
+enum {
+  VARMODIFIER_URLDECODED = 1 << 1,
+  VARMODIFIER_DEFAULT    = 1 << 2,
+  VARMODIFIER_PUNY       = 1 << 3,
+};
+
 struct var {
   const char *name;
   CURLUPart part;
 };
 
 static const struct var variables[] = {
-  {"url",      CURLUPART_URL},
   {"scheme",   CURLUPART_SCHEME},
   {"user",     CURLUPART_USER},
   {"password", CURLUPART_PASSWORD},
@@ -161,12 +166,15 @@ static void help(void)
     "Usage: " PROGNAME " [options] [URL]\n"
     "  -a, --append [component]=[data]  - append data to component\n"
     "      --accept-space               - give in to this URL abuse\n"
+    "      --default-port               - add known default ports\n"
     "  -f, --url-file [file/-]          - read URLs from file or stdin\n"
     "  -g, --get [{component}s]         - output component(s)\n"
     "  -h, --help                       - this help\n"
     "      --iterate [component]=[list] - create multiple URL outputs\n"
     "      --json                       - output URL as JSON\n"
+    "      --keep-port                  - keep known default ports\n"
     "      --no-guess-scheme            - require scheme in URLs\n"
+    "      --punycode                   - encode hostnames in punycode\n"
     "      --query-separator [letter]   - if something else than '&'\n"
     "      --redirect [URL]             - redirect to this\n"
     "  -s, --set [component]=[data]     - set component content\n"
@@ -241,6 +249,9 @@ struct option {
   bool jsonout;
   bool verify;
   bool accept_space;
+  bool default_port;
+  bool keep_port;
+  bool punycode;
   bool sort_query;
   bool no_guess_scheme;
   bool end_of_options;
@@ -455,6 +466,12 @@ static int getarg(struct option *op,
     warnf("built with too old libcurl version, --accept-space does not work");
 #endif
   }
+  else if(!strcmp("--default-port", flag))
+    op->default_port = true;
+  else if(!strcmp("--keep-port", flag))
+    op->keep_port = true;
+  else if(!strcmp("--punycode", flag))
+    op->punycode = true;
   else if(!strcmp("--no-guess-scheme", flag))
     op->no_guess_scheme = true;
   else if(!strcmp("--sort-query", flag))
@@ -464,8 +481,8 @@ static int getarg(struct option *op,
   return 0;
 }
 
-static void showqkey(const char *key, size_t klen, bool urldecode,
-                     bool showall)
+static void showqkey(FILE *stream, const char *key, size_t klen,
+                     bool urldecode, bool showall)
 {
   int i;
   bool shown = false;
@@ -475,8 +492,8 @@ static void showqkey(const char *key, size_t klen, bool urldecode,
     if(!strncmp(key, qp[i], klen) &&
        (qp[i][klen] == '=')) {
       if(shown)
-        fputc(' ', stdout);
-      fputs(&qp[i][klen + 1], stdout);
+        fputc(' ', stream);
+      fputs(&qp[i][klen + 1], stream);
       if(!showall)
         break;
       shown = true;
@@ -493,6 +510,37 @@ static const struct var *comp2var(const char *name, size_t vlen)
        !strncmp(name, variables[i].name, vlen))
       return &variables[i];
   return NULL;
+}
+
+static CURLUcode geturlpart(struct option *o, int modifiers, CURLU *uh,
+                            CURLUPart part, char **out)
+{
+  return curl_url_get(uh, part, out,
+                      (((modifiers & VARMODIFIER_DEFAULT) ||
+                        o->default_port) ?
+                       CURLU_DEFAULT_PORT :
+                       ((part != CURLUPART_URL || o->keep_port) ?
+                        0 : CURLU_NO_DEFAULT_PORT))|
+#ifdef SUPPORTS_PUNYCODE
+                      (((modifiers & VARMODIFIER_PUNY) || o->punycode) ?
+                       CURLU_PUNYCODE : 0)|
+#endif
+                      CURLU_NON_SUPPORT_SCHEME|
+                      ((modifiers & VARMODIFIER_URLDECODED) ?
+                       CURLU_URLDECODE : 0));
+}
+
+static void showurl(FILE *stream, struct option *o, int modifiers,
+                    CURLU *uh)
+{
+  char *url;
+  CURLUcode rc = geturlpart(o, modifiers, uh, CURLUPART_URL, &url);
+  if(rc) {
+    VERIFY(o, ERROR_BADURL, "invalid url [%s]", curl_url_strerror(rc));
+    return;
+  }
+  fputs(url, stream);
+  curl_free(url);
 }
 
 static void get(struct option *op, CURLU *uh)
@@ -519,15 +567,12 @@ static void get(struct option *op, CURLU *uh)
       }
       else {
         /* this is meant as a variable to output */
+        const char *start = ptr;
         char *end;
         char *cl;
         size_t vlen;
-        bool urldecode = true;
-#ifdef SUPPORTS_PUNYCODE
-        bool punycode = false;
-#endif
-        bool handled = true;
-        bool rawport = false;
+        bool isquery = false;
+        int mods = 0;
         end = strchr(ptr, endbyte);
         ptr++; /* pass the { */
         if(!end) {
@@ -535,56 +580,61 @@ static void get(struct option *op, CURLU *uh)
           fputc(startbyte, stream);
           continue;
         }
+
         /* {path} {:path} */
         if(*ptr == ':') {
-          urldecode = false;
+          mods |= VARMODIFIER_URLDECODED;
           ptr++;
         }
         vlen = end - ptr;
-        /* check for the last colon within here */
-        cl = memchr(ptr, ':', vlen);
-        if(cl) {
-          /* deduct the colon part */
-          if(!strncmp(ptr, "query-all:", 10))
-            showqkey(&ptr[10], end - cl - 1, urldecode, true);
-          else if(!strncmp(ptr, "query:", 6))
-            showqkey(&ptr[6], end - cl - 1, urldecode, false);
-          else if(!strncmp(ptr, "puny:", 5)) {
-#ifndef SUPPORTS_PUNYCODE
-            warnf("Built without punycode support");
-#else
-            punycode = true;
-#endif
-            ptr = cl + 1;
-            vlen = end - ptr;
-            handled = false;
+        do {
+          cl = memchr(ptr, ':', vlen);
+          if(!cl)
+            break;
+
+          /* modifiers! */
+          if(!strncmp(ptr, "default:", cl - ptr + 1))
+            mods |= VARMODIFIER_DEFAULT;
+          else if(!strncmp(ptr, "puny:", cl - ptr + 1))
+            mods |= VARMODIFIER_PUNY;
+          else {
+            /* {query: or {query-all: */
+            if(!strncmp(ptr, "query-all:", cl - ptr + 1)) {
+              showqkey(stream, cl + 1, end - cl - 1,
+                       (mods & VARMODIFIER_URLDECODED) == 0, true);
+            }
+            else if(!strncmp(ptr, "query:", cl - ptr + 1)) {
+              isquery = true;
+              showqkey(stream, cl + 1, end - cl - 1,
+                       (mods & VARMODIFIER_URLDECODED) == 0, false);
+            }
+            else {
+              /* syntax error */
+              vlen = 0;
+              end[1] = '\0';
+              break;
+            }
+            isquery = true;
           }
-          else if(!strncmp(ptr, "raw:", 4)) {
-            rawport = true;
-            ptr = cl + 1;
-            vlen = end - ptr;
-            handled = false;
-          }
-          else
-            errorf(ERROR_GET, "Bad --get syntax: %s", ptr);
-        }
-        else
-          handled = false;
-        if(!handled) {
+
+          ptr = cl + 1;
+          vlen = end - ptr;
+        } while(true);
+
+        if(isquery)
+          ;
+        else if(!vlen)
+          errorf(ERROR_GET, "Bad --get syntax: %s", start);
+        else if(!strncmp(ptr, "url", vlen))
+          showurl(stream, op, mods, uh);
+        else {
           const struct var *v = comp2var(ptr, vlen);
           if(v) {
             char *nurl;
-            CURLUcode rc;
-            rc = curl_url_get(uh, v->part, &nurl,
-                              (rawport?0:CURLU_DEFAULT_PORT)|
-                              CURLU_NO_DEFAULT_PORT|
-#ifdef SUPPORTS_PUNYCODE
-                              (punycode?CURLU_PUNYCODE:0)|
-#endif
-                              (urldecode?CURLU_URLDECODE:0));
+            CURLUcode rc = geturlpart(op, mods, uh, v->part, &nurl);
             switch(rc) {
             case CURLUE_OK:
-              fprintf(stream, "%s", nurl);
+              fputs(nurl, stream);
               curl_free(nurl);
             case CURLUE_NO_SCHEME:
             case CURLUE_NO_USER:
@@ -600,8 +650,7 @@ static void get(struct option *op, CURLU *uh)
               /* silently ignore */
               break;
             default:
-              fprintf(stderr, PROGNAME ": %s (%s)\n", curl_url_strerror(rc),
-                      v->name);
+              warnf("%s (%s)\n", curl_url_strerror(rc), v->name);
               break;
             }
           }
@@ -743,35 +792,29 @@ static void json(struct option *o, CURLU *uh)
 {
   int i;
   bool first = true;
-  (void)o;
-  printf("%s  {\n", o->urls?",\n":"");
+  char *url;
+  CURLUcode rc = geturlpart(o, 0, uh, CURLUPART_URL, &url);
+  if(rc) {
+    VERIFY(o, ERROR_BADURL, "invalid url [%s]", curl_url_strerror(rc));
+    return;
+  }
+  printf("%s  {\n    \"url\": ", o->urls ? ",\n" : "");
+  jsonString(stdout, url, strlen(url), false);
+  curl_free(url);
+  fputs(",\n    \"parts\": {\n", stdout);
   for(i = 0; variables[i].name; i++) {
-    char *nurl;
-    CURLUcode rc = curl_url_get(uh, variables[i].part, &nurl,
-                                (i?CURLU_DEFAULT_PORT:0)|
-                                CURLU_URLDECODE);
+    char *part;
+    rc = geturlpart(o, 0, uh, variables[i].part, &part);
     if(!rc) {
       if(!first)
         fputs(",\n", stdout);
       first = false;
-      printf("    \"%s\": ", variables[i].name);
-      jsonString(stdout, nurl, strlen(nurl), false);
-      curl_free(nurl);
-    }
-    /* if we're printing the port, show if it's explicit or not */
-    if(variables[i].part == CURLUPART_PORT) {
-      rc = curl_url_get(uh, variables[i].part, &nurl,
-                CURLU_URLDECODE);
-      fputs(",\n", stdout);
-      printf("    \"raw_port\": ");
-      if(!rc) {
-        jsonString(stdout, nurl, strlen(nurl), false);
-        curl_free(nurl);
-      }
-      else
-        jsonString(stdout, "", 0, false);
+      printf("      \"%s\": ", variables[i].name);
+      jsonString(stdout, part, strlen(part), false);
+      curl_free(part);
     }
   }
+  fputs("\n    }", stdout);
   first = true;
   if(nqpairs) {
     int j;
@@ -994,7 +1037,8 @@ static CURLUcode seturl(struct option *o, CURLU *uh, const char *url)
                        0 : CURLU_GUESS_SCHEME)|
                       CURLU_NON_SUPPORT_SCHEME|
                       (o->accept_space ?
-                       (CURLU_ALLOW_SPACE|CURLU_URLENCODE) : 0));
+                       CURLU_ALLOW_SPACE : 0)|
+                      CURLU_URLENCODE);
 }
 
 static void singleurl(struct option *o,
@@ -1179,7 +1223,7 @@ static void singleurl(struct option *o,
     else {
       /* default output is full URL */
       char *nurl = NULL;
-      if(!curl_url_get(uh, CURLUPART_URL, &nurl, CURLU_NO_DEFAULT_PORT)) {
+      if(!geturlpart(o, 0, uh, CURLUPART_URL, &nurl)) {
         printf("%s\n", nurl);
         curl_free(nurl);
       }
