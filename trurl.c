@@ -310,9 +310,9 @@ static void setadd(struct option *o,
                    const char *set) /* [component]=[data] */
 {
   struct curl_slist *n;
-  n = curl_slist_append(o->set_list, set);
   if(!strncmp("url", set, 3))
     errorf(ERROR_SET, "--set does not support url, use --redirect instead");
+  n = curl_slist_append(o->set_list, set);
   if(n)
     o->set_list = n;
 }
@@ -321,9 +321,9 @@ static void iteradd(struct option *o,
                     const char *iter) /* [component]=[data] */
 {
   struct curl_slist *n;
-  n = curl_slist_append(o->iter_list, iter);
   if(!strncmp("url", iter, 3))
-    errorf(ERROR_SET, "--iterate does not support url");
+    errorf(ERROR_ITER, "--iterate does not support url");
+  n = curl_slist_append(o->iter_list, iter);
   if(n)
     o->iter_list = n;
 }
