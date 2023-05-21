@@ -1804,5 +1804,19 @@
             "returncode": 0,
             "stderr": "trurl note: Bad scheme [foo]\ntrurl note: Bad scheme [hi]\ntrurl note: Bad scheme [hey]\n"
         }
+    },
+    {
+        "input": {
+            "arguments": [
+                "-f",
+                "/dev/null",
+                "--json"
+            ]
+        },
+        "expected": {
+            "stdout": "[]\n",
+            "returncode": 0,
+            "stderr": ""
+        }
     }
 ]
