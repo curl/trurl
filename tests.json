@@ -305,6 +305,7 @@
     {
         "input": {
             "arguments": [
+                "--default-port",
                 "--url",
                 "https://curl.se/we/are.html",
                 "--get",
@@ -490,7 +491,7 @@
                 "--url",
                 "https://curl.se/we/are.html",
                 "-g",
-                "{port}"
+                "{default:port}"
             ]
         },
         "expected": {
@@ -1254,17 +1255,17 @@
     {
         "input": {
             "arguments": [
-                "localhost",
+                "hello@localhost",
                 "--iterate",
                 "host=one two",
                 "-g",
-                "{host} {port}"
+                "{host} {user}"
             ]
         },
         "expected": {
             "stderr": "",
             "returncode": 0,
-            "stdout": "one 80\ntwo 80\n"
+            "stdout": "one hello\ntwo hello\n"
         }
     },
     {
@@ -1280,12 +1281,12 @@
             "stdout": [
                 {
                     "url": "https://example.com/?utm=tra%20cker&address%20=home&here=now&thisthen",
-                    "scheme": "https",
-                    "host": "example.com",
-                    "port": "443",
-                    "raw_port": "",
-                    "path": "/",
-                    "query": "utm=tra cker&address =home&here=now&thisthen",
+                    "parts": {
+                        "scheme": "https",
+                        "host": "example.com",
+                        "path": "/",
+                        "query": "utm=tra%20cker&address%20=home&here=now&thisthen"
+                    },
                     "params": [
                         {
                             "key": "utm",
@@ -1321,15 +1322,16 @@
             "stdout": [
                 {
                     "url": "ftp://smith:secret@example.com:33/path?search=me#where",
-                    "scheme": "ftp",
-                    "host": "example.com",
-                    "port": "33",
-                    "raw_port": "33",
-                    "path": "/path",
-                    "user": "smith",
-                    "password": "secret",
-                    "query": "search=me",
-                    "fragment": "where",
+                    "parts": {
+                        "scheme": "ftp",
+                        "user": "smith",
+                        "password": "secret",
+                        "host": "example.com",
+                        "port": "33",
+                        "path": "/path",
+                        "query": "search=me",
+                        "fragment": "where"
+                    },
                     "params": [
                         {
                             "key": "search",
@@ -1353,11 +1355,11 @@
             "stdout": [
                 {
                     "url": "http://example.com/",
-                    "scheme": "http",
-                    "host": "example.com",
-                    "port": "80",
-                    "raw_port": "",
-                    "path": "/"
+                    "parts": {
+                        "scheme": "http",
+                        "host": "example.com",
+                        "path": "/"
+                    }
                 }
             ]
         }
@@ -1376,19 +1378,19 @@
             "stdout": [
                 {
                     "url": "http://example.com/",
-                    "scheme": "http",
-                    "host": "example.com",
-                    "port": "80",
-                    "raw_port": "",
-                    "path": "/"
+                    "parts": {
+                        "scheme": "http",
+                        "host": "example.com",
+                        "path": "/"
+                    }
                 },
                 {
                     "url": "http://other.com/",
-                    "scheme": "http",
-                    "host": "other.com",
-                    "port": "80",
-                    "raw_port": "",
-                    "path": "/"
+                    "parts": {
+                        "scheme": "http",
+                        "host": "other.com",
+                        "path": "/"
+                    }
                 }
             ]
         }
@@ -1408,19 +1410,19 @@
             "stdout": [
                 {
                     "url": "http://one/",
-                    "scheme": "http",
-                    "host": "one",
-                    "port": "80",
-                    "raw_port": "",
-                    "path": "/"
+                    "parts": {
+                        "scheme": "http",
+                        "host": "one",
+                        "path": "/"
+                    }
                 },
                 {
                     "url": "http://two/",
-                    "scheme": "http",
-                    "host": "two",
-                    "port": "80",
-                    "raw_port": "",
-                    "path": "/"
+                    "parts": {
+                        "scheme": "http",
+                        "host": "two",
+                        "path": "/"
+                    }
                 }
             ]
         }
@@ -1439,10 +1441,11 @@
             "stdout": [
                 {
                     "url": "irc://curl.se/",
-                    "scheme": "irc",
-                    "host": "curl.se",
-                    "raw_port": "",
-                    "path": "/"
+                    "parts": {
+                        "scheme": "irc",
+                        "host": "curl.se",
+                        "path": "/"
+                    }
                 }
             ],
             "returncode": 0,
@@ -1477,11 +1480,11 @@
             "stdout": [
                 {
                     "url": "ftp://example.org/",
-                    "scheme": "ftp",
-                    "host": "example.org",
-                    "port": "21",
-                    "raw_port": "",
-                    "path": "/"
+                    "parts": {
+                        "scheme": "ftp",
+                        "host": "example.org",
+                        "path": "/"
+                    }
                 }
             ],
             "returncode": 9,
@@ -1526,12 +1529,12 @@
             "stdout": [
                 {
                     "url": "https://curl.se/",
-                    "scheme": "https",
-                    "host": "curl.se",
-                    "port": "443",
-                    "raw_port": "",
-                    "path": "/",
-                    "query": "",
+                    "parts": {
+                        "scheme": "https",
+                        "host": "curl.se",
+                        "path": "/",
+                        "query": ""
+                    },
                     "params": []
                 }
             ],
@@ -1552,12 +1555,12 @@
             "stdout": [
                 {
                     "url": "http://localhost/?bar=ar",
-                    "scheme": "http",
-                    "host": "localhost",
-                    "port": "80",
-                    "raw_port": "",
-                    "path": "/",
-                    "query": "bar=ar",
+                    "parts": {
+                        "scheme": "http",
+                        "host": "localhost",
+                        "path": "/",
+                        "query": "bar=ar"
+                    },
                     "params": [
                         {
                             "key": "bar",
@@ -1583,12 +1586,12 @@
             "stdout": [
                 {
                     "url": "https://example.com/?search=hello&testing",
-                    "scheme": "https",
-                    "host": "example.com",
-                    "port": "443",
-                    "raw_port": "",
-                    "path": "/",
-                    "query": "search=hello&testing",
+                    "parts": {
+                        "scheme": "https",
+                        "host": "example.com",
+                        "path": "/",
+                        "query": "search=hello&testing"
+                    },
                     "params": [
                         {
                             "key": "search",
@@ -1610,7 +1613,7 @@
             "arguments": [
                 "https://räksmörgås.se",
                 "-g",
-                "{puny:url}"
+                "{default:puny:url}"
             ]
         },
         "required": ["punycode"],
@@ -1618,6 +1621,21 @@
             "stderr": "",
             "returncode": 0,
             "stdout": "https://xn--rksmrgs-5wao1o.se:443/\n"
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "https://räksmörgås.se",
+                "-g",
+                "{puny:url}"
+            ]
+        },
+        "required": ["punycode"],
+        "expected": {
+            "stderr": "",
+            "returncode": 0,
+            "stdout": "https://xn--rksmrgs-5wao1o.se/\n"
         }
     },
     {
@@ -1647,17 +1665,18 @@
             "stdout": [
                 {
                     "url": "imaps://user:pasword;crazy@[ff00::1234%25hello]:1234/path?a=b&c=d#fragment",
-                    "scheme": "imaps",
-                    "user": "user",
-                    "password": "pasword",
-                    "options": "crazy",
-                    "host": "[ff00::1234]",
-                    "port": "1234",
-                    "raw_port": "1234",
-                    "path": "/path",
-                    "query": "a=b&c=d",
-                    "fragment": "fragment",
-                    "zoneid": "hello",
+                    "parts": {
+                        "scheme": "imaps",
+                        "user": "user",
+                        "password": "pasword",
+                        "options": "crazy",
+                        "host": "[ff00::1234]",
+                        "port": "1234",
+                        "path": "/path",
+                        "query": "a=b&c=d",
+                        "fragment": "fragment",
+                        "zoneid": "hello"
+                    },
                     "params": [
                         {
                             "key": "a",
@@ -1677,12 +1696,12 @@
             "arguments": [
                 "http://example.com/",
                 "--get",
-                "port: {port}, raw port: {raw:port}"
+                "port: {port}, default:port: {default:port}"
             ]
         },
         "expected": {
             "returncode": 0,
-            "stdout": "port: 80, raw port: \n"
+            "stdout": "port: , default:port: 80\n"
         }
     },
     {
@@ -1690,12 +1709,12 @@
             "arguments": [
                 "http://example.com:8080/",
                 "--get",
-                "port: {port}, raw port: {raw:port}"
+                "port: {port}, default:port: {default:port}"
             ]
         },
         "expected": {
             "returncode": 0,
-            "stdout": "port: 8080, raw port: 8080\n"
+            "stdout": "port: 8080, default:port: 8080\n"
         }
     },
     {
@@ -1784,36 +1803,6 @@
             "stdout": "https://example.org/\ngit://curl.se/\n",
             "returncode": 0,
             "stderr": "trurl note: Bad scheme [foo]\ntrurl note: Bad scheme [hi]\ntrurl note: Bad scheme [hey]\n"
-        }
-    },
-    {
-        "input": {
-            "arguments": [
-                "--accept-space",
-                "--redirect",
-                "https://example.org/a b",
-                "https://curl.se"
-            ]
-        },
-        "expected": {
-            "stdout": "https://example.org/a%20b\n",
-            "returncode": 0,
-            "stderr": ""
-        }
-    },
-    {
-        "input": {
-            "arguments": [
-                "--verify",
-                "--redirect",
-                "https://example.org/a b",
-                "https://curl.se"
-            ]
-        },
-        "expected": {
-            "stdout": "",
-            "returncode": 9,
-            "stderr": true
         }
     }
 ]
