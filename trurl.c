@@ -153,7 +153,7 @@ static void errorf(int exit_code, char *fmt, ...)
     if(op->verify) { \
       /* make sure to terminate the JSON array */ \
       if(op->jsonout) \
-        fputs("\n]\n", stdout); \
+        printf("%s]\n", op->urls ? "\n" : ""); \
       errorf(exit_code, __VA_ARGS__); \
     } else \
       warnf(__VA_ARGS__); \
@@ -798,7 +798,7 @@ static void json(struct option *o, CURLU *uh)
     VERIFY(o, ERROR_BADURL, "invalid url [%s]", curl_url_strerror(rc));
     return;
   }
-  printf("%s  {\n    \"url\": ", o->urls ? ",\n" : "");
+  printf("%s\n  {\n    \"url\": ", o->urls ? "," : "");
   jsonString(stdout, url, strlen(url), false);
   curl_free(url);
   fputs(",\n    \"parts\": {\n", stdout);
@@ -1270,7 +1270,7 @@ int main(int argc, const char **argv)
     o.qsep = "&";
 
   if(o.jsonout)
-    fputs("[\n", stdout);
+    putchar('[');
 
   if(o.url) {
     /* this is a file to read URLs from */
@@ -1346,7 +1346,7 @@ int main(int argc, const char **argv)
     } while(node);
   }
   if(o.jsonout)
-    fputs("\n]\n", stdout);
+    printf("%s]\n", o.urls ? "\n" : "");
   /* we're done with libcurl, so clean it up */
   curl_slist_free_all(o.url_list);
   curl_slist_free_all(o.set_list);
