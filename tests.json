@@ -1818,5 +1818,21 @@
             "returncode": 0,
             "stderr": ""
         }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--accept-space",
+                "-s",
+                "query:=x=10&x=2 3",
+                "localhost"
+            ]
+        },
+        "required": ["white-space"],
+        "expected": {
+            "stdout": "http://localhost/?x=10&x=2+3\n",
+            "returncode": 0,
+            "stderr": ""
+        }
     }
 ]
