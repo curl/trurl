@@ -150,13 +150,14 @@ static void errorf(int exit_code, char *fmt, ...)
 
 #define VERIFY(op, exit_code, ...) \
   do { \
-    if(op->verify) { \
+    if(!op->verify) \
+      warnf(__VA_ARGS__); \
+    else { \
       /* make sure to terminate the JSON array */ \
       if(op->jsonout) \
         printf("%s]\n", op->urls ? "\n" : ""); \
       errorf(exit_code, __VA_ARGS__); \
-    } else \
-      warnf(__VA_ARGS__); \
+    } \
   } while(0)
 
 static void help(void)
