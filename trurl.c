@@ -1199,12 +1199,12 @@ static void singleurl(struct option *o,
         else {
           char *nurl = NULL;
           rc = curl_url_get(uh, CURLUPART_URL, &nurl, 0);
-          if(rc || strcmp(ourl, nurl)) {
+          if(!rc)
+            curl_free(nurl);
+          else {
             VERIFY(o, ERROR_BADURL, "url became invalid");
             url_is_invalid = true;
           }
-          if(!rc)
-            curl_free(nurl);
         }
         curl_free(ourl);
       }
