@@ -50,6 +50,16 @@ encode such occurrences accordingly.
 
 According to RFC 3986, a space cannot legally be part of a URL. This option
 provides a best-effort to convert the provided string into a valid URL.
+.IP "--default-port"
+When set, trurl will use the scheme's default port number for URLs with a known
+scheme, and without an explicit port number.
+
+Note that trurl only knows default port numbers for URL schemes that are
+supported by libcurl.
+
+Since, by default, trurl removes default port numbers from URLs with a known
+scheme, this option is pretty much ignored unless one of \fI--get\fP,
+\fI--json\fP, and \fI--keep-port\fP is not also specified.
 .IP "-f, --url-file [file name]"
 Read URLs to work on from the given file. Use the file name "-" (a single
 minus) to tell trurl to read the URLs from stdin.
@@ -71,8 +81,26 @@ command line.
 The following component names are available (case sensitive): url, scheme,
 user, password, options, host, port, path, query, fragment and zoneid.
 
+\fB{component}\fP will expand to nothing if the given component does
+not have a value.
+
 Components are shown URL decoded by default. If you instead write the
 component prefixed with a colon like "{:path}", it gets output URL encoded.
+
+You may also prefix components with \fBdefault:\fP and/or \fBpuny:\fP,
+in any order.
+
+If \fBdefault:\fP is specified, like "{default:url}" or
+"{default:port}", and the port is not explicitly specified in the URL,
+the scheme's default port will be output if it is known.
+
+If \fBpuny:\fP is specified, like "{puny:url}" or "{puny:host}", the
+"punycoded" version of the host name will be used in the ouptut.
+
+If \fI--default-port\fP is specified, all formats are expanded as if
+they used \fIdefault:\fP; and if \fI--punycode\fP is used, all formats
+are expanded as if they used \fIpuny:\fP. Also note that "{url}" is
+affected by the \fI--keep-port\fP option.
 
 Hosts provided as IPv6 numerical addresses will be provided within square
 brackets. Like "[fe80::20c:29ff:fe9c:409b]".
@@ -89,16 +117,6 @@ output.
 You can access specific keys in the query string and out all values using the
 format \fB{query-all:key}\fP. This looks for 'key' case sensitively and will
 output all values for that key space-separated.
-
-You can access the url and host components in their "punycoded" version, which
-is how International Domain Names are converted into plain ASCII, by using the
-form \fB{puny:url}\fP and \fB{puny:host}\fP. If the host name is not using
-IDN, this option provides the regular ASCII name.
-
-You can determine if a port is explicitly defined in a URL by using the "raw"
-keyword in your format string, which would look like \fB{raw:port}\fP. If the
-port is explicitly defined trurl will return the port number, if it is not
-explicitly defined then trurl will return an empty string.
 
 The "format" string supports the following backslash sequences:
 
@@ -124,11 +142,19 @@ but only one \fI--iterate\fP option per component. The listed items to iterate
 over should be separated by single spaces.
 .IP "--json"
 Outputs all set components of the URLs as JSON objects. All components of the
-URL that has data will get populated in the object using their component
-names. See below for details on the format.
+URL that have data will get populated in the parts object using their
+component names. See below for details on the format.
+.IP "--keep-port"
+By default, trurl removes default port numbers from URLs with a known scheme
+even if they are explictly specified in the input URL. This options, makes
+trurl not remove them.
 .IP "--no-guess-scheme"
 Disables libcurl's scheme guessing feature. URLs that do not contain a scheme
 will be treated as invalid URLs.
+.IP "--punycode"
+Uses the "punycoded" version of the host name, which is how International Domain
+Names are converted into plain ASCII. If the host name is not using IDN, the
+regular ASCII name is used.
 .IP "--query-separator [what]"
 Specify the single letter used for separating query pairs. The default is "&"
 but at least in the past sometimes semicolons ";" or even colons ":" have been
@@ -185,38 +211,51 @@ each URL.
 Each URL JSON object contains a number of properties, a series of key/value
 pairs. The exact set depends on the given URL.
 .IP "url"
-This key exists in every object. It is the complete URL, in a URL encoded
-format.
-.IP "scheme"
+This key exists in every object. It is the complete URL. Affected by
+\fI--default-port\fP, \fI--keep-port\fP, and \fI--punycode\fP.
+.IP "parts"
+This key exists in every object, and contains an object with a key for
+each of the settable URL components. If a component is missing, it means
+it is not present in the URL.
+.RS
+.TP
+.B "scheme"
 The URL scheme.
-.IP "user"
+.TP
+.B "user"
 The URL decoded user name.
-.IP "password"
+.TP
+.B "password"
 The URL decoded password.
-.IP "options"
+.TP
+.B "options"
 The URL decoded options. Note that only a few URL schemes support the
 "options" component.
-.IP "host"
+.TP
+.B "host"
 The URL decoded and normalized host name. It might be a UTF-8 name if an IDN
-name was used. It can also be a normalized IPv4 or IPv6 address. An IPv6
-address always starts with a bracket (\fB[\fP) - and no other host names can
-contain such a symbol.
-.IP "port"
-The provided port number. If the port number was not provided in the URL, but
-the scheme is a known one, the default port for that scheme will be provided
-here.
-.IP "raw_port"
-The port number exactly as provided in the URL. This will be a zero length
-string if there was no explicit port number provided.
-.IP "path"
+name was used. It can also be a normalized IPv4 or IPv6 address. An IPv6 address
+always starts with a bracket (\fB[\fP) - and no other host names can contain
+such a symbol.
+.TP
+.B "port"
+The provided port number as a string. If the port number was not provided in the
+URL, but the scheme is a known one, and \fI--default-port\fP is in use, the
+default port for that scheme will be provided here.
+.TP
+.B "path"
 The URL decoded path. Including the leading slash.
-.IP "query"
+.TP
+.B "query"
 The URL decoded full query, excluding the question mark separator.
-.IP "fragment"
+.TP
+.B "fragment"
 The URL decoded fragment, excluding the pound sign separator.
-.IP "zoneid"
+.TP
+.B "zoneid"
 The zone id, which can only be present in an IPv6 address. When this key is
 present, then \fBhost\fP is an IPv6 numerical address.
+.RE
 .IP "params"
 This key contains an array of query key/value objects. Each such pair is
 listed with "key" and "value" and their respective contents in the output.
@@ -225,7 +264,9 @@ The key/values are extracted from the query where they are separated by
 ampersands (\fB&\fP) - or the user sets with \fB--query-separator\fP.
 
 The query pairs are listed in the order of appearance in a left-to-right
-order, but can be made alpha-sorted with \fB--sort-query\fP
+order, but can be made alpha-sorted with \fB--sort-query\fP.
+
+It is only present if the URL has a query.
 .SH EXAMPLES
 .IP "Replace the host name of a URL"
 .nf
@@ -244,7 +285,6 @@ https://curl.se/we/here.html
 .fi
 .IP "Change port number"
 This also shows how trurl will remove dot-dot sequences
-
 .nf
 $ trurl --url https://curl.se/we/../are.html --set port=8080
 https://curl.se:8080/are.html
@@ -257,9 +297,8 @@ $ trurl --url https://curl.se/we/are.html --get '{path}'
 .IP "Extract the port from a URL"
 This gets the default port based on the scheme if the port is not set in the
 URL.
-
 .nf
-$ trurl --url https://curl.se/we/are.html --get '{port}'
+$ trurl --url https://curl.se/we/are.html --get '{default:port}'
 443
 .fi
 .IP "Append a path segment to a URL"
@@ -283,13 +322,13 @@ $ trurl "https://fake.host/search?q=answers&user=me#frag" --json
 [
   {
     "url": "https://fake.host/search?q=answers&user=me#frag",
-    "scheme": "https",
-    "host": "fake.host",
-    "port": "443",
-    "raw_port": "",
-    "path": "/search",
-    "query": "q=answers&user=me",
-    "fragment": "frag",
+    "parts": [
+        "scheme": "https",
+        "host": "fake.host",
+        "path": "/search",
+        "query": "q=answers&user=me"
+        "fragment": "frag",
+    ],
     "params": [
       {
         "key": "q",
@@ -337,3 +376,6 @@ sftp://curl.se/path/index.html
 .fi
 .SH WWW
 https://curl.se/trurl
+.SH "SEE ALSO"
+.BR curl_url_set (3)
+.BR curl_url_get (3)
