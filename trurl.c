@@ -22,6 +22,7 @@
  *
  ***************************************************************************/
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -162,6 +163,7 @@ static void help(void)
     "  -h, --help                       - this help\n"
     "      --iterate [component]=[list] - create multiple URL outputs\n"
     "      --json                       - output URL as JSON\n"
+    "      --no-guess-scheme            - require scheme in URLs\n"
     "      --query-separator [letter]   - if something else than '&'\n"
     "      --redirect [URL]             - redirect to this\n"
     "  -s, --set [component]=[data]     - set component content\n"
@@ -211,6 +213,7 @@ struct option {
   bool verify;
   bool accept_space;
   bool sort_query;
+  bool no_guess_scheme;
   bool end_of_options;
   unsigned char output;
 
@@ -307,6 +310,8 @@ static void setadd(struct option *o,
                    const char *set) /* [component]=[data] */
 {
   struct curl_slist *n;
+  if(!strncmp("url", set, 3))
+    errorf(ERROR_SET, "--set does not support url, use --redirect instead");
   n = curl_slist_append(o->set_list, set);
   if(n)
     o->set_list = n;
@@ -316,6 +321,8 @@ static void iteradd(struct option *o,
                     const char *iter) /* [component]=[data] */
 {
   struct curl_slist *n;
+  if(!strncmp("url", iter, 3))
+    errorf(ERROR_ITER, "--iterate does not support url");
   n = curl_slist_append(o->iter_list, iter);
   if(n)
     o->iter_list = n;
@@ -419,6 +426,8 @@ static int getarg(struct option *op,
     warnf("built with too old libcurl version, --accept-space does not work");
 #endif
   }
+  else if(!strcmp("--no-guess-scheme", flag))
+    op->no_guess_scheme = true;
   else if(!strcmp("--sort-query", flag))
     op->sort_query = true;
   else
@@ -637,8 +646,8 @@ static const struct var *setone(CURLU *uh, const char *setline)
   return v;
 }
 
-static void set(CURLU *uh,
-                struct option *o)
+static unsigned int set(CURLU *uh,
+                        struct option *o)
 {
   struct curl_slist *node;
   unsigned int mask = 0;
@@ -652,6 +661,7 @@ static void set(CURLU *uh,
       mask |= (1 << v->part);
     }
   }
+  return mask; /* the set components */
 }
 
 static void jsonString(FILE *stream, const char *in, size_t len,
@@ -685,7 +695,7 @@ static void jsonString(FILE *stream, const char *in, size_t len,
       fputs("\\t", stream);
       break;
     default:
-      if (*i < 32)
+      if(*i < 32)
         fprintf(stream, "u%04x", *i);
       else {
         char out = *i;
@@ -743,7 +753,7 @@ static void json(struct option *o, CURLU *uh)
 
       /* don't print out empty/trimmed values */
       if(!qpairsdec[j][0])
-          continue;
+        continue;
       if(!first)
         fputs(",\n", stdout);
       first = false;
@@ -948,12 +958,12 @@ static void sortquery(struct option *o)
   }
 }
 
-static CURLUcode urlfromstring(struct option *o,
-                               CURLU *uh,
-                               const char *url)
+static CURLUcode seturl(struct option *o, CURLU *uh, const char *url)
 {
   return curl_url_set(uh, CURLUPART_URL, url,
-                      CURLU_GUESS_SCHEME|CURLU_NON_SUPPORT_SCHEME|
+                      (o->no_guess_scheme ?
+                       0 : CURLU_GUESS_SCHEME)|
+                      CURLU_NON_SUPPORT_SCHEME|
                       (o->accept_space ?
                        (CURLU_ALLOW_SPACE|CURLU_URLENCODE) : 0));
 }
@@ -969,15 +979,20 @@ static void singleurl(struct option *o,
     if(!uh)
       errorf(ERROR_MEM, "out of memory");
     if(url) {
-      CURLUcode rc = urlfromstring(o, uh, url);
+      CURLUcode rc = seturl(o, uh, url);
       if(rc) {
+        curl_url_cleanup(uh);
         VERIFY(o, ERROR_BADURL, "%s [%s]", curl_url_strerror(rc), url);
         return;
       }
-      else {
-        if(o->redirect)
-          curl_url_set(uh, CURLUPART_URL, o->redirect,
-                       CURLU_GUESS_SCHEME|CURLU_NON_SUPPORT_SCHEME);
+      if(o->redirect) {
+        rc = seturl(o, uh, o->redirect);
+        if(rc) {
+          curl_url_cleanup(uh);
+          VERIFY(o, ERROR_BADURL, "invalid redirection: %s [%s]",
+                 curl_url_strerror(rc), o->redirect);
+          return;
+        }
       }
     }
   }
@@ -985,8 +1000,10 @@ static void singleurl(struct option *o,
     char iterbuf[1024];
     struct curl_slist *p;
     bool url_is_invalid = false;
+    unsigned setmask = 0;
+
     /* set everything */
-    set(uh, o);
+    setmask = set(uh, o);
 
     if(iter) {
       /* "part=item1 item2 item2" */
@@ -1017,6 +1034,9 @@ static void singleurl(struct option *o,
           errorf(ERROR_ITER, "bad component for iterate");
         if(iinfo->varmask & (1<<v->part))
           errorf(ERROR_ITER, "duplicate component for iterate: %s", v->name);
+        if(setmask & (1 << v->part))
+          errorf(ERROR_ITER, "duplicate --iterate and --set for component %s",
+                 v->name);
       }
       else {
         part = iinfo->part;
@@ -1097,7 +1117,7 @@ static void singleurl(struct option *o,
         url_is_invalid = true;
       }
       else {
-        rc = urlfromstring(o, uh, ourl);
+        rc = seturl(o, uh, ourl);
         if(rc) {
           VERIFY(o, ERROR_BADURL, "%s [%s]", curl_url_strerror(rc),
                  ourl);
@@ -1182,20 +1202,36 @@ int main(int argc, const char **argv)
   if(o.url) {
     /* this is a file to read URLs from */
     char buffer[4096]; /* arbitrary max */
-    while(fgets(buffer, sizeof(buffer), o.url)) {
+    bool end_of_file = false;
+    while(!end_of_file && fgets(buffer, sizeof(buffer), o.url)) {
       char *eol = strchr(buffer, '\n');
       if(eol && (eol > buffer)) {
         if(eol[-1] == '\r')
           /* CRLF detected */
           eol--;
       }
-      else if(feof(o.url))
+      else if(eol == buffer) {
+        /* empty line */
+        continue;
+      }
+      else if(feof(o.url)) {
         /* end of file */
         eol = strlen(buffer) + buffer;
+        end_of_file = true;
+      }
       else {
-        /* no newline but not end of file means that this line is truncated
-           and we are lost */
-        break;
+        /* line too long */
+        int ch;
+        warnf("skipping long line");
+        do {
+          ch = getc(o.url);
+        } while(ch != EOF && ch != '\n');
+        if(ch == EOF) {
+          if(ferror(o.url))
+            warnf("getc: %s", strerror(errno));
+          end_of_file = true;
+        }
+        continue;
       }
 
       /* trim trailing spaces and tabs */
@@ -1211,6 +1247,9 @@ int main(int argc, const char **argv)
         singleurl(&o, buffer, &iinfo, o.iter_list);
       }
     }
+
+    if(!end_of_file && ferror(o.url))
+      warnf("fgets: %s", strerror(errno));
     if(o.urlopen)
       fclose(o.url);
   }

@@ -1700,6 +1700,123 @@
             "returncode": 0,
             "stdout": "port: 8080, raw port: 8080\n"
         }
+    },
+    {
+        "input": {
+            "arguments": [
+                "localhost",
+                "-s",
+                "host=foo",
+                "--iterate",
+                "host=bar baz"
+            ]
+        },
+        "expected": {
+            "stdout": "",
+            "returncode": 11,
+            "stderr": "trurl error: duplicate --iterate and --set for component host\ntrurl error: Try trurl -h for help\n"
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "emanuele6://curl.se/trurl",
+                "",
+                "https://example.org"
+            ]
+        },
+        "expected": {
+            "stdout": "emanuele6://curl.se/trurl\nhttps://example.org/\n",
+            "returncode": 0,
+            "stderr": "trurl note: No host part in the URL []\n"
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--verify",
+                "--no-guess-scheme",
+                "hello"
+            ]
+        },
+        "expected": {
+            "stdout": "",
+            "returncode": 9,
+            "stderr": "trurl error: Bad scheme [hello]\ntrurl error: Try trurl -h for help\n"
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--verify",
+                "-f",
+                "testfiles/test0000.txt"
+            ]
+        },
+        "expected": {
+            "stdout": "http://example.org/\n",
+            "returncode": 0,
+            "stderr": "trurl note: skipping long line\n"
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "-f",
+                "testfiles/test0001.txt"
+            ]
+        },
+        "expected": {
+            "stdout": "https://curl.se/\nhttps://docs.python.org/\ngit://github.com/curl/curl.git\nhttp://example.org/\nxyz://hello/?hi\n",
+            "returncode": 0,
+            "stderr": ""
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--no-guess-scheme",
+                "foo",
+                "hi",
+                "https://example.org",
+                "hey",
+                "git://curl.se"
+            ]
+        },
+        "expected": {
+            "stdout": "https://example.org/\ngit://curl.se/\n",
+            "returncode": 0,
+            "stderr": "trurl note: Bad scheme [foo]\ntrurl note: Bad scheme [hi]\ntrurl note: Bad scheme [hey]\n"
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--accept-space",
+                "--redirect",
+                "https://example.org/a b",
+                "https://curl.se"
+            ]
+        },
+        "expected": {
+            "stdout": "https://example.org/a%20b\n",
+            "returncode": 0,
+            "stderr": ""
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--verify",
+                "--redirect",
+                "https://example.org/a b",
+                "https://curl.se"
+            ]
+        },
+        "expected": {
+            "stdout": "",
+            "returncode": 9,
+            "stderr": true
+        }
     }
-
 ]
