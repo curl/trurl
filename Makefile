@@ -5,8 +5,8 @@ CFLAGS = $$(curl-config --cflags) -W -Wall -Wshadow -Werror -pedantic -g
 MANUAL = trurl.1
 
 PREFIX ?= /usr/local
-BINDIR ?= $(DESTDIR)$(PREFIX)/bin
-MANDIR ?= $(DESTDIR)$(PREFIX)/share/man/man1
+BINDIR ?= $(PREFIX)/bin
+MANDIR ?= $(PREFIX)/share/man/man1
 
 INSTALL ?= install
 PYTHON3 ?= python3
@@ -18,10 +18,10 @@ trurl.o:trurl.c version.h
 
 .PHONY: install
 install:
-	$(INSTALL) -d $(BINDIR)
-	$(INSTALL) -m 0755 $(TARGET) $(BINDIR)
-	$(INSTALL) -d $(MANDIR)
-	$(INSTALL) -m 0644 $(MANUAL) $(MANDIR)
+	$(INSTALL) -d $(DESTDIR)$(BINDIR)
+	$(INSTALL) -m 0755 $(TARGET) $(DESTDIR)$(BINDIR)
+	$(INSTALL) -d $(DESTDIR)$(MANDIR)
+	$(INSTALL) -m 0644 $(MANUAL) $(DESTDIR)$(MANDIR)
 
 .PHONY: clean
 clean:
