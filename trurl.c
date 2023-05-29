@@ -913,6 +913,7 @@ struct string *memdupdec(char *source, size_t len, bool json)
 {
   char *sep = memchr(source, '=', len);
   char *json_null_str = "\\u0000";
+  int json_null_len = strlen(json_null_str);
   struct string left;
   struct string right;
   char *str, *dup;
@@ -929,7 +930,7 @@ struct string *memdupdec(char *source, size_t len, bool json)
     right.str[right.len] = '\0';
     char * tmp_right = NULL;
 
-    if(json) {
+    if(json && (right.len != (int) strlen(right.str))) {
       tmp_right = malloc((right.len + strlen(json_null_str) - 1)*sizeof(char));
       memset(tmp_right, 0, right.len + strlen(json_null_str) - 1);
       if(!tmp_right)
@@ -944,8 +945,8 @@ struct string *memdupdec(char *source, size_t len, bool json)
     for(plen = right.len, p = right.str; plen; plen--, p++) {
       if(!*p) {
         if(json) {
-          memmove(p + strlen(json_null_str), p + 1, plen);
-          memcpy(p, json_null_str, strlen(json_null_str));
+          memmove(p + json_null_len, p + 1, plen);
+          memcpy(p, json_null_str, json_null_len);
         }
         else {
           *p = REPLACE_NULL_BYTE;
