@@ -759,7 +759,7 @@ static void jsonString(FILE *stream, const char *in, size_t len,
   for(; i < (unsigned char *)in_end; i++) {
     switch(*i) {
     case '\\':
-      fputs("\\\\", stream);
+      fputs("\\", stream);
       break;
     case '\"':
       fputs("\\\"", stream);
@@ -913,7 +913,7 @@ static char *memdupzero(char *source, size_t len)
 struct string *memdupdec(char *source, size_t len, bool json)
 {
   char *sep = memchr(source, '=', len);
-  char *json_null_str = "\\u0000";
+  const char *json_null_str = "\\u0000";
   int json_null_len = strlen(json_null_str);
   struct string left;
   struct string right;
