@@ -837,7 +837,8 @@ static void json(struct option *o, CURLU *uh)
       first = false;
       fputs("      {\n        \"key\": ", stdout);
       jsonString(stdout, qpairsdec[j].str,
-                 sep ? (size_t)(sep - qpairsdec[j].str) : strlen(qpairsdec[j].str),
+                 sep ? (size_t)(sep - qpairsdec[j].str) :
+                       strlen(qpairsdec[j].str),
                  false);
       fputs(",\n        \"value\": ", stdout);
       jsonString(stdout, value, strlen(value), false);
@@ -964,7 +965,9 @@ static char *addqpair(char *pair, size_t len)
     pdec = memdupdec(pair, len);
     if(p && pdec) {
       qpairs[nqpairs].str = p;
+      qpairs[nqpairs].len = len;
       qpairsdec[nqpairs].str = pdec;
+      qpairsdec[nqpairs].len = len;
       nqpairs++;
     }
   }
@@ -1007,7 +1010,8 @@ static void qpair2query(CURLU *uh, struct option *o)
   for(i = 0; i<nqpairs; i++) {
     char *oldnq = nq;
     nq = curl_maprintf("%s%s%s", nq?nq:"",
-                       (nq && *nq && *(qpairs[i].str))? o->qsep: "", qpairs[i].str);
+                       (nq && *nq && *(qpairs[i].str))? o->qsep: "",
+                       qpairs[i].str);
     curl_free(oldnq);
   }
   if(nq) {
@@ -1021,16 +1025,19 @@ static void qpair2query(CURLU *uh, struct option *o)
 /* sort case insensitively */
 static int cmpfunc(const void *p1, const void *p2)
 {
-  return strcasecmp(*(const char **)p1,
-                    *(const char **)p2);
+  int len = (((struct string *)p1)->len) < (((struct string *)p2)->len)?
+             (((struct string *)p1)->len):(((struct string *)p2)->len);
+
+  return strncasecmp((((struct string *)p1)->str),
+                    (((struct string *)p2)->str), len);
 }
 
 static void sortquery(struct option *o)
 {
   if(o->sort_query) {
     /* not these two lists may no longer be the same order after the sort */
-    qsort(&qpairs[0], nqpairs, sizeof(char *), cmpfunc);
-    qsort(&qpairsdec[0], nqpairs, sizeof(char *), cmpfunc);
+    qsort(&qpairs[0], nqpairs, sizeof(struct string), cmpfunc);
+    qsort(&qpairsdec[0], nqpairs, sizeof(struct string), cmpfunc);
   }
 }
 
