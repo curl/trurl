@@ -918,7 +918,6 @@ struct string *memdupdec(char *source, size_t len, bool json)
   struct string left;
   struct string right;
   char *str, *dup;
-    
   left.str = NULL;
   right.str = NULL;
 
@@ -934,11 +933,11 @@ struct string *memdupdec(char *source, size_t len, bool json)
     for(plen = right.len, p = right.str; plen; plen--, p++) {
       if(!*p) {
         if(json) {
-          int p_len = (uintptr_t)(p - right.str);
+          int p_prev  = (uintptr_t)(p - right.str);
           char *newstr = realloc(right.str, right.len + json_null_len);
           right.str = newstr;
           right.len += json_null_len;
-          p = right.str + p_len;
+          p = right.str + p_prev;
           memmove(p + json_null_len, p + 1, plen);
           memcpy(p, json_null_str, json_null_len);
         }
@@ -949,17 +948,16 @@ struct string *memdupdec(char *source, size_t len, bool json)
      }
   }
 
-
   str = curl_maprintf("%.*s%s%.*s", left.len, left.str,
                       right.str ? "=":"",
                       right.len, right.str?right.str:"");
   curl_free(right.str);
   curl_free(left.str);
   dup = strdup(str);
-  curl_free(str);
   struct string *ret = malloc(sizeof(struct string));
   ret->str = dup;
   ret->len = strlen(str);
+  curl_free(str);
   return ret;
 }
 
@@ -994,6 +992,10 @@ static char *addqpair(char *pair, size_t len, bool json)
   }
   else
     warnf("too many query pairs");
+
+  if(pdec)
+    free(pdec);
+
   return p;
 }
 
