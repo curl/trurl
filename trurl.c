@@ -909,37 +909,63 @@ static char *memdupzero(char *source, size_t len)
 }
 
 /* URL decode the pair and return it in an allocated chunk */
-static char *memdupdec(char *source, size_t len)
+struct string *memdupdec(char *source, size_t len, bool json)
 {
   char *sep = memchr(source, '=', len);
-  char *left = NULL;
-  char *right = NULL;
+  char *json_null_str = "\\u0000";
+  struct string left;
+  struct string right;
   char *str, *dup;
-  int leftlen = 0;
-  int rightlen = 0;
+    
+  left.str = NULL;
+  right.str = NULL;
 
-  left = strurldecode(source, sep ? (size_t)(sep - source) : len,
-                      &leftlen);
+  left.str = strurldecode(source, sep ? (size_t)(sep - source) : len,
+                      &left.len);
   if(sep) {
     char *p;
     int plen;
-    right = strurldecode(sep + 1, len - (sep - source) - 1, &rightlen);
+    right.str = strurldecode(sep + 1, len - (sep - source) - 1, &right.len);
+    right.str[right.len] = '\0';
+    char * tmp_right = NULL;
+
+    if(json) {
+      tmp_right = malloc((right.len + strlen(json_null_str) - 1)*sizeof(char));
+      memset(tmp_right, 0, right.len + strlen(json_null_str) - 1);
+      if(!tmp_right)
+          errorf(ERROR_MEM, "Out of memory...");
+      memcpy(tmp_right, right.str, right.len);
+      free(right.str);
+      right.str = tmp_right;
+      right.len = right.len + strlen(json_null_str) - 1;
+    }
 
     /* convert null bytes to periods */
-    for(plen = rightlen, p = right; plen; plen--, p++) {
-      if(!*p)
-        *p = REPLACE_NULL_BYTE;
-    }
+    for(plen = right.len, p = right.str; plen; plen--, p++) {
+      if(!*p) {
+        if(json) {
+          memmove(p + strlen(json_null_str), p + 1, plen);
+          memcpy(p, json_null_str, strlen(json_null_str));
+        }
+        else {
+          *p = REPLACE_NULL_BYTE;
+        }
+      }
+     }
   }
 
-  str = curl_maprintf("%.*s%s%.*s", leftlen, left,
-                      right ? "=":"",
-                      rightlen, right?right:"");
-  curl_free(right);
-  curl_free(left);
+
+  str = curl_maprintf("%.*s%s%.*s", left.len, left.str,
+                      right.str ? "=":"",
+                      right.len, right.str?right.str:"");
+  curl_free(right.str);
+  curl_free(left.str);
   dup = strdup(str);
   curl_free(str);
-  return dup;
+  struct string *ret = malloc(sizeof(struct string));
+  ret->str = dup;
+  ret->len = strlen(str);
+  return ret;
 }
 
 
@@ -956,18 +982,18 @@ static void freeqpairs(void)
 }
 
 /* store the pair both encoded and decoded */
-static char *addqpair(char *pair, size_t len)
+static char *addqpair(char *pair, size_t len, bool json)
 {
   char *p = NULL;
-  char *pdec = NULL;
+  struct string *pdec = NULL;
   if(nqpairs < MAX_QPAIRS) {
     p = memdupzero(pair, len);
-    pdec = memdupdec(pair, len);
+    pdec = memdupdec(pair, len, json);
     if(p && pdec) {
       qpairs[nqpairs].str = p;
       qpairs[nqpairs].len = len;
-      qpairsdec[nqpairs].str = pdec;
-      qpairsdec[nqpairs].len = len;
+      qpairsdec[nqpairs].str = pdec->str;
+      qpairsdec[nqpairs].len = pdec->len;
       nqpairs++;
     }
   }
@@ -993,7 +1019,7 @@ static void extractqpairs(CURLU *uh, struct option *o)
         len = strlen(p);
       else
         len = amp - p;
-      addqpair(p, len);
+      addqpair(p, len, o->jsonout);
       if(amp)
         p = amp + 1;
       else
@@ -1184,7 +1210,7 @@ static void singleurl(struct option *o,
 
     /* append query segments */
     for(p = o->append_query; p; p = p->next) {
-      addqpair(p->data, strlen(p->data));
+      addqpair(p->data, strlen(p->data), o->jsonout);
     }
 
     sortquery(o);
