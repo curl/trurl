@@ -1,29 +1,27 @@
-trurl 0.6
+trurl 0.7
 
 Changes since previous release
 
- o offer {puny:host} and {puny:url} for --get
- o provide built-with libcurl version info for --version
- o support for skipping tests
- o test.py replaced test.pl
- o test.py supports --with-valgrind
- o tests.json: extended and updated
- o URL-QUIRKS: specify if they are build-time or run-time requirements
+ o --default-port to ask for the default to be used if not present
+ o --keep-port to ask for the port number to be there even if default
+ o --no-guess-scheme option to disable scheme guessing
+ o --punycode to ask for the punycode version in output
 
 Bugfixes since previous release
 
- o Makefile: fix build with GNU Make 3.x
- o Makefile: make test target depend on trurl
- o several new CI jobs
- o test.py: don't crash if stdout is not valid JSON
- o test: print failed tests more nicely.
- o trurl: fix query splitting
- o trurl: json: print comma only after printing the first valid component
- o trurl: make sure to terminate the JSON array when aborting with --verify
- o trurl: no url file/arguments implies --verify
- o trurl: reparse the URL after modifying it to make sure it is still valid
+ o --help returns 0 instead of 1
+ o --json: print empty arrays
+ o --redirect: don't silently ignore failed redirections.
+ o makefile: use -Wshadow and -Werror by default
+ o makefile: Use DESTDIR only during install target
+ o refuse setting same component in --set as --iterate
+ o restructure the JSON output object
+ o send -h output to stdout, not stderr
+ o trurl.1: add an example using --iterate
+ o trurl.1: document the JSON output format
+ o use curl_url_cleanup() insted of curl_free()
 
 Contributors to this release:
 
-  Daniel Stenberg, Emanuele Torre, Jacob Mealey, Krishean Draconis,
-  Ruoyu Zhong
+  Daniel Stenberg, Ehsan, Emanuele Torre, Enno Tensing, Gustavo Costa,
+  Jacob Mealey, Michael Ablassmeier, Renato Botelho
