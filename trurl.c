@@ -29,6 +29,7 @@
 #include <stdbool.h>
 #include <curl/curl.h>
 #include <curl/mprintf.h>
+#include <stdint.h>
 
 #include <locale.h> /* for setlocale() */
 
@@ -928,23 +929,16 @@ struct string *memdupdec(char *source, size_t len, bool json)
     int plen;
     right.str = strurldecode(sep + 1, len - (sep - source) - 1, &right.len);
     right.str[right.len] = '\0';
-    char * tmp_right = NULL;
-
-    if(json && (right.len != (int) strlen(right.str))) {
-      tmp_right = malloc((right.len + strlen(json_null_str) - 1)*sizeof(char));
-      memset(tmp_right, 0, right.len + strlen(json_null_str) - 1);
-      if(!tmp_right)
-          errorf(ERROR_MEM, "Out of memory...");
-      memcpy(tmp_right, right.str, right.len);
-      free(right.str);
-      right.str = tmp_right;
-      right.len = right.len + strlen(json_null_str) - 1;
-    }
 
     /* convert null bytes to periods */
     for(plen = right.len, p = right.str; plen; plen--, p++) {
       if(!*p) {
         if(json) {
+          int p_len = (uintptr_t)(p - right.str);
+          char *newstr = realloc(right.str, right.len + json_null_len);
+          right.str = newstr;
+          right.len += json_null_len;
+          p = right.str + p_len;
           memmove(p + json_null_len, p + 1, plen);
           memcpy(p, json_null_str, json_null_len);
         }
