@@ -932,6 +932,7 @@ struct string *memdupdec(char *source, size_t len, bool json)
     /* convert null bytes to periods */
     for(plen = right.len, p = right.str; plen; plen--, p++) {
       if(!*p) {
+        /* Doesn't work for multiple null characters */
         if(json) {
           int p_prev  = (uintptr_t)(p - right.str);
           char *newstr = realloc(right.str, right.len + json_null_len);
