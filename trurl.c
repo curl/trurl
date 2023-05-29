@@ -87,6 +87,11 @@ struct var {
   CURLUPart part;
 };
 
+struct string {
+  char *str;
+  int len;
+};
+
 static const struct var variables[] = {
   {"scheme",   CURLUPART_SCHEME},
   {"user",     CURLUPART_USER},
@@ -264,8 +269,8 @@ struct option {
 };
 
 #define MAX_QPAIRS 1000
-char *qpairs[MAX_QPAIRS]; /* encoded */
-char *qpairsdec[MAX_QPAIRS]; /* decoded */
+struct string qpairs[MAX_QPAIRS]; /* encoded */
+struct string qpairsdec[MAX_QPAIRS]; /* decoded */
 int nqpairs; /* how many is stored */
 
 static char *strurldecode(const char *url, int inlength, int *outlength)
@@ -486,14 +491,14 @@ static void showqkey(FILE *stream, const char *key, size_t klen,
 {
   int i;
   bool shown = false;
-  char **qp = urldecode ? qpairsdec : qpairs;
+  struct string *qp = urldecode ? qpairsdec : qpairs;
 
   for(i = 0; i< nqpairs; i++) {
-    if(!strncmp(key, qp[i], klen) &&
-       (qp[i][klen] == '=')) {
+    if(!strncmp(key, qp[i].str, klen) &&
+       (qp[i].str[klen] == '=')) {
       if(shown)
         fputc(' ', stream);
-      fputs(&qp[i][klen + 1], stream);
+      fputs(&qp[i].str[klen + 1], stream);
       if(!showall)
         break;
       shown = true;
@@ -821,18 +826,18 @@ static void json(struct option *o, CURLU *uh)
     int j;
     fputs(",\n    \"params\": [\n", stdout);
     for(j = 0 ; j < nqpairs; j++) {
-      const char *sep = strchr(qpairsdec[j], '=');
+      const char *sep = strchr(qpairsdec[j].str, '=');
       const char *value = sep ? sep + 1 : "";
 
       /* don't print out empty/trimmed values */
-      if(!qpairsdec[j][0])
+      if(!qpairsdec[j].str[0])
         continue;
       if(!first)
         fputs(",\n", stdout);
       first = false;
       fputs("      {\n        \"key\": ", stdout);
-      jsonString(stdout, qpairsdec[j],
-                 sep ? (size_t)(sep - qpairsdec[j]) : strlen(qpairsdec[j]),
+      jsonString(stdout, qpairsdec[j].str,
+                 sep ? (size_t)(sep - qpairsdec[j].str) : strlen(qpairsdec[j].str),
                  false);
       fputs(",\n        \"value\": ", stdout);
       jsonString(stdout, value, strlen(value), false);
@@ -867,7 +872,7 @@ static void trim(struct option *o)
         inslen--;
 
       for(i = 0 ; i < nqpairs; i++) {
-        char *q = qpairs[i];
+        char *q = qpairs[i].str;
         char *sep = strchr(q, '=');
         size_t qlen;
         if(sep)
@@ -880,10 +885,10 @@ static void trim(struct option *o)
            (!pattern && (inslen == qlen) &&
             !strncasecmp(q, ptr, inslen))) {
           /* this qpair should be stripped out */
-          free(qpairs[i]);
-          free(qpairsdec[i]);
-          qpairs[i] = strdup(""); /* marked as deleted */
-          qpairsdec[i] = strdup(""); /* marked as deleted */
+          free(qpairs[i].str);
+          free(qpairsdec[i].str);
+          qpairs[i].str = strdup(""); /* marked as deleted */
+          qpairsdec[i].str = strdup(""); /* marked as deleted */
         }
       }
     }
@@ -941,10 +946,10 @@ static void freeqpairs(void)
 {
   int i;
   for(i = 0; i<nqpairs; i++) {
-    free(qpairs[i]);
-    qpairs[i] = NULL;
-    free(qpairsdec[i]);
-    qpairsdec[i] = NULL;
+    free(qpairs[i].str);
+    qpairs[i].str = NULL;
+    free(qpairsdec[i].str);
+    qpairsdec[i].str = NULL;
   }
   nqpairs = 0;
 }
@@ -958,8 +963,8 @@ static char *addqpair(char *pair, size_t len)
     p = memdupzero(pair, len);
     pdec = memdupdec(pair, len);
     if(p && pdec) {
-      qpairs[nqpairs] = p;
-      qpairsdec[nqpairs] = pdec;
+      qpairs[nqpairs].str = p;
+      qpairsdec[nqpairs].str = pdec;
       nqpairs++;
     }
   }
@@ -1002,7 +1007,7 @@ static void qpair2query(CURLU *uh, struct option *o)
   for(i = 0; i<nqpairs; i++) {
     char *oldnq = nq;
     nq = curl_maprintf("%s%s%s", nq?nq:"",
-                       (nq && *nq && *qpairs[i])? o->qsep: "", qpairs[i]);
+                       (nq && *nq && *(qpairs[i].str))? o->qsep: "", qpairs[i].str);
     curl_free(oldnq);
   }
   if(nq) {
