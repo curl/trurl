@@ -95,7 +95,7 @@ If \fBdefault:\fP is specified, like "{default:url}" or
 the scheme's default port will be output if it is known.
 
 If \fBpuny:\fP is specified, like "{puny:url}" or "{puny:host}", the
-"punycoded" version of the host name will be used in the ouptut.
+"punycoded" version of the host name will be used in the output.
 
 If \fI--default-port\fP is specified, all formats are expanded as if
 they used \fIdefault:\fP; and if \fI--punycode\fP is used, all formats
@@ -146,7 +146,7 @@ URL that have data will get populated in the parts object using their
 component names. See below for details on the format.
 .IP "--keep-port"
 By default, trurl removes default port numbers from URLs with a known scheme
-even if they are explictly specified in the input URL. This options, makes
+even if they are explicitly specified in the input URL. This options, makes
 trurl not remove them.
 .IP "--no-guess-scheme"
 Disables libcurl's scheme guessing feature. URLs that do not contain a scheme
