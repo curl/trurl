@@ -941,6 +941,7 @@ struct string *memdupdec(char *source, size_t len, bool json)
           p = right.str + p_prev;
           memmove(p + json_null_len, p + 1, plen);
           memcpy(p, json_null_str, json_null_len);
+          p += json_null_len - 1;
         }
         else {
           *p = REPLACE_NULL_BYTE;
