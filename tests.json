@@ -2042,5 +2042,63 @@
                 }
             ]        
         }
+    },
+    {
+        "input" : {
+            "arguments": [
+                "http://example.com/?q=mr%00sm%00ith",
+                "--json"
+            ]
+        },
+        "expected": {
+            "stderr": "",
+            "returncode": 0,
+            "stdout": [
+                {
+                    "url": "http://example.com/?q=mr%00sm%00ith",
+                    "parts": {
+                        "scheme": "http",
+                        "host": "example.com",
+                        "path": "/",
+                        "query": "q=mr%00sm%00ith"
+                    },
+                    "params": [
+                        {
+                            "key": "q",
+                            "value": "mr\u0000sm\u0000ith"
+                        }
+                    ]
+                }
+            ]        
+        }
+    },
+    {
+        "input" : {
+            "arguments": [
+                "http://example.com/?q=mr%00%00%00smith",
+                "--json"
+            ]
+        },
+        "expected": {
+            "stderr": "",
+            "returncode": 0,
+            "stdout": [
+                {
+                    "url": "http://example.com/?q=mr%00%00%00smith",
+                    "parts": {
+                        "scheme": "http",
+                        "host": "example.com",
+                        "path": "/",
+                        "query": "q=mr%00%00%00smith"
+                    },
+                    "params": [
+                        {
+                            "key": "q",
+                            "value": "mr\u0000\u0000\u0000smith"
+                        }
+                    ]
+                }
+            ]        
+        }
     }
 ]

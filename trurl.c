@@ -920,6 +920,8 @@ struct string *memdupdec(char *source, size_t len, bool json)
   char *str, *dup;
   left.str = NULL;
   right.str = NULL;
+  left.len = 0;
+  right.len = 0;
 
   left.str = strurldecode(source, sep ? (size_t)(sep - source) : len,
                       &left.len);
@@ -927,15 +929,15 @@ struct string *memdupdec(char *source, size_t len, bool json)
     char *p;
     int plen;
     right.str = strurldecode(sep + 1, len - (sep - source) - 1, &right.len);
-    right.str[right.len] = '\0';
 
     /* convert null bytes to periods */
     for(plen = right.len, p = right.str; plen; plen--, p++) {
       if(!*p) {
-        /* Doesn't work for multiple null characters */
         if(json) {
           int p_prev  = (uintptr_t)(p - right.str);
           char *newstr = realloc(right.str, right.len + json_null_len);
+          if(!newstr)
+            errorf(ERROR_MEM, "out of memory");
           right.str = newstr;
           right.len += json_null_len;
           p = right.str + p_prev;
