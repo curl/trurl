@@ -902,9 +902,9 @@ struct string *memdupzero(char *source, size_t len)
 {
   struct string *ret = malloc(sizeof(struct string));
   if(!ret)
-      return NULL;
+    return NULL;
   ret->str = malloc(len + 1);
-  if(!ret->str) 
+  if(!ret->str)
     return NULL;
   memcpy(ret->str, source, len);
   ret->str[len] = 0;
@@ -1006,7 +1006,6 @@ static char *addqpair(char *pair, size_t len, bool json)
     free(pdec);
   if(p)
     free(p);
-    
   return ret;
 }
 
