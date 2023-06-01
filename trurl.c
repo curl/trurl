@@ -898,15 +898,18 @@ static void trim(struct option *o)
 }
 
 /* memdup the amount and add a trailing zero */
-static char *memdupzero(char *source, size_t len)
+struct string *memdupzero(char *source, size_t len)
 {
-  char *p = malloc(len + 1);
-  if(p) {
-    memcpy(p, source, len);
-    p[len] = 0;
-    return p;
-  }
-  return NULL;
+  struct string *ret = malloc(sizeof(struct string));
+  if(!ret)
+      return NULL;
+  ret->str = malloc(len + 1);
+  if(!ret->str) 
+    return NULL;
+  memcpy(ret->str, source, len);
+  ret->str[len] = 0;
+  ret->len = len;
+  return ret;
 }
 
 /* URL decode the pair and return it in an allocated chunk */
@@ -981,14 +984,15 @@ static void freeqpairs(void)
 /* store the pair both encoded and decoded */
 static char *addqpair(char *pair, size_t len, bool json)
 {
-  char *p = NULL;
+  struct string *p = NULL;
   struct string *pdec = NULL;
+  char *ret = NULL;
   if(nqpairs < MAX_QPAIRS) {
     p = memdupzero(pair, len);
     pdec = memdupdec(pair, len, json);
     if(p && pdec) {
-      qpairs[nqpairs].str = p;
-      qpairs[nqpairs].len = len;
+      qpairs[nqpairs].str = p->str;
+      qpairs[nqpairs].len = p->len;
       qpairsdec[nqpairs].str = pdec->str;
       qpairsdec[nqpairs].len = pdec->len;
       nqpairs++;
@@ -997,10 +1001,13 @@ static char *addqpair(char *pair, size_t len, bool json)
   else
     warnf("too many query pairs");
 
+  ret = p->str;
   if(pdec)
     free(pdec);
-
-  return p;
+  if(p)
+    free(p);
+    
+  return ret;
 }
 
 /* convert the query string into an array of name=data pair */
