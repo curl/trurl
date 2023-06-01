@@ -1285,7 +1285,7 @@
                         "scheme": "https",
                         "host": "example.com",
                         "path": "/",
-                        "query": "utm=tra%20cker&address%20=home&here=now&thisthen"
+                        "query": "utm=tra cker&address =home&here=now&thisthen"
                     },
                     "params": [
                         {
@@ -1831,6 +1831,46 @@
         "required": ["white-space"],
         "expected": {
             "stdout": "http://localhost/?x=10&x=2+3\n",
+            "returncode": 0,
+            "stderr": ""
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "-s",
+                "path=\\\\",
+                "-g",
+                "{path}\\n{:path}",
+                "localhost"
+            ]
+        },
+        "expected": {
+            "stdout": "/\\\\\n/%5c%5c\n",
+            "returncode": 0,
+            "stderr": ""
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "-s",
+                "path=\\\\",
+                "--json",
+                "localhost"
+            ]
+        },
+        "expected": {
+            "stdout": [
+                {
+                    "url": "http://localhost/%5c%5c",
+                    "parts": {
+                        "scheme": "http",
+                        "host": "localhost",
+                        "path": "/\\\\"
+                    }
+                }
+            ],
             "returncode": 0,
             "stderr": ""
         }
