@@ -1809,7 +1809,7 @@
         "input": {
             "arguments": [
                 "-f",
-                "/dev/null",
+                "testfiles/test0002.txt",
                 "--json"
             ]
         },
