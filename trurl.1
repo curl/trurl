@@ -193,6 +193,9 @@ Providing multiple URLs will make trurl act on all URLs in a serial fashion.
 
 If the URL cannot be parsed for whatever reason, trurl will simply move on to
 the next provided URL - unless \fI--verify\fP is used.
+.IP "--urlencode"
+Outputs URL encoded version of components by default when using \fI--get\fP or
+\fI--json\fP.
 .IP "--trim [component]=[what]"
 Trims data off a component. Currently this can only trim a query component.
 
@@ -216,27 +219,28 @@ This key exists in every object. It is the complete URL. Affected by
 .IP "parts"
 This key exists in every object, and contains an object with a key for
 each of the settable URL components. If a component is missing, it means
-it is not present in the URL.
+it is not present in the URL. The parts are URL decoded unless \fI--urlencode\fP
+is used.
 .RS
 .TP
 .B "scheme"
 The URL scheme.
 .TP
 .B "user"
-The URL decoded user name.
+The user name.
 .TP
 .B "password"
-The URL decoded password.
+The password.
 .TP
 .B "options"
-The URL decoded options. Note that only a few URL schemes support the
-"options" component.
+The options. Note that only a few URL schemes support the "options"
+component.
 .TP
 .B "host"
-The URL decoded and normalized host name. It might be a UTF-8 name if an IDN
-name was used. It can also be a normalized IPv4 or IPv6 address. An IPv6 address
-always starts with a bracket (\fB[\fP) - and no other host names can contain
-such a symbol.
+The and normalized host name. It might be a UTF-8 name if an IDN name was used.
+It can also be a normalized IPv4 or IPv6 address. An IPv6 address always starts
+with a bracket (\fB[\fP) - and no other host names can contain such a symbol. If
+\fI--punycode\fP is used, the punycode version of the host is outputted instead.
 .TP
 .B "port"
 The provided port number as a string. If the port number was not provided in the
@@ -244,13 +248,13 @@ URL, but the scheme is a known one, and \fI--default-port\fP is in use, the
 default port for that scheme will be provided here.
 .TP
 .B "path"
-The URL decoded path. Including the leading slash.
+The path. Including the leading slash.
 .TP
 .B "query"
-The URL decoded full query, excluding the question mark separator.
+The full query, excluding the question mark separator.
 .TP
 .B "fragment"
-The URL decoded fragment, excluding the pound sign separator.
+The fragment, excluding the pound sign separator.
 .TP
 .B "zoneid"
 The zone id, which can only be present in an IPv6 address. When this key is
