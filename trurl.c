@@ -77,7 +77,7 @@
 #define REPLACE_NULL_BYTE '.' /* for query:key extractions */
 
 enum {
-  VARMODIFIER_URLDECODED = 1 << 1,
+  VARMODIFIER_URLENCODED = 1 << 1,
   VARMODIFIER_DEFAULT    = 1 << 2,
   VARMODIFIER_PUNY       = 1 << 3,
 };
@@ -523,8 +523,8 @@ static CURLUcode geturlpart(struct option *o, int modifiers, CURLU *uh,
                        CURLU_PUNYCODE : 0)|
 #endif
                       CURLU_NON_SUPPORT_SCHEME|
-                      ((modifiers & VARMODIFIER_URLDECODED) ?
-                       CURLU_URLDECODE : 0));
+                      ((modifiers & VARMODIFIER_URLENCODED) ?
+                       0 :CURLU_URLDECODE));
 }
 
 static void showurl(FILE *stream, struct option *o, int modifiers,
@@ -580,7 +580,7 @@ static void get(struct option *op, CURLU *uh)
 
         /* {path} {:path} */
         if(*ptr == ':') {
-          mods |= VARMODIFIER_URLDECODED;
+          mods |= VARMODIFIER_URLENCODED;
           ptr++;
         }
         vlen = end - ptr;
@@ -598,12 +598,12 @@ static void get(struct option *op, CURLU *uh)
             /* {query: or {query-all: */
             if(!strncmp(ptr, "query-all:", cl - ptr + 1)) {
               showqkey(stream, cl + 1, end - cl - 1,
-                       (mods & VARMODIFIER_URLDECODED) == 0, true);
+                       (mods & VARMODIFIER_URLENCODED) == 0, true);
             }
             else if(!strncmp(ptr, "query:", cl - ptr + 1)) {
               isquery = true;
               showqkey(stream, cl + 1, end - cl - 1,
-                       (mods & VARMODIFIER_URLDECODED) == 0, false);
+                       (mods & VARMODIFIER_URLENCODED) == 0, false);
             }
             else {
               /* syntax error */
