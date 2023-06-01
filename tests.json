@@ -1874,5 +1874,112 @@
             "returncode": 0,
             "stderr": ""
         }
+    },
+    {
+        "input": {
+            "arguments": [
+                "-s",
+                "path=\\\\",
+                "-g",
+                "{path}\\n{:path}",
+                "--urlencode",
+                "localhost"
+            ]
+        },
+        "expected": {
+            "stdout": "/%5c%5c\n/%5c%5c\n",
+            "returncode": 0,
+            "stderr": ""
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "-s",
+                "path=abc\\\\",
+                "-s",
+                "query:=a&b&a%26b",
+                "--urlencode",
+                "--json",
+                "localhost"
+            ]
+        },
+        "expected": {
+            "stdout": [
+                {
+                    "url": "http://localhost/abc%5c%5c?a&b&a%26b",
+                    "parts": {
+                        "scheme": "http",
+                        "host": "localhost",
+                        "path": "/abc%5c%5c",
+                        "query": "a&b&a%26b"
+                    },
+                    "params": [
+                        {
+                            "key": "a",
+                            "value": ""
+                        },
+                        {
+                            "key": "b",
+                            "value": ""
+                        },
+                        {
+                            "key": "a&b",
+                            "value": ""
+                        }
+                    ]
+                }
+            ],
+            "returncode": 0,
+            "stderr": ""
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "-s",
+                "scheme:=http",
+                "-s",
+                "host:=localhost",
+                "-s",
+                "path:=/ABC%5C%5C",
+                "-s",
+                "query:=a&b&a%26b"
+            ]
+        },
+        "expected": {
+            "stdout": "http://localhost/ABC%5c%5c?a&b&a%26b\n",
+            "returncode": 0,
+            "stderr": ""
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "-g",
+                "{query:b}\\t{query-all:a}\\n{:query:b}\\t{:query-all:a}",
+                "https://example.org/foo?a=1&b=%23&a=%26#hello"
+            ]
+        },
+        "expected": {
+            "stdout": "#\t1 &\n%23\t1 %26\n",
+            "returncode": 0,
+            "stderr": ""
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--urlencode",
+                "-g",
+                "{query:b}\\t{query-all:a}\\n{:query:b}\\t{:query-all:a}",
+                "https://example.org/foo?a=1&b=%23&a=%26#hello"
+            ]
+        },
+        "expected": {
+            "stdout": "%23\t1 %26\n%23\t1 %26\n",
+            "returncode": 0,
+            "stderr": ""
+        }
     }
 ]

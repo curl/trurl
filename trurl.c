@@ -182,6 +182,7 @@ static void help(void)
     "      --sort-query                 - alpha-sort the query pairs\n"
     "      --trim [component]=[what]    - trim component\n"
     "      --url [URL]                  - URL to work with\n"
+    "      --urlencode                  - URL encode components by default\n"
     "  -v, --version                    - show version\n"
     "      --verify                     - return error on (first) bad URL\n"
     " URL COMPONENTS:\n"
@@ -255,6 +256,7 @@ struct option {
   bool punycode;
   bool sort_query;
   bool no_guess_scheme;
+  bool urlencode;
   bool end_of_options;
   unsigned char output;
 
@@ -473,6 +475,8 @@ static int getarg(struct option *op,
     op->no_guess_scheme = true;
   else if(!strcmp("--sort-query", flag))
     op->sort_query = true;
+  else if(!strcmp("--urlencode", flag))
+    op->urlencode = true;
   else
     return 1;  /* unrecognized option */
   return 0;
@@ -523,7 +527,8 @@ static CURLUcode geturlpart(struct option *o, int modifiers, CURLU *uh,
                        CURLU_PUNYCODE : 0)|
 #endif
                       CURLU_NON_SUPPORT_SCHEME|
-                      ((modifiers & VARMODIFIER_URLENCODED) ?
+                      (((modifiers & VARMODIFIER_URLENCODED) ||
+                        o->urlencode) ?
                        0 :CURLU_URLDECODE));
 }
 
@@ -569,6 +574,7 @@ static void get(struct option *op, CURLU *uh)
         char *cl;
         size_t vlen;
         bool isquery = false;
+        bool queryall = false;
         int mods = 0;
         end = strchr(ptr, endbyte);
         ptr++; /* pass the { */
@@ -597,29 +603,28 @@ static void get(struct option *op, CURLU *uh)
           else {
             /* {query: or {query-all: */
             if(!strncmp(ptr, "query-all:", cl - ptr + 1)) {
-              showqkey(stream, cl + 1, end - cl - 1,
-                       (mods & VARMODIFIER_URLENCODED) == 0, true);
-            }
-            else if(!strncmp(ptr, "query:", cl - ptr + 1)) {
               isquery = true;
-              showqkey(stream, cl + 1, end - cl - 1,
-                       (mods & VARMODIFIER_URLENCODED) == 0, false);
+              queryall = true;
             }
+            else if(!strncmp(ptr, "query:", cl - ptr + 1))
+              isquery = true;
             else {
               /* syntax error */
               vlen = 0;
               end[1] = '\0';
-              break;
             }
-            isquery = true;
+            break;
           }
 
           ptr = cl + 1;
           vlen = end - ptr;
         } while(true);
 
-        if(isquery)
-          ;
+        if(isquery) {
+          showqkey(stream, cl + 1, end - cl - 1,
+                   !op->urlencode && !(mods & VARMODIFIER_URLENCODED),
+                   queryall);
+        }
         else if(!vlen)
           errorf(ERROR_GET, "Bad --get syntax: %s", start);
         else if(!strncmp(ptr, "url", vlen))
