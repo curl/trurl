@@ -127,7 +127,7 @@ def main(argc, argv):
         baseCmd += ".exe"
     # check if the trurl executable exists
     if path.isfile(baseCmd):
-        # get the run-time and build-time libcurl versions
+        # get the version info for the feature list
         output = run(
             [baseCmd, "--version"],
             stdout=PIPE, stderr=PIPE,
