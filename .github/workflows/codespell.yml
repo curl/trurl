@@ -1,0 +1,16 @@
+name: "Codespell"
+on: [push, pull_request]
+jobs:
+  codespell:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: install codespell
+      run: |
+        sudo apt-get update
+        sudo apt-get install codespell
+
+    - name: Perform spelling checks
+      run: codespell README.md RELEASE-NOTES trurl.c CONTRIBUTING.md trurl.1 trurl.c
