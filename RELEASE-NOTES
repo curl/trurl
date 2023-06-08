@@ -19,7 +19,7 @@ Bugfixes since previous release
  o send -h output to stdout, not stderr
  o trurl.1: add an example using --iterate
  o trurl.1: document the JSON output format
- o use curl_url_cleanup() insted of curl_free()
+ o use curl_url_cleanup() instead of curl_free()
 
 Contributors to this release:
 
