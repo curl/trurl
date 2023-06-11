@@ -63,7 +63,7 @@ class TestCase:
         )
 
         if isinstance(self.expected["stdout"], list):
-            # if we dont expect string, parse to json
+            # if we don't expect string, parse to json
             try:
                 stdout = json.loads(output.stdout)
             except json.decoder.JSONDecodeError:
@@ -79,7 +79,7 @@ class TestCase:
 
     def test(self):
         # return true only if stdout, stderr and errorcode
-        # is equal to the ones found in testfile
+        # are equal to the ones found in the testfile
         self.testPassed = all(
             testComponent(asdict(self.commandOutput)[k], exp)
             for k, exp in self.expected.items())
