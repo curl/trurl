@@ -732,8 +732,8 @@ static unsigned int set(CURLU *uh,
   unsigned int mask = 0;
   for(node =  o->set_list; node; node = node->next) {
     const struct var *v;
-    char *set = node->data;
-    v = setone(uh, set);
+    char *setline = node->data;
+    v = setone(uh, setline);
     if(v) {
       if(mask & (1 << v->part))
         errorf(ERROR_SET, "duplicate --set for component %s", v->name);
