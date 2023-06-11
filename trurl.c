@@ -998,17 +998,15 @@ static void extractqpairs(CURLU *uh, struct option *o)
 static void qpair2query(CURLU *uh, struct option *o)
 {
   int i;
-  int rc;
   char *nq = NULL;
-  char *oldnq;
   for(i = 0; i<nqpairs; i++) {
-    oldnq = nq;
+    char *oldnq = nq;
     nq = curl_maprintf("%s%s%s", nq?nq:"",
                        (nq && *nq && *qpairs[i])? o->qsep: "", qpairs[i]);
     curl_free(oldnq);
   }
   if(nq) {
-    rc = curl_url_set(uh, CURLUPART_QUERY, nq, 0);
+    int rc = curl_url_set(uh, CURLUPART_QUERY, nq, 0);
     if(rc)
       warnf("internal problem");
   }
@@ -1071,7 +1069,6 @@ static void singleurl(struct option *o,
     }
   }
   do {
-    char iterbuf[1024];
     struct curl_slist *p;
     bool url_is_invalid = false;
     unsigned setmask = 0;
@@ -1080,6 +1077,7 @@ static void singleurl(struct option *o,
     setmask = set(uh, o);
 
     if(iter) {
+      char iterbuf[1024];
       /* "part=item1 item2 item2" */
       const char *part;
       size_t plen;
