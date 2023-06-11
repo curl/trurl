@@ -1131,7 +1131,7 @@ static void singleurl(struct option *o,
                      urlencode ? "" : ":",
                      (int)wlen, w);
       setone(uh, iterbuf);
-      if(iter && iter->next) {
+      if(iter->next) {
         struct iterinfo info;
         memset(&info, 0, sizeof(info));
         info.uh = uh;
