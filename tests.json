@@ -1656,7 +1656,7 @@
     {
         "input": {
             "arguments": [
-                "imaps://user:pasword;crazy@[ff00::1234%hello]:1234/path?a=b&c=d#fragment",
+                "imaps://user:password;crazy@[ff00::1234%hello]:1234/path?a=b&c=d#fragment",
                 "--json"
             ]
         },
@@ -1664,11 +1664,11 @@
             "returncode": 0,
             "stdout": [
                 {
-                    "url": "imaps://user:pasword;crazy@[ff00::1234%25hello]:1234/path?a=b&c=d#fragment",
+                    "url": "imaps://user:password;crazy@[ff00::1234%25hello]:1234/path?a=b&c=d#fragment",
                     "parts": {
                         "scheme": "imaps",
                         "user": "user",
-                        "password": "pasword",
+                        "password": "password",
                         "options": "crazy",
                         "host": "[ff00::1234]",
                         "port": "1234",
