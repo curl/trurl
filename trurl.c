@@ -258,7 +258,6 @@ struct option {
   bool no_guess_scheme;
   bool urlencode;
   bool end_of_options;
-  unsigned char output;
 
   /* -- stats -- */
   unsigned int urls;
