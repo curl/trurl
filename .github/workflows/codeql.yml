@@ -33,24 +33,24 @@ jobs:
         language: ['cpp', 'python']
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    # Initializes the CodeQL tools for scanning.
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v2
-      with:
-        languages: ${{ matrix.language }}
+      # Initializes the CodeQL tools for scanning.
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: ${{ matrix.language }}
 
-    - name: install libcurl
-      run: |
-        sudo apt-get update
-        sudo apt-get install libcurl4-openssl-dev
+      - name: install libcurl
+        run: |
+          sudo apt-get update
+          sudo apt-get install libcurl4-openssl-dev
 
-    - name: build
-      run: make
+      - name: build
+        run: make
 
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v2
-      with:
-        category: "/language:${{matrix.language}}"
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+        with:
+          category: "/language:${{matrix.language}}"
