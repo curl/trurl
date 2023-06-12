@@ -2,7 +2,6 @@
 
 import sys
 from os import getcwd, path
-import re
 import json
 import shlex
 from subprocess import PIPE, run
