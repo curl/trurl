@@ -78,7 +78,8 @@ class TestCase:
         return True
 
     def test(self):
-        # return true only if stdout, stderr and errorcode is equal to the ones found in testfile
+        # return true only if stdout, stderr and errorcode
+        # is equal to the ones found in testfile
         self.testPassed = all(
             testComponent(asdict(self.commandOutput)[k], exp)
             for k, exp in self.expected.items())
