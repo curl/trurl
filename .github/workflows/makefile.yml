@@ -13,36 +13,36 @@ jobs:
     strategy:
       matrix:
         build:
-        - name: default
-          install_packages: valgrind
-          test: test-memory
-        - name: clang sanitizers
-          install_packages: clang
-          test: test
-          make_opts: >
-            CC=clang
-            CFLAGS="-fsanitize=address,undefined,signed-integer-overflow -Wformat -Werror=format-security -Werror=array-bounds -g"
-            LDFLAGS="-fsanitize=address,undefined,signed-integer-overflow -g"
+          - name: default
+            install_packages: valgrind
+            test: test-memory
+          - name: clang sanitizers
+            install_packages: clang
+            test: test
+            make_opts: >
+              CC=clang
+              CFLAGS="-fsanitize=address,undefined,signed-integer-overflow -Wformat -Werror=format-security -Werror=array-bounds -g"
+              LDFLAGS="-fsanitize=address,undefined,signed-integer-overflow -g"
 
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: install libcurl
-      run: |
-        sudo apt-get update
-        sudo apt-get install libcurl4-openssl-dev ${{ matrix.build.install_packages }}
+      - name: install libcurl
+        run: |
+          sudo apt-get update
+          sudo apt-get install libcurl4-openssl-dev ${{ matrix.build.install_packages }}
 
-    - name: code style check
-      run: make checksrc
+      - name: code style check
+        run: make checksrc
 
-    - name: make
-      run: make ${{ matrix.build.make_opts }}
+      - name: make
+        run: make ${{ matrix.build.make_opts }}
 
-    - name: sanity test
-      run: ./trurl -v
+      - name: sanity test
+        run: ./trurl -v
 
-    - name: test
-      run: make ${{matrix.build.test}}
+      - name: test
+        run: make ${{matrix.build.test}}
 
   cygwin:
     runs-on: windows-latest
