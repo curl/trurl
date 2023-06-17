@@ -1,27 +1,18 @@
-trurl 0.7
+trurl 0.8
 
 Changes since previous release
 
- o --default-port to ask for the default to be used if not present
- o --keep-port to ask for the port number to be there even if default
- o --no-guess-scheme option to disable scheme guessing
- o --punycode to ask for the punycode version in output
+ o add --urlencode
 
 Bugfixes since previous release
 
- o --help returns 0 instead of 1
- o --json: print empty arrays
- o --redirect: don't silently ignore failed redirections.
- o makefile: use -Wshadow and -Werror by default
- o makefile: Use DESTDIR only during install target
- o refuse setting same component in --set as --iterate
- o restructure the JSON output object
- o send -h output to stdout, not stderr
- o trurl.1: add an example using --iterate
- o trurl.1: document the JSON output format
- o use curl_url_cleanup() instead of curl_free()
+ o --json/--get: .[].parts and {component} should be urldecoded not encoded
+ o tests: use empty file instead of /dev/null
+ o typos in manpage
+ o Makefile: Allow CFLAGS to be appendable
+ o Makefile: be explicit in C standard to use
 
 Contributors to this release:
 
-  Daniel Stenberg, Ehsan, Emanuele Torre, Enno Tensing, Gustavo Costa,
-  Jacob Mealey, Michael Ablassmeier, Renato Botelho
+  Daniel Stenberg, Emanuele Torre, Krishean Draconis, Michael Ablassmeier,
+  Paul Wise, Sevan Janiyan
