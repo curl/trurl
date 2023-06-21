@@ -1,0 +1,19 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: trurl
+Upstream-Contact: Daniel Stenberg <daniel@haxx.se>
+Source: https://curl.se
+
+# Tests
+Files: tests.json testfiles/*
+Copyright: Daniel Stenberg, <daniel@haxx.se>, et al.
+License: curl
+
+# Docs
+Files: CONTRIBUTING.md README.md RELEASE-NOTES THANKS URL-QUIRKS.md
+Copyright: Daniel Stenberg, <daniel@haxx.se>, et al.
+License: curl
+
+# Meta files
+Files: .checksrc .github/workflows/codeql.yml .github/workflows/codespell.yml .github/workflows/makefile.yml .gitignore
+Copyright: Daniel Stenberg, <daniel@haxx.se>, et al.
+License: curl
