@@ -1981,5 +1981,38 @@
             "returncode": 0,
             "stderr": ""
         }
+    },
+    {
+        "input": {
+            "arguments": [
+                "-a",
+                "query=c=moo",
+                "--sort-query",
+                "https://example.org/foo?x=hi#rye"
+            ]
+        },
+        "expected": {
+            "stdout": "https://example.org/foo?c=moo&x=hi#rye\n",
+            "returncode": 0,
+            "stderr": ""
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--trim",
+                "query=a",
+                "-a",
+                "query=a=ciao",
+                "-a",
+                "query=b=salve",
+                "https://example.org/foo?a=hi&b=hello&x=y"
+            ]
+        },
+        "expected": {
+            "stdout": "https://example.org/foo?b=hello&x=y&a=ciao&b=salve\n",
+            "returncode": 0,
+            "stderr": ""
+        }
     }
 ]
