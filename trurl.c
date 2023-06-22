@@ -1167,13 +1167,13 @@ static void singleurl(struct option *o,
 
     extractqpairs(uh, o);
 
+    /* trim parts */
+    trim(o);
+
     /* append query segments */
     for(p = o->append_query; p; p = p->next) {
       addqpair(p->data, strlen(p->data));
     }
-
-    /* trim parts */
-    trim(o);
 
     sortquery(o);
 
