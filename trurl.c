@@ -90,7 +90,7 @@ struct var {
 
 struct string {
   char *str;
-  int len;
+  size_t len;
 };
 
 static const struct var variables[] = {
@@ -754,12 +754,11 @@ static void jsonString(FILE *stream, const char *in, size_t len,
 {
   const unsigned char *i = (unsigned char *)in;
   const char *in_end = &in[len];
-
   fputc('\"', stream);
   for(; i < (unsigned char *)in_end; i++) {
     switch(*i) {
     case '\\':
-      fputs("\\", stream);
+      fputs("\\\\", stream);
       break;
     case '\"':
       fputs("\\\"", stream);
@@ -778,6 +777,9 @@ static void jsonString(FILE *stream, const char *in, size_t len,
       break;
     case '\t':
       fputs("\\t", stream);
+      break;
+    case 0:
+      fputs("\\u0000", stream);
       break;
     default:
       if(*i < 32)
@@ -839,10 +841,10 @@ static void json(struct option *o, CURLU *uh)
       fputs("      {\n        \"key\": ", stdout);
       jsonString(stdout, qpairsdec[j].str,
                  sep ? (size_t)(sep - qpairsdec[j].str) :
-                       strlen(qpairsdec[j].str),
+                       qpairsdec[j].len,
                  false);
       fputs(",\n        \"value\": ", stdout);
-      jsonString(stdout, value, strlen(value), false);
+      jsonString(stdout, value, qpairsdec[j].len, false);
       fputs("\n      }", stdout);
     }
     fputs("\n    ]", stdout);
@@ -916,55 +918,42 @@ struct string *memdupzero(char *source, size_t len)
 struct string *memdupdec(char *source, size_t len, bool json)
 {
   char *sep = memchr(source, '=', len);
-  const char *json_null_str = "\\u0000";
-  int json_null_len = strlen(json_null_str);
   struct string left;
   struct string right;
-  char *str, *dup;
+  char *str;//, *dup;
   left.str = NULL;
   right.str = NULL;
   left.len = 0;
   right.len = 0;
 
   left.str = strurldecode(source, sep ? (size_t)(sep - source) : len,
-                      &left.len);
+                      (int*)&left.len);
   if(sep) {
     char *p;
     int plen;
-    right.str = strurldecode(sep + 1, len - (sep - source) - 1, &right.len);
+    right.str = strurldecode(sep + 1, len - (sep - source) - 1, (int*)&right.len);
 
     /* convert null bytes to periods */
     for(plen = right.len, p = right.str; plen; plen--, p++) {
-      if(!*p) {
-        if(json) {
-          int p_prev  = (uintptr_t)(p - right.str);
-          char *newstr = realloc(right.str, right.len + json_null_len);
-          if(!newstr)
-            errorf(ERROR_MEM, "out of memory");
-          right.str = newstr;
-          right.len += json_null_len;
-          p = right.str + p_prev;
-          memmove(p + json_null_len, p + 1, plen);
-          memcpy(p, json_null_str, json_null_len);
-          p += json_null_len - 1;
-        }
-        else {
+      if(!*p && !json) {
           *p = REPLACE_NULL_BYTE;
-        }
       }
      }
   }
 
   str = curl_maprintf("%.*s%s%.*s", left.len, left.str,
-                      right.str ? "=":"",
-                      right.len, right.str?right.str:"");
+                      sep ? "=":"",
+                      right.len, sep?right.str:"");
+  if(sep && json) {
+      memcpy(str + left.len + 1, right.str, right.len);
+  }
+  
   curl_free(right.str);
   curl_free(left.str);
-  dup = strdup(str);
   struct string *ret = malloc(sizeof(struct string));
-  ret->str = dup;
-  ret->len = strlen(str);
-  curl_free(str);
+  ret->str = str; 
+  ret->len = left.len + right.len - 1;
+  //curl_free(str);
   return ret;
 }
 
