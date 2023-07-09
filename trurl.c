@@ -957,7 +957,7 @@ struct string *memdupdec(char *source, size_t len, bool json)
   curl_free(left.str);
   struct string *ret = malloc(sizeof(struct string));
   if(!ret) {
-      return NULL;
+    return NULL;
   }
   ret->str = str;
   if(right.str)
