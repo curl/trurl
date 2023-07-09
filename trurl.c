@@ -908,8 +908,10 @@ struct string *memdupzero(char *source, size_t len)
   if(!ret)
     return NULL;
   ret->str = malloc(len + 1);
-  if(!ret->str)
+  if(!ret->str) {
+    free(ret);
     return NULL;
+  }
   memcpy(ret->str, source, len);
   ret->str[len] = 0;
   ret->len = len;
@@ -954,6 +956,9 @@ struct string *memdupdec(char *source, size_t len, bool json)
   curl_free(right.str);
   curl_free(left.str);
   struct string *ret = malloc(sizeof(struct string));
+  if(!ret) {
+      return NULL;
+  }
   ret->str = str;
   if(right.str)
     ret->len = right.len;
@@ -996,7 +1001,8 @@ static char *addqpair(char *pair, size_t len, bool json)
   else
     warnf("too many query pairs");
 
-  ret = p->str;
+  if(p)
+    ret = p->str;
   if(pdec)
     free(pdec);
   if(p)
