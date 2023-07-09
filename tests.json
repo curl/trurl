@@ -2059,8 +2059,7 @@
                     "parts": {
                         "scheme": "http",
                         "host": "example.com",
-                        "path": "/",
-                        "query": "q=mr%00sm%00ith"
+                        "path": "/"
                     },
                     "params": [
                         {
@@ -2088,8 +2087,7 @@
                     "parts": {
                         "scheme": "http",
                         "host": "example.com",
-                        "path": "/",
-                        "query": "q=mr%00%00%00smith"
+                        "path": "/"
                     },
                     "params": [
                         {
