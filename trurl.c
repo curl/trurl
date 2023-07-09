@@ -844,7 +844,7 @@ static void json(struct option *o, CURLU *uh)
                        qpairsdec[j].len,
                  false);
       fputs(",\n        \"value\": ", stdout);
-      jsonString(stdout, value, qpairsdec[j].len, false);
+      jsonString(stdout, sep?value:"", sep?qpairsdec[j].len:0, false);
       fputs("\n      }", stdout);
     }
     fputs("\n    ]", stdout);
@@ -892,7 +892,9 @@ static void trim(struct option *o)
           free(qpairs[i].str);
           free(qpairsdec[i].str);
           qpairs[i].str = strdup(""); /* marked as deleted */
+          qpairs[i].len = 0;
           qpairsdec[i].str = strdup(""); /* marked as deleted */
+          qpairsdec[i].len = 0;
         }
       }
     }
@@ -942,9 +944,10 @@ struct string *memdupdec(char *source, size_t len, bool json)
   }
 
   str = curl_maprintf("%.*s%s%.*s", left.len, left.str,
-                      sep ? "=":"",
-                      right.len, sep?right.str:"");
-  if(sep && json) {
+                      right.str ? "=":"",
+                      right.len, right.str?right.str:"");
+
+  if(sep && right.str) {
       memcpy(str + left.len + 1, right.str, right.len);
   }
   
@@ -952,7 +955,11 @@ struct string *memdupdec(char *source, size_t len, bool json)
   curl_free(left.str);
   struct string *ret = malloc(sizeof(struct string));
   ret->str = str; 
-  ret->len = left.len + right.len - 1;
+  if(right.str)
+      ret->len = right.len;
+  else {
+      ret->len = left.len;
+  }
   //curl_free(str);
   return ret;
 }
