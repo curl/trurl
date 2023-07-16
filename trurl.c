@@ -778,12 +778,9 @@ static void jsonString(FILE *stream, const char *in, size_t len,
     case '\t':
       fputs("\\t", stream);
       break;
-    case 0:
-      fputs("\\u0000", stream);
-      break;
     default:
       if(*i < 32)
-        fprintf(stream, "u%04x", *i);
+        fprintf(stream, "\\u%04x", *i);
       else {
         char out = *i;
         if(lowercase && (out >= 'A' && out <= 'Z'))
@@ -922,16 +919,15 @@ struct string *memdupzero(char *source, size_t len)
 struct string *memdupdec(char *source, size_t len, bool json)
 {
   char *sep = memchr(source, '=', len);
-  struct string left;
+  char *left;
+  int left_len;
   struct string right;
   char *str;//, *dup;
-  left.str = NULL;
   right.str = NULL;
-  left.len = 0;
   right.len = 0;
 
-  left.str = strurldecode(source, sep ? (size_t)(sep - source) : len,
-                      (int *)&left.len);
+  left = strurldecode(source, sep ? (size_t)(sep - source) : len,
+                      &left_len);
   if(sep) {
     char *p;
     int plen;
@@ -946,15 +942,15 @@ struct string *memdupdec(char *source, size_t len, bool json)
      }
   }
 
-  str = curl_maprintf("%.*s%s%.*s", left.len, left.str,
+  str = curl_maprintf("%.*s%s%.*s", left_len, left,
                       right.str ? "=":"",
                       right.len, right.str?right.str:"");
 
   if(sep && right.str) {
-    memcpy(str + left.len + 1, right.str, right.len);
+    memcpy(str + left_len + 1, right.str, right.len);
   }
   curl_free(right.str);
-  curl_free(left.str);
+  curl_free(left);
   struct string *ret = malloc(sizeof(struct string));
   if(!ret) {
     return NULL;
@@ -963,7 +959,7 @@ struct string *memdupdec(char *source, size_t len, bool json)
   if(right.str)
     ret->len = right.len;
   else {
-    ret->len = left.len;
+    ret->len = left_len;
   }
   return ret;
 }
@@ -1062,8 +1058,14 @@ static int cmpfunc(const void *p1, const void *p2)
   int len = (((struct string *)p1)->len) < (((struct string *)p2)->len)?
              (((struct string *)p1)->len):(((struct string *)p2)->len);
 
-  return strncasecmp((((struct string *)p1)->str),
-                    (((struct string *)p2)->str), len);
+  for(int i = 0; i < len; i++) {
+    char c1 = ((struct string *)p1)->str[i] | ('a' - 'A');
+    char c2 = ((struct string *)p2)->str[i] | ('a' - 'A');
+    if(c1 != c2)
+      return c1 - c2;
+  }
+
+  return 0;
 }
 
 static void sortquery(struct option *o)
