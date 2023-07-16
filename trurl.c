@@ -919,23 +919,22 @@ struct string *memdupzero(char *source, size_t len)
 struct string *memdupdec(char *source, size_t len, bool json)
 {
   char *sep = memchr(source, '=', len);
-  char *left;
-  int left_len;
-  struct string right;
-  char *str;//, *dup;
-  right.str = NULL;
-  right.len = 0;
+  char *left = NULL;
+  char *right = NULL;
+  int right_len = 0;
+  int left_len = 0;
+  char *str;
 
   left = strurldecode(source, sep ? (size_t)(sep - source) : len,
                       &left_len);
   if(sep) {
     char *p;
     int plen;
-    right.str = strurldecode(sep + 1, len - (sep - source) - 1,
-            (int *)&right.len);
+    right = strurldecode(sep + 1, len - (sep - source) - 1,
+            (int *)&right_len);
 
     /* convert null bytes to periods */
-    for(plen = right.len, p = right.str; plen; plen--, p++) {
+    for(plen = right_len, p = right; plen; plen--, p++) {
       if(!*p && !json) {
         *p = REPLACE_NULL_BYTE;
       }
@@ -943,21 +942,21 @@ struct string *memdupdec(char *source, size_t len, bool json)
   }
 
   str = curl_maprintf("%.*s%s%.*s", left_len, left,
-                      right.str ? "=":"",
-                      right.len, right.str?right.str:"");
-
-  if(sep && right.str) {
-    memcpy(str + left_len + 1, right.str, right.len);
+                      right ? "=":"",
+                      right_len, right?right:"");
+  /* handle strings with null characters */
+  if(sep && right) {
+    memcpy(str + left_len + 1, right, right_len);
   }
-  curl_free(right.str);
+  curl_free(right);
   curl_free(left);
   struct string *ret = malloc(sizeof(struct string));
   if(!ret) {
     return NULL;
   }
   ret->str = str;
-  if(right.str)
-    ret->len = right.len;
+  if(right)
+    ret->len = right_len;
   else {
     ret->len = left_len;
   }
