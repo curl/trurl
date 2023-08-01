@@ -76,12 +76,13 @@ $ trurl "https://fake.host/hello#frag" --set user=::moo:: --json
 [
   {
     "url": "https://%3a%3amoo%3a%3a@fake.host/hello#frag",
-    "scheme": "https",
-    "user": "::moo::",
-    "host": "fake.host",
-    "port": "443",
-    "path": "/hello",
-    "fragment": "frag"
+    "parts": {
+      "scheme": "https",
+      "user": "::moo::",
+      "host": "fake.host",
+      "path": "/hello",
+      "fragment": "frag"
+    }
   }
 ]
 ```
