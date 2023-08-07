@@ -1,3 +1,8 @@
+<!--
+Copyright (C) Daniel Stenberg, <daniel@haxx.se>, et al.
+
+SPDX-License-Identifier: curl
+-->
 
 # Building trurl with Microsoft C++ Build Tools
 
