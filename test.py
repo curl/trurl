@@ -29,7 +29,7 @@ import json
 import shlex
 from subprocess import PIPE, run
 from dataclasses import dataclass, asdict
-from typing import Any, Optional
+from typing import Any, Optional, TextIO
 
 PROGNAME = "trurl"
 TESTFILE = "tests.json"
@@ -107,33 +107,46 @@ class TestCase:
             for k, exp in self.expected.items())
         return self.testPassed
 
-    def printVerbose(self):
-        print(RED, end="")
-        self.printConcise()
-        print(NOCOLOR, end="")
+    def _printVerbose(self, output: TextIO):
+        self._printConcise(output)
 
         for component, exp in self.expected.items():
             value = asdict(self.commandOutput)[component]
-            itemFail = self.commandOutput.returncode == 1 and \
+            itemFail = self.commandOutput.returncode == 1 or \
                 not testComponent(value, exp)
 
-            print(f"--- {component} --- ")
-            print("expected:")
+            print(f"--- {component} --- ", file=output)
+            print("expected:", file=output)
             print("nothing" if exp is False else
                   "something" if exp is True else
-                  f"{exp!r}")
-            print("got:")
-            if itemFail:
-                print(RED, end="")
-            print(f"{value!r}")
-            if itemFail:
-                print(NOCOLOR, end="")
+                  f"{exp!r}",file=output)
+            print("got:", file=output)
+
+            header = RED if itemFail else ""
+            footer = NOCOLOR if itemFail else ""
+            print(f"{header}{value!r}{footer}", file=output)
 
         print()
 
-    def printConcise(self):
-        result = 'passed' if self.testPassed else 'failed'
-        print(f"{self.testIndex}: {result}\t{shlex.join(self.arguments)}")
+    def _printConcise(self, output: TextIO):
+        if self.testPassed:
+            header = ""
+            result = "passed"
+            footer = ""
+        else:
+            header = RED
+            result = "failed"
+            footer = NOCOLOR
+        text = f"{self.testIndex}: {result}\t{shlex.join(self.arguments)}"
+        print(f"{header}{text}{footer}", file=output)
+
+
+    def printDetail(self, verbose: bool = False, failed: bool = False):
+        output: TextIO = sys.stderr if failed else sys.stdout
+        if verbose:
+            self._printVerbose(output)
+        else:
+            self._printConcise(output)
 
 
 def main(argc, argv):
@@ -166,6 +179,7 @@ def main(argc, argv):
         cmdfilter = ""
         testIndexesToRun = list(range(len(allTests)))
         runWithValgrind = False
+        verboseDetail = False
 
         if argc > 1:
             for arg in argv[1:]:
@@ -177,6 +191,8 @@ def main(argc, argv):
                         testIndexesToRun.append(int(caseIndex))
                 elif arg == "--with-valgrind":
                     runWithValgrind = True
+                elif arg == "--verbose":
+                    verboseDetail = True
                 else:
                     cmdfilter = argv[1]
 
@@ -196,11 +212,11 @@ def main(argc, argv):
 
             if test.runCommand(cmdfilter, runWithValgrind):
                 if test.test():  # passed
-                    test.printConcise()
+                    test.printDetail(verbose=verboseDetail)
                     numTestsPassed += 1
 
                 else:
-                    test.printVerbose()
+                    test.printDetail(verbose=True, failed=True)
                     numTestsFailed += 1
 
         # finally print the results to terminal
