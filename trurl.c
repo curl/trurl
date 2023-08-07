@@ -863,14 +863,31 @@ static void trim(struct option *o)
       /* 'ptr' should be a fixed string or a pattern ending with an
          asterisk */
       size_t inslen;
-      bool pattern;
+      bool pattern = false;
       int i;
+      char *temp = NULL;
 
       ptr++; /* pass the = */
       inslen = strlen(ptr);
-      pattern = ptr[inslen - 1] == '*';
-      if(pattern)
-        inslen--;
+      if(inslen) {
+        pattern = ptr[inslen - 1] == '*';
+        if(pattern && (inslen > 1)) {
+          pattern ^= ptr[inslen - 2] == '\\';
+          if(!pattern) {
+            /* the two final letters are \*, but the backslash needs to be
+               removed. Get a copy and edit that accordingly. */
+            temp = strdup(ptr);
+            if(!temp)
+              return; /* out of memory, bail out */
+            temp[inslen - 2] = '*';
+            temp[inslen - 1] = '\0';
+            ptr = temp;
+            inslen--; /* one byte shorter now */
+          }
+        }
+        if(pattern)
+          inslen--;
+      }
 
       for(i = 0 ; i < nqpairs; i++) {
         char *q = qpairs[i].str;
@@ -894,6 +911,7 @@ static void trim(struct option *o)
           qpairsdec[i].len = 0;
         }
       }
+      free(temp);
     }
   }
 }

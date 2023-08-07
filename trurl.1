@@ -224,6 +224,9 @@ Trims data off a component. Currently this can only trim a query component.
 "what" is specified as a full word or as a word prefix (using a single
 trailing asterisk ('*')) which makes trurl remove the tuples from the query
 string that match the instruction.
+
+To match a literal trailing asterisk instead of using a wildcard, escape it with
+a backslash in front of it. Like "\\*".
 .IP "-v, --version"
 Show version information and exit.
 .IP "--verify"

@@ -2098,5 +2098,20 @@
                 }
             ]        
         }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--url",
+                "https://curl.se/we/are.html?*=moo&user=many#more",
+                "--trim",
+                "query=\\*"
+            ]
+        },
+        "expected": {
+            "stdout": "https://curl.se/we/are.html?user=many#more\n",
+            "stderr": "",
+            "returncode": 0
+        }
     }
 ]
