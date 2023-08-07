@@ -17,3 +17,8 @@ License: curl
 Files: .checksrc .github/workflows/codeql.yml .github/workflows/codespell.yml .github/workflows/makefile.yml .gitignore
 Copyright: Daniel Stenberg, <daniel@haxx.se>, et al.
 License: curl
+
+# winbuild files
+Files: winbuild/.vcpkg winbuild/trurl.sln winbuild/trurl.vcxproj winbuild/vcpkg-configuration.json winbuild/vcpkg.json
+Copyright: Daniel Stenberg, <daniel@haxx.se>, et al.
+License: curl
