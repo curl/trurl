@@ -109,7 +109,7 @@ not have a value.
 Components are shown URL decoded by default. If you instead write the
 component prefixed with a colon like "{:path}", it gets output URL encoded.
 
-You may also prefix components with \fBdefault:\fP and/or \fBpuny:\fP,
+You may also prefix components with \fBdefault:\fP and/or \fBpuny:\fP or \fBidn:\fP,
 in any order.
 
 If \fBdefault:\fP is specified, like "{default:url}" or
@@ -117,7 +117,12 @@ If \fBdefault:\fP is specified, like "{default:url}" or
 the scheme's default port will be output if it is known.
 
 If \fBpuny:\fP is specified, like "{puny:url}" or "{puny:host}", the
-"punycoded" version of the host name will be used in the output.
+"punycoded" version of the host name will be used in the output. This
+option is mutually exclusive with \fBidn:\fP.
+
+If \fBidn:\fP is specified like "{idn:url}" or "{idn:host}", the International
+Domain Name version of the host name will be used in the output. This
+option is mutually exclusive with \fBpuny:\fP.
 
 If \fI--default-port\fP is specified, all formats are expanded as if
 they used \fIdefault:\fP; and if \fI--punycode\fP is used, all formats
@@ -177,6 +182,10 @@ will be treated as invalid URLs.
 Uses the "punycoded" version of the host name, which is how International Domain
 Names are converted into plain ASCII. If the host name is not using IDN, the
 regular ASCII name is used.
+.IP "--as-idn"
+Converts a "punycoded" ASCII host name to its original International Domain 
+Name in Unicode. If the host name is not using punycode then the original host
+name is used.
 .IP "--query-separator [what]"
 Specify the single letter used for separating query pairs. The default is "&"
 but at least in the past sometimes semicolons ";" or even colons ":" have been

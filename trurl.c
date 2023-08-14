@@ -58,6 +58,9 @@
 #if CURL_AT_LEAST_VERSION(7,88,0)
 #define SUPPORTS_PUNYCODE
 #endif
+#if CURL_AT_LEAST_VERSION(8,3,0)
+#define SUPPORTS_PUNY2UNICODE
+#endif
 
 #define OUTPUT_URL      0  /* default */
 #define OUTPUT_SCHEME   1
@@ -81,6 +84,7 @@ enum {
   VARMODIFIER_URLENCODED = 1 << 1,
   VARMODIFIER_DEFAULT    = 1 << 2,
   VARMODIFIER_PUNY       = 1 << 3,
+  VARMODIFIER_PUNY2IDN   = 1 << 4,
 };
 
 struct var {
@@ -182,6 +186,7 @@ static void help(void)
     "      --keep-port                  - keep known default ports\n"
     "      --no-guess-scheme            - require scheme in URLs\n"
     "      --punycode                   - encode hostnames in punycode\n"
+    "      --as-idn                     - encode host idn if given a punycode host\n"
     "      --query-separator [letter]   - if something else than '&'\n"
     "      --redirect [URL]             - redirect to this\n"
     "  -s, --set [component]=[data]     - set component content\n"
@@ -227,7 +232,10 @@ static void show_version(void)
   fprintf(stdout, "url-strerror ");
 #endif
 #ifdef SUPPORTS_NORM_IPV4
-  fprintf(stdout, "normalize-ipv4");
+  fprintf(stdout, "normalize-ipv4 ");
+#endif
+#ifdef SUPPORTS_PUNY2UNICODE
+  fprintf(stdout, "punycode2unicode");
 #endif
 
   fprintf(stdout, "\n");
@@ -260,6 +268,7 @@ struct option {
   bool default_port;
   bool keep_port;
   bool punycode;
+  bool puny2idn;
   bool sort_query;
   bool no_guess_scheme;
   bool urlencode;
@@ -474,8 +483,16 @@ static int getarg(struct option *op,
     op->default_port = true;
   else if(!strcmp("--keep-port", flag))
     op->keep_port = true;
-  else if(!strcmp("--punycode", flag))
+  else if(!strcmp("--punycode", flag)) {
+    if(op->puny2idn)
+      errorf(ERROR_FLAG, "--punycode is mutually exclusive with --as-idn");
     op->punycode = true;
+  }
+  else if(!strcmp("--as-idn", flag)){
+    if(op->punycode)
+      errorf(ERROR_FLAG, "--as-idn is mutually exclusive with --punycode");
+    op->puny2idn = true;
+  }
   else if(!strcmp("--no-guess-scheme", flag))
     op->no_guess_scheme = true;
   else if(!strcmp("--sort-query", flag))
@@ -530,6 +547,10 @@ static CURLUcode geturlpart(struct option *o, int modifiers, CURLU *uh,
 #ifdef SUPPORTS_PUNYCODE
                       (((modifiers & VARMODIFIER_PUNY) || o->punycode) ?
                        CURLU_PUNYCODE : 0)|
+#endif
+#ifdef SUPPORTS_PUNY2UNICODE
+                       (((modifiers & VARMODIFIER_PUNY2IDN) || o->puny2idn) ?
+                        CURLU_PUNY2IDN : 0) |
 #endif
                       CURLU_NON_SUPPORT_SCHEME|
                       (((modifiers & VARMODIFIER_URLENCODED) ||
@@ -603,8 +624,16 @@ static void get(struct option *op, CURLU *uh)
           /* modifiers! */
           if(!strncmp(ptr, "default:", cl - ptr + 1))
             mods |= VARMODIFIER_DEFAULT;
-          else if(!strncmp(ptr, "puny:", cl - ptr + 1))
+          else if(!strncmp(ptr, "puny:", cl - ptr + 1)) {
+            if(mods & VARMODIFIER_PUNY2IDN)
+                errorf(ERROR_GET, "puny modifier is mutually exclusive with idn modifier");
             mods |= VARMODIFIER_PUNY;
+          }
+          else if(!strncmp(ptr, "idn:", cl - ptr + 1)) {
+            if(mods & VARMODIFIER_PUNY)
+                errorf(ERROR_GET, "idn modifier is mutually exclusive with puny modifier");
+            mods |= VARMODIFIER_PUNY2IDN;
+          }
           else {
             /* {query: or {query-all: */
             if(!strncmp(ptr, "query-all:", cl - ptr + 1)) {
@@ -904,7 +933,7 @@ static void trim(struct option *o)
             !strncasecmp(q, ptr, inslen))) {
           /* this qpair should be stripped out */
           free(qpairs[i].str);
-          free(qpairsdec[i].str);
+          curl_free(qpairsdec[i].str);
           qpairs[i].str = strdup(""); /* marked as deleted */
           qpairs[i].len = 0;
           qpairsdec[i].str = strdup(""); /* marked as deleted */
@@ -986,10 +1015,12 @@ static void freeqpairs(void)
 {
   int i;
   for(i = 0; i<nqpairs; i++) {
-    free(qpairs[i].str);
-    qpairs[i].str = NULL;
-    free(qpairsdec[i].str);
-    qpairsdec[i].str = NULL;
+    if(qpairs[i].len) {
+      free(qpairs[i].str);
+      qpairs[i].str = NULL;
+      curl_free(qpairsdec[i].str);
+      qpairsdec[i].str = NULL;
+    }
   }
   nqpairs = 0;
 }

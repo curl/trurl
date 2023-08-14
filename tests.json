@@ -2113,5 +2113,36 @@
             "stderr": "",
             "returncode": 0
         }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--url",
+                "http://xn--rksmrgs-5wao1o/",
+                "--as-idn"
+            ]
+        },
+        "required": ["punycode2unicode"],
+        "expected": {
+            "stdout": "http://räksmörgås/\n",
+            "stderr": "",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--url",
+                "http://xn--rksmrgs-5wao1o/",
+                "-g",
+                "{idn:host}"
+            ]
+        },
+        "required": ["punycode2unicode"],
+        "expected": {
+            "stdout": "räksmörgås\n",
+            "stderr": "",
+            "returncode": 0
+        }
     }
 ]
