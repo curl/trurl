@@ -2113,5 +2113,82 @@
             "stderr": "",
             "returncode": 0
         }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--url",
+                "http://xn--rksmrgs-5wao1o/",
+                "--as-idn"
+            ]
+        },
+        "required": ["punycode2idn"],
+        "expected": {
+            "stdout": "http://räksmörgås/\n",
+            "stderr": "",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--url",
+                "http://xn--rksmrgs-5wao1o/",
+                "-g",
+                "{idn:host}"
+            ]
+        },
+        "required": ["punycode2idn"],
+        "expected": {
+            "stdout": "räksmörgås\n",
+            "stderr": "",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--url",
+                "http://xn-----/",
+                "--as-idn",
+                "--quiet"
+            ]
+        },
+        "required": ["punycode2idn"],
+        "expected": {
+            "stdout": "http://xn-----/\n",
+            "stderr": "",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--url",
+                "http://xn-----/",
+                "--as-idn"
+            ]
+        },
+        "required": ["punycode2idn"],
+        "expected": {
+            "stdout": "http://xn-----/\n",
+            "stderr": "trurl note: Error converting url to IDN [Bad hostname]\n",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--verify",
+                "-f",
+                "testfiles/test0000.txt",
+                "--quiet"
+            ]
+        },
+        "expected": {
+            "stdout": "http://example.org/\n",
+            "returncode": 0,
+            "stderr": ""
+        }
     }
 ]

@@ -58,6 +58,9 @@
 #if CURL_AT_LEAST_VERSION(7,88,0)
 #define SUPPORTS_PUNYCODE
 #endif
+#if CURL_AT_LEAST_VERSION(8,3,0)
+#define SUPPORTS_PUNY2IDN
+#endif
 
 #define OUTPUT_URL      0  /* default */
 #define OUTPUT_SCHEME   1
@@ -81,6 +84,7 @@ enum {
   VARMODIFIER_URLENCODED = 1 << 1,
   VARMODIFIER_DEFAULT    = 1 << 2,
   VARMODIFIER_PUNY       = 1 << 3,
+  VARMODIFIER_PUNY2IDN   = 1 << 4,
 };
 
 struct var {
@@ -182,6 +186,7 @@ static void help(void)
     "      --keep-port                  - keep known default ports\n"
     "      --no-guess-scheme            - require scheme in URLs\n"
     "      --punycode                   - encode hostnames in punycode\n"
+    "      --as-idn                     - encode hostnames in idn\n"
     "      --query-separator [letter]   - if something else than '&'\n"
     "      --redirect [URL]             - redirect to this\n"
     "  -s, --set [component]=[data]     - set component content\n"
@@ -191,6 +196,7 @@ static void help(void)
     "      --urlencode                  - URL encode components by default\n"
     "  -v, --version                    - show version\n"
     "      --verify                     - return error on (first) bad URL\n"
+    "      --quiet                      - Suppress (some) notes and comments\n"
     " URL COMPONENTS:\n"
     "  ", stdout);
   for(i = 0; i< NUM_COMPONENTS; i++) {
@@ -227,7 +233,10 @@ static void show_version(void)
   fprintf(stdout, "url-strerror ");
 #endif
 #ifdef SUPPORTS_NORM_IPV4
-  fprintf(stdout, "normalize-ipv4");
+  fprintf(stdout, "normalize-ipv4 ");
+#endif
+#ifdef SUPPORTS_PUNY2IDN
+  fprintf(stdout, "punycode2idn");
 #endif
 
   fprintf(stdout, "\n");
@@ -260,14 +269,28 @@ struct option {
   bool default_port;
   bool keep_port;
   bool punycode;
+  bool puny2idn;
   bool sort_query;
   bool no_guess_scheme;
   bool urlencode;
   bool end_of_options;
+  bool quiet_warnings;
 
   /* -- stats -- */
   unsigned int urls;
 };
+
+void trurl_warnf(struct option *o, char *fmt, ...)
+{
+  if(!o->quiet_warnings) {
+    va_list ap;
+    va_start(ap, fmt);
+    fputs(WARN_PREFIX, stderr);
+    vfprintf(stderr, fmt, ap);
+    fputs("\n", stderr);
+    va_end(ap);
+  }
+}
 
 #define MAX_QPAIRS 1000
 struct string qpairs[MAX_QPAIRS]; /* encoded */
@@ -477,21 +500,32 @@ static int getarg(struct option *op,
 #ifdef SUPPORTS_ALLOW_SPACE
     op->accept_space = true;
 #else
-    warnf("built with too old libcurl version, --accept-space does not work");
+    trurl_warnf(o,
+        "built with too old libcurl version, --accept-space does not work");
 #endif
   }
   else if(!strcmp("--default-port", flag))
     op->default_port = true;
   else if(!strcmp("--keep-port", flag))
     op->keep_port = true;
-  else if(!strcmp("--punycode", flag))
+  else if(!strcmp("--punycode", flag)) {
+    if(op->puny2idn)
+      errorf(ERROR_FLAG, "--punycode is mutually exclusive with --as-idn");
     op->punycode = true;
+  }
+  else if(!strcmp("--as-idn", flag)) {
+    if(op->punycode)
+      errorf(ERROR_FLAG, "--as-idn is mutually exclusive with --punycode");
+    op->puny2idn = true;
+  }
   else if(!strcmp("--no-guess-scheme", flag))
     op->no_guess_scheme = true;
   else if(!strcmp("--sort-query", flag))
     op->sort_query = true;
   else if(!strcmp("--urlencode", flag))
     op->urlencode = true;
+  else if(!strcmp("--quiet", flag))
+    op->quiet_warnings = true;
   else
     return 1;  /* unrecognized option */
   return 0;
@@ -531,7 +565,7 @@ static const struct var *comp2var(const char *name, size_t vlen)
 static CURLUcode geturlpart(struct option *o, int modifiers, CURLU *uh,
                             CURLUPart part, char **out)
 {
-  return curl_url_get(uh, part, out,
+  CURLUcode rc = curl_url_get(uh, part, out,
                       (((modifiers & VARMODIFIER_DEFAULT) ||
                         o->default_port) ?
                        CURLU_DEFAULT_PORT :
@@ -541,10 +575,29 @@ static CURLUcode geturlpart(struct option *o, int modifiers, CURLU *uh,
                       (((modifiers & VARMODIFIER_PUNY) || o->punycode) ?
                        CURLU_PUNYCODE : 0)|
 #endif
+#ifdef SUPPORTS_PUNY2IDN
+                       (((modifiers & VARMODIFIER_PUNY2IDN) || o->puny2idn) ?
+                        CURLU_PUNY2IDN : 0) |
+#endif
                       CURLU_NON_SUPPORT_SCHEME|
                       (((modifiers & VARMODIFIER_URLENCODED) ||
                         o->urlencode) ?
                        0 :CURLU_URLDECODE));
+
+#ifdef SUPPORTS_PUNY2IDN
+    /* retry get w/ out puny2idn to handle invalid punycode conversions */
+    if(rc == CURLUE_BAD_HOSTNAME &&
+            (o->puny2idn || (modifiers & VARMODIFIER_PUNY2IDN))) {
+        curl_free(*out);
+        modifiers &= ~VARMODIFIER_PUNY2IDN;
+        o->puny2idn = false;
+        trurl_warnf(o,
+                "Error converting url to IDN [%s]",
+                curl_url_strerror(rc));
+        return geturlpart(o, modifiers, uh, part, out);
+    }
+#endif
+    return rc;
 }
 
 static void showurl(FILE *stream, struct option *o, int modifiers,
@@ -614,8 +667,18 @@ static void get(struct option *op, CURLU *uh)
           /* modifiers! */
           if(!strncmp(ptr, "default:", cl - ptr + 1))
             mods |= VARMODIFIER_DEFAULT;
-          else if(!strncmp(ptr, "puny:", cl - ptr + 1))
+          else if(!strncmp(ptr, "puny:", cl - ptr + 1)) {
+            if(mods & VARMODIFIER_PUNY2IDN)
+              errorf(ERROR_GET,
+                     "puny modifier is mutually exclusive with idn");
             mods |= VARMODIFIER_PUNY;
+          }
+          else if(!strncmp(ptr, "idn:", cl - ptr + 1)) {
+            if(mods & VARMODIFIER_PUNY)
+              errorf(ERROR_GET,
+                     "idn modifier is mutually exclusive with puny");
+            mods |= VARMODIFIER_PUNY2IDN;
+          }
           else {
             /* {query: or {query-all: */
             if(!strncmp(ptr, "query-all:", cl - ptr + 1)) {
@@ -668,7 +731,7 @@ static void get(struct option *op, CURLU *uh)
               /* silently ignore */
               break;
             default:
-              warnf("%s (%s)\n", curl_url_strerror(rc), v->name);
+              trurl_warnf(op, "%s (%s)\n", curl_url_strerror(rc), v->name);
               break;
             }
           }
@@ -1078,7 +1141,7 @@ static void qpair2query(CURLU *uh, struct option *o)
   if(nq) {
     int rc = curl_url_set(uh, CURLUPART_QUERY, nq, 0);
     if(rc)
-      warnf("internal problem");
+      trurl_warnf(o, "internal problem");
   }
   curl_free(nq);
 }
@@ -1314,7 +1377,8 @@ static void singleurl(struct option *o,
     else {
       /* default output is full URL */
       char *nurl = NULL;
-      if(!geturlpart(o, 0, uh, CURLUPART_URL, &nurl)) {
+      int rc = geturlpart(o, 0, uh, CURLUPART_URL, &nurl);
+      if(!rc) {
         printf("%s\n", nurl);
         curl_free(nurl);
       }
@@ -1386,13 +1450,13 @@ int main(int argc, const char **argv)
       else {
         /* line too long */
         int ch;
-        warnf("skipping long line");
+        trurl_warnf(&o, "skipping long line");
         do {
           ch = getc(o.url);
         } while(ch != EOF && ch != '\n');
         if(ch == EOF) {
           if(ferror(o.url))
-            warnf("getc: %s", strerror(errno));
+            trurl_warnf(&o, "getc: %s", strerror(errno));
           end_of_file = true;
         }
         continue;
@@ -1413,7 +1477,7 @@ int main(int argc, const char **argv)
     }
 
     if(!end_of_file && ferror(o.url))
-      warnf("fgets: %s", strerror(errno));
+      trurl_warnf(&o, "fgets: %s", strerror(errno));
     if(o.urlopen)
       fclose(o.url);
   }
