@@ -186,7 +186,7 @@ static void help(void)
     "      --keep-port                  - keep known default ports\n"
     "      --no-guess-scheme            - require scheme in URLs\n"
     "      --punycode                   - encode hostnames in punycode\n"
-    "      --as-idn                     - encode host idn if given a punycode host\n"
+    "      --as-idn                     - encode hostnames in idn\n"
     "      --query-separator [letter]   - if something else than '&'\n"
     "      --redirect [URL]             - redirect to this\n"
     "  -s, --set [component]=[data]     - set component content\n"
@@ -488,7 +488,7 @@ static int getarg(struct option *op,
       errorf(ERROR_FLAG, "--punycode is mutually exclusive with --as-idn");
     op->punycode = true;
   }
-  else if(!strcmp("--as-idn", flag)){
+  else if(!strcmp("--as-idn", flag)) {
     if(op->punycode)
       errorf(ERROR_FLAG, "--as-idn is mutually exclusive with --punycode");
     op->puny2idn = true;
@@ -626,12 +626,14 @@ static void get(struct option *op, CURLU *uh)
             mods |= VARMODIFIER_DEFAULT;
           else if(!strncmp(ptr, "puny:", cl - ptr + 1)) {
             if(mods & VARMODIFIER_PUNY2IDN)
-                errorf(ERROR_GET, "puny modifier is mutually exclusive with idn modifier");
+              errorf(ERROR_GET,
+                     "puny modifier is mutually exclusive with idn");
             mods |= VARMODIFIER_PUNY;
           }
           else if(!strncmp(ptr, "idn:", cl - ptr + 1)) {
             if(mods & VARMODIFIER_PUNY)
-                errorf(ERROR_GET, "idn modifier is mutually exclusive with puny modifier");
+              errorf(ERROR_GET,
+                     "idn modifier is mutually exclusive with puny");
             mods |= VARMODIFIER_PUNY2IDN;
           }
           else {
