@@ -59,7 +59,7 @@
 #define SUPPORTS_PUNYCODE
 #endif
 #if CURL_AT_LEAST_VERSION(8,3,0)
-#define SUPPORTS_PUNY2UNICODE
+#define SUPPORTS_PUNY2IDN
 #endif
 
 #define OUTPUT_URL      0  /* default */
@@ -234,8 +234,8 @@ static void show_version(void)
 #ifdef SUPPORTS_NORM_IPV4
   fprintf(stdout, "normalize-ipv4 ");
 #endif
-#ifdef SUPPORTS_PUNY2UNICODE
-  fprintf(stdout, "punycode2unicode");
+#ifdef SUPPORTS_PUNY2IDN
+  fprintf(stdout, "punycode2idn");
 #endif
 
   fprintf(stdout, "\n");
@@ -548,7 +548,7 @@ static CURLUcode geturlpart(struct option *o, int modifiers, CURLU *uh,
                       (((modifiers & VARMODIFIER_PUNY) || o->punycode) ?
                        CURLU_PUNYCODE : 0)|
 #endif
-#ifdef SUPPORTS_PUNY2UNICODE
+#ifdef SUPPORTS_PUNY2IDN
                        (((modifiers & VARMODIFIER_PUNY2IDN) || o->puny2idn) ?
                         CURLU_PUNY2IDN : 0) |
 #endif

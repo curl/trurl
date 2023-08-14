@@ -2122,7 +2122,7 @@
                 "--as-idn"
             ]
         },
-        "required": ["punycode2unicode"],
+        "required": ["punycode2idn"],
         "expected": {
             "stdout": "http://räksmörgås/\n",
             "stderr": "",
@@ -2138,9 +2138,24 @@
                 "{idn:host}"
             ]
         },
-        "required": ["punycode2unicode"],
+        "required": ["punycode2idn"],
         "expected": {
             "stdout": "räksmörgås\n",
+            "stderr": "",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--url",
+                "http://xn--abcdef/",
+                "--as-idn"
+            ]
+        },
+        "required": ["punycode2idn"],
+        "expected": {
+            "stdout": "http://xn--abcdef/\n",
             "stderr": "",
             "returncode": 0
         }
