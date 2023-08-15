@@ -1320,9 +1320,14 @@ static void singleurl(struct option *o,
     else {
       /* default output is full URL */
       char *nurl = NULL;
-      if(!geturlpart(o, 0, uh, CURLUPART_URL, &nurl)) {
+      int rc = geturlpart(o, 0, uh, CURLUPART_URL, &nurl);
+      if(!rc) {
         printf("%s\n", nurl);
         curl_free(nurl);
+      }
+      else {
+        VERIFY(o, ERROR_BADURL, "invalid url [%s]", curl_url_strerror(rc));
+        url_is_invalid = true;
       }
     }
 

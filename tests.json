@@ -2149,14 +2149,14 @@
         "input": {
             "arguments": [
                 "--url",
-                "http://xn--abcdef/",
+                "http://xn-----/",
                 "--as-idn"
             ]
         },
         "required": ["punycode2idn"],
         "expected": {
-            "stdout": "http://xn--abcdef/\n",
-            "stderr": "",
+            "stdout": "",
+            "stderr": "trurl note: invalid url [Bad hostname]\n",
             "returncode": 0
         }
     }
