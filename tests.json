@@ -2155,8 +2155,8 @@
         },
         "required": ["punycode2idn"],
         "expected": {
-            "stdout": "",
-            "stderr": "trurl note: invalid url [Bad hostname]\n",
+            "stdout": "http://xn-----/\n",
+            "stderr": "",
             "returncode": 0
         }
     }

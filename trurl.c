@@ -538,7 +538,7 @@ static const struct var *comp2var(const char *name, size_t vlen)
 static CURLUcode geturlpart(struct option *o, int modifiers, CURLU *uh,
                             CURLUPart part, char **out)
 {
-  return curl_url_get(uh, part, out,
+  CURLUcode rc = curl_url_get(uh, part, out,
                       (((modifiers & VARMODIFIER_DEFAULT) ||
                         o->default_port) ?
                        CURLU_DEFAULT_PORT :
@@ -556,6 +556,18 @@ static CURLUcode geturlpart(struct option *o, int modifiers, CURLU *uh,
                       (((modifiers & VARMODIFIER_URLENCODED) ||
                         o->urlencode) ?
                        0 :CURLU_URLDECODE));
+
+#ifdef SUPPORTS_PUNY2IDN
+    /* retry get w/ out puny2idn to handle invalid punycode conversions */
+    if(rc == CURLUE_BAD_HOSTNAME &&
+            (o->puny2idn || (modifiers & VARMODIFIER_PUNY2IDN))) {
+        curl_free(*out);
+        modifiers ^= VARMODIFIER_PUNY2IDN;
+        o->puny2idn = false;
+        return geturlpart(o, modifiers, uh, part, out);
+    }
+#endif
+    return rc;
 }
 
 static void showurl(FILE *stream, struct option *o, int modifiers,
@@ -1324,10 +1336,6 @@ static void singleurl(struct option *o,
       if(!rc) {
         printf("%s\n", nurl);
         curl_free(nurl);
-      }
-      else {
-        VERIFY(o, ERROR_BADURL, "invalid url [%s]", curl_url_strerror(rc));
-        url_is_invalid = true;
       }
     }
 
