@@ -274,6 +274,16 @@ struct string qpairs[MAX_QPAIRS]; /* encoded */
 struct string qpairsdec[MAX_QPAIRS]; /* decoded */
 int nqpairs; /* how many is stored */
 
+static void trurl_cleanup_options(struct option *o)
+{
+    curl_slist_free_all(o->url_list);
+    curl_slist_free_all(o->set_list);
+    curl_slist_free_all(o->iter_list);
+    curl_slist_free_all(o->append_query);
+    curl_slist_free_all(o->trim_list);
+    curl_slist_free_all(o->append_path);
+}
+
 static char *strurldecode(const char *url, int inlength, int *outlength)
 {
   return curl_easy_unescape(NULL, inlength ? url : "", inlength,
@@ -543,6 +553,7 @@ static void showurl(FILE *stream, struct option *o, int modifiers,
   char *url;
   CURLUcode rc = geturlpart(o, modifiers, uh, CURLUPART_URL, &url);
   if(rc) {
+    trurl_cleanup_options(o);
     VERIFY(o, ERROR_BADURL, "invalid url [%s]", curl_url_strerror(rc));
     return;
   }
@@ -801,6 +812,7 @@ static void json(struct option *o, CURLU *uh)
   char *url;
   CURLUcode rc = geturlpart(o, 0, uh, CURLUPART_URL, &url);
   if(rc) {
+    trurl_cleanup_options(o);
     VERIFY(o, ERROR_BADURL, "invalid url [%s]", curl_url_strerror(rc));
     return;
   }
@@ -904,7 +916,7 @@ static void trim(struct option *o)
             !strncasecmp(q, ptr, inslen))) {
           /* this qpair should be stripped out */
           free(qpairs[i].str);
-          free(qpairsdec[i].str);
+          curl_free(qpairsdec[i].str);
           qpairs[i].str = strdup(""); /* marked as deleted */
           qpairs[i].len = 0;
           qpairsdec[i].str = strdup(""); /* marked as deleted */
@@ -986,10 +998,12 @@ static void freeqpairs(void)
 {
   int i;
   for(i = 0; i<nqpairs; i++) {
-    free(qpairs[i].str);
-    qpairs[i].str = NULL;
-    free(qpairsdec[i].str);
-    qpairsdec[i].str = NULL;
+    if(qpairs[i].len) {
+      free(qpairs[i].str);
+      qpairs[i].str = NULL;
+      curl_free(qpairsdec[i].str);
+      qpairsdec[i].str = NULL;
+    }
   }
   nqpairs = 0;
 }
@@ -1167,13 +1181,22 @@ static void singleurl(struct option *o,
         iinfo->part = part;
         iinfo->plen = plen;
         v = comp2var(part, plen);
-        if(!v)
+        if(!v) {
+          trurl_cleanup_options(o);
+          curl_url_cleanup(uh);
           errorf(ERROR_ITER, "bad component for iterate");
-        if(iinfo->varmask & (1<<v->part))
+        }
+        if(iinfo->varmask & (1<<v->part)) {
+          trurl_cleanup_options(o);
+          curl_url_cleanup(uh);
           errorf(ERROR_ITER, "duplicate component for iterate: %s", v->name);
-        if(setmask & (1 << v->part))
+        }
+        if(setmask & (1 << v->part)) {
+          trurl_cleanup_options(o);
+          curl_url_cleanup(uh);
           errorf(ERROR_ITER, "duplicate --iterate and --set for component %s",
                  v->name);
+        }
       }
       else {
         part = iinfo->part;
@@ -1250,6 +1273,10 @@ static void singleurl(struct option *o,
       char *ourl = NULL;
       CURLUcode rc = curl_url_get(uh, CURLUPART_URL, &ourl, 0);
       if(rc) {
+        if(o->verify) {
+          curl_url_cleanup(uh);
+          trurl_cleanup_options(o);
+        }
         VERIFY(o, ERROR_URL, "not enough input for a URL");
         url_is_invalid = true;
       }
@@ -1412,12 +1439,7 @@ int main(int argc, const char **argv)
   if(o.jsonout)
     printf("%s]\n", o.urls ? "\n" : "");
   /* we're done with libcurl, so clean it up */
-  curl_slist_free_all(o.url_list);
-  curl_slist_free_all(o.set_list);
-  curl_slist_free_all(o.iter_list);
-  curl_slist_free_all(o.trim_list);
-  curl_slist_free_all(o.append_path);
-  curl_slist_free_all(o.append_query);
+  trurl_cleanup_options(&o);
   curl_global_cleanup();
   return exit_status;
 }
