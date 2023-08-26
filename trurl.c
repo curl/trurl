@@ -500,7 +500,8 @@ static int getarg(struct option *op,
 #ifdef SUPPORTS_ALLOW_SPACE
     op->accept_space = true;
 #else
-    trurl_warnf(o, "built with too old libcurl version, --accept-space does not work");
+    trurl_warnf(o,
+        "built with too old libcurl version, --accept-space does not work");
 #endif
   }
   else if(!strcmp("--default-port", flag))
@@ -590,7 +591,9 @@ static CURLUcode geturlpart(struct option *o, int modifiers, CURLU *uh,
         curl_free(*out);
         modifiers &= ~VARMODIFIER_PUNY2IDN;
         o->puny2idn = false;
-        trurl_warnf(o, "Error converting url to IDN [%s]", curl_url_strerror(rc));
+        trurl_warnf(o,
+                "Error converting url to IDN [%s]",
+                curl_url_strerror(rc));
         return geturlpart(o, modifiers, uh, part, out);
     }
 #endif
@@ -1378,11 +1381,6 @@ static void singleurl(struct option *o,
       if(!rc) {
         printf("%s\n", nurl);
         curl_free(nurl);
-      } else {
-          // printf("%s\n", nurl);
-          // curl_free(nurl);
-          VERIFY(o, ERROR_BADURL, "invalid url [%s]", curl_url_strerror(rc));  
-          url_is_invalid = true;
       }
     }
 
