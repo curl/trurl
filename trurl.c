@@ -196,7 +196,7 @@ static void help(void)
     "      --urlencode                  - URL encode components by default\n"
     "  -v, --version                    - show version\n"
     "      --verify                     - return error on (first) bad URL\n"
-    "      --quiet                      - Supress (some) notes and comments\n"
+    "      --quiet                      - Suppress (some) notes and comments\n"
     " URL COMPONENTS:\n"
     "  ", stdout);
   for(i = 0; i< NUM_COMPONENTS; i++) {
