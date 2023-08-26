@@ -273,10 +273,23 @@ struct option {
   bool no_guess_scheme;
   bool urlencode;
   bool end_of_options;
+  bool quiet_warnings;
 
   /* -- stats -- */
   unsigned int urls;
 };
+
+void trurl_warnf(struct option *o, char *fmt, ...)
+{
+  if(!o->quiet_warnings) {
+    va_list ap;
+    va_start(ap, fmt);
+    fputs(WARN_PREFIX, stderr);
+    vfprintf(stderr, fmt, ap);
+    fputs("\n", stderr);
+    va_end(ap);
+  }
+}
 
 #define MAX_QPAIRS 1000
 struct string qpairs[MAX_QPAIRS]; /* encoded */
@@ -499,6 +512,8 @@ static int getarg(struct option *op,
     op->sort_query = true;
   else if(!strcmp("--urlencode", flag))
     op->urlencode = true;
+  else if(!strcmp("--quiet", flag))
+    op->quiet_warnings = true;
   else
     return 1;  /* unrecognized option */
   return 0;
@@ -562,8 +577,9 @@ static CURLUcode geturlpart(struct option *o, int modifiers, CURLU *uh,
     if(rc == CURLUE_BAD_HOSTNAME &&
             (o->puny2idn || (modifiers & VARMODIFIER_PUNY2IDN))) {
         curl_free(*out);
-        modifiers ^= VARMODIFIER_PUNY2IDN;
+        modifiers &= ~VARMODIFIER_PUNY2IDN;
         o->puny2idn = false;
+        trurl_warnf(o, "Error converting url to IDN [%s]", curl_url_strerror(rc));
         return geturlpart(o, modifiers, uh, part, out);
     }
 #endif
@@ -1336,6 +1352,11 @@ static void singleurl(struct option *o,
       if(!rc) {
         printf("%s\n", nurl);
         curl_free(nurl);
+      } else {
+          // printf("%s\n", nurl);
+          // curl_free(nurl);
+          VERIFY(o, ERROR_BADURL, "invalid url [%s]", curl_url_strerror(rc));  
+          url_is_invalid = true;
       }
     }
 

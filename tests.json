@@ -2150,13 +2150,29 @@
             "arguments": [
                 "--url",
                 "http://xn-----/",
-                "--as-idn"
+                "--as-idn",
+                "--quiet"
             ]
         },
         "required": ["punycode2idn"],
         "expected": {
             "stdout": "http://xn-----/\n",
             "stderr": "",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--url",
+                "http://xn-----/",
+                "--as-idn"
+            ]
+        },
+        "required": ["punycode2idn"],
+        "expected": {
+            "stdout": "http://xn-----/\n",
+            "stderr": "trurl note: Error converting url to IDN [Bad hostname]\n",
             "returncode": 0
         }
     }
