@@ -196,6 +196,7 @@ static void help(void)
     "      --urlencode                  - URL encode components by default\n"
     "  -v, --version                    - show version\n"
     "      --verify                     - return error on (first) bad URL\n"
+    "      --quiet                      - Supress (some) notes and comments\n"
     " URL COMPONENTS:\n"
     "  ", stdout);
   for(i = 0; i< NUM_COMPONENTS; i++) {
@@ -489,7 +490,7 @@ static int getarg(struct option *op,
 #ifdef SUPPORTS_ALLOW_SPACE
     op->accept_space = true;
 #else
-    warnf("built with too old libcurl version, --accept-space does not work");
+    trurl_warnf(o, "built with too old libcurl version, --accept-space does not work");
 #endif
   }
   else if(!strcmp("--default-port", flag))
@@ -716,7 +717,7 @@ static void get(struct option *op, CURLU *uh)
               /* silently ignore */
               break;
             default:
-              warnf("%s (%s)\n", curl_url_strerror(rc), v->name);
+              trurl_warnf(op, "%s (%s)\n", curl_url_strerror(rc), v->name);
               break;
             }
           }
@@ -1125,7 +1126,7 @@ static void qpair2query(CURLU *uh, struct option *o)
   if(nq) {
     int rc = curl_url_set(uh, CURLUPART_QUERY, nq, 0);
     if(rc)
-      warnf("internal problem");
+      trurl_warnf(o, "internal problem");
   }
   curl_free(nq);
 }
@@ -1426,13 +1427,13 @@ int main(int argc, const char **argv)
       else {
         /* line too long */
         int ch;
-        warnf("skipping long line");
+        trurl_warnf(&o, "skipping long line");
         do {
           ch = getc(o.url);
         } while(ch != EOF && ch != '\n');
         if(ch == EOF) {
           if(ferror(o.url))
-            warnf("getc: %s", strerror(errno));
+            trurl_warnf(&o, "getc: %s", strerror(errno));
           end_of_file = true;
         }
         continue;
@@ -1453,7 +1454,7 @@ int main(int argc, const char **argv)
     }
 
     if(!end_of_file && ferror(o.url))
-      warnf("fgets: %s", strerror(errno));
+      trurl_warnf(&o, "fgets: %s", strerror(errno));
     if(o.urlopen)
       fclose(o.url);
   }

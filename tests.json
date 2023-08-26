@@ -2175,5 +2175,20 @@
             "stderr": "trurl note: Error converting url to IDN [Bad hostname]\n",
             "returncode": 0
         }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--verify",
+                "-f",
+                "testfiles/test0000.txt",
+                "--quiet"
+            ]
+        },
+        "expected": {
+            "stdout": "http://example.org/\n",
+            "returncode": 0,
+            "stderr": ""
+        }
     }
 ]

@@ -241,12 +241,16 @@ Show version information and exit.
 .IP "--verify"
 When a URL is provided, return error immediately if it does not parse as a
 valid URL. In normal cases, trurl can forgive a bad URL input.
+.IP "--quiet"
+Supress (some) notes and warnings.
+
 .SH "JSON output format"
 The \fI--json\fP option outputs a JSON array with one or more objects. One for
 each URL.
 
 Each URL JSON object contains a number of properties, a series of key/value
 pairs. The exact set depends on the given URL.
+
 .IP "url"
 This key exists in every object. It is the complete URL. Affected by
 \fI--default-port\fP, \fI--keep-port\fP, and \fI--punycode\fP.
