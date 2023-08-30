@@ -158,14 +158,14 @@ static void errorf(int exit_code, char *fmt, ...)
   exit(exit_code);
 }
 
-#define VERIFY(op, exit_code, ...) \
+#define VERIFY(o, exit_code, ...) \
   do { \
-    if(!op->verify) \
+    if(!o->verify) \
       warnf(__VA_ARGS__); \
     else { \
       /* make sure to terminate the JSON array */ \
-      if(op->jsonout) \
-        printf("%s]\n", op->urls ? "\n" : ""); \
+      if(o->jsonout) \
+        printf("%s]\n", o->urls ? "\n" : ""); \
       errorf(exit_code, __VA_ARGS__); \
     } \
   } while(0)
@@ -426,7 +426,7 @@ static bool checkoptarg(const char *str,
   return false;
 }
 
-static int getarg(struct option *op,
+static int getarg(struct option *o,
                   const char *flag,
                   const char *arg,
                   bool *usedarg)
@@ -434,98 +434,98 @@ static int getarg(struct option *op,
   *usedarg = false;
 
   if(!strcmp("--", flag))
-    op->end_of_options = true;
+    o->end_of_options = true;
   else if(!strcmp("-v", flag) || !strcmp("--version", flag))
     show_version();
   else if(!strcmp("-h", flag) || !strcmp("--help", flag))
     help();
   else if(checkoptarg("--url", flag, arg)) {
-    urladd(op, arg);
+    urladd(o, arg);
     *usedarg = true;
   }
   else if(checkoptarg("-f", flag, arg) ||
           checkoptarg("--url-file", flag, arg)) {
-    urlfile(op, arg);
+    urlfile(o, arg);
     *usedarg = true;
   }
   else if(checkoptarg("-a", flag, arg) ||
           checkoptarg("--append", flag, arg)) {
-    appendadd(op, arg);
+    appendadd(o, arg);
     *usedarg = true;
   }
   else if(checkoptarg("-s", flag, arg) ||
           checkoptarg("--set", flag, arg)) {
-    setadd(op, arg);
+    setadd(o, arg);
     *usedarg = true;
   }
   else if(checkoptarg("--iterate", flag, arg)) {
-    iteradd(op, arg);
+    iteradd(o, arg);
     *usedarg = true;
   }
   else if(checkoptarg("--redirect", flag, arg)) {
-    if(op->redirect)
+    if(o->redirect)
       errorf(ERROR_FLAG, "only one --redirect is supported");
-    op->redirect = arg;
+    o->redirect = arg;
     *usedarg = true;
   }
   else if(checkoptarg("--query-separator", flag, arg)) {
-    if(op->qsep)
+    if(o->qsep)
       errorf(ERROR_FLAG, "only one --query-separator is supported");
     if(strlen(arg) != 1)
       errorf(ERROR_FLAG, "only single-letter query separators are supported");
-    op->qsep = arg;
+    o->qsep = arg;
     *usedarg = true;
   }
   else if(checkoptarg("--trim", flag, arg)) {
-    trimadd(op, arg);
+    trimadd(o, arg);
     *usedarg = true;
   }
   else if(checkoptarg("-g", flag, arg) ||
           checkoptarg("--get", flag, arg)) {
-    if(op->format)
+    if(o->format)
       errorf(ERROR_FLAG, "only one --get is supported");
-    if(op->jsonout)
+    if(o->jsonout)
       errorf(ERROR_FLAG, "--get is mututally exclusive with --json");
-    op->format = arg;
+    o->format = arg;
     *usedarg = true;
   }
   else if(!strcmp("--json", flag)) {
-    if(op->format)
+    if(o->format)
       errorf(ERROR_FLAG, "--json is mututally exclusive with --get");
-    op->jsonout = true;
+    o->jsonout = true;
   }
   else if(!strcmp("--verify", flag))
-    op->verify = true;
+    o->verify = true;
   else if(!strcmp("--accept-space", flag)) {
 #ifdef SUPPORTS_ALLOW_SPACE
-    op->accept_space = true;
+    o->accept_space = true;
 #else
     trurl_warnf(o,
         "built with too old libcurl version, --accept-space does not work");
 #endif
   }
   else if(!strcmp("--default-port", flag))
-    op->default_port = true;
+    o->default_port = true;
   else if(!strcmp("--keep-port", flag))
-    op->keep_port = true;
+    o->keep_port = true;
   else if(!strcmp("--punycode", flag)) {
-    if(op->puny2idn)
+    if(o->puny2idn)
       errorf(ERROR_FLAG, "--punycode is mutually exclusive with --as-idn");
-    op->punycode = true;
+    o->punycode = true;
   }
   else if(!strcmp("--as-idn", flag)) {
-    if(op->punycode)
+    if(o->punycode)
       errorf(ERROR_FLAG, "--as-idn is mutually exclusive with --punycode");
-    op->puny2idn = true;
+    o->puny2idn = true;
   }
   else if(!strcmp("--no-guess-scheme", flag))
-    op->no_guess_scheme = true;
+    o->no_guess_scheme = true;
   else if(!strcmp("--sort-query", flag))
-    op->sort_query = true;
+    o->sort_query = true;
   else if(!strcmp("--urlencode", flag))
-    op->urlencode = true;
+    o->urlencode = true;
   else if(!strcmp("--quiet", flag))
-    op->quiet_warnings = true;
+    o->quiet_warnings = true;
   else
     return 1;  /* unrecognized option */
   return 0;
@@ -614,10 +614,10 @@ static void showurl(FILE *stream, struct option *o, int modifiers,
   curl_free(url);
 }
 
-static void get(struct option *op, CURLU *uh)
+static void get(struct option *o, CURLU *uh)
 {
   FILE *stream = stdout;
-  const char *ptr = op->format;
+  const char *ptr = o->format;
   bool done = false;
   char startbyte = 0;
   char endbyte = 0;
@@ -701,18 +701,18 @@ static void get(struct option *op, CURLU *uh)
 
         if(isquery) {
           showqkey(stream, cl + 1, end - cl - 1,
-                   !op->urlencode && !(mods & VARMODIFIER_URLENCODED),
+                   !o->urlencode && !(mods & VARMODIFIER_URLENCODED),
                    queryall);
         }
         else if(!vlen)
           errorf(ERROR_GET, "Bad --get syntax: %s", start);
         else if(!strncmp(ptr, "url", vlen))
-          showurl(stream, op, mods, uh);
+          showurl(stream, o, mods, uh);
         else {
           const struct var *v = comp2var(ptr, vlen);
           if(v) {
             char *nurl;
-            CURLUcode rc = geturlpart(op, mods, uh, v->part, &nurl);
+            CURLUcode rc = geturlpart(o, mods, uh, v->part, &nurl);
             switch(rc) {
             case CURLUE_OK:
               fputs(nurl, stream);
@@ -731,7 +731,7 @@ static void get(struct option *op, CURLU *uh)
               /* silently ignore */
               break;
             default:
-              trurl_warnf(op, "%s (%s)\n", curl_url_strerror(rc), v->name);
+              trurl_warnf(o, "%s (%s)\n", curl_url_strerror(rc), v->name);
               break;
             }
           }
