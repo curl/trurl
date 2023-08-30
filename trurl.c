@@ -147,17 +147,6 @@ static void warnf(char *fmt, ...)
   va_end(ap);
 }
 
-static void errorf(int exit_code, char *fmt, ...)
-{
-  va_list ap;
-  va_start(ap, fmt);
-  fputs(ERROR_PREFIX, stderr);
-  vfprintf(stderr, fmt, ap);
-  fputs("\n" ERROR_PREFIX "Try " PROGNAME " -h for help\n", stderr);
-  va_end(ap);
-  exit(exit_code);
-}
-
 #define VERIFY(o, exit_code, ...) \
   do { \
     if(!o->verify) \
@@ -166,7 +155,7 @@ static void errorf(int exit_code, char *fmt, ...)
       /* make sure to terminate the JSON array */ \
       if(o->jsonout) \
         printf("%s]\n", o->urls ? "\n" : ""); \
-      errorf(exit_code, __VA_ARGS__); \
+      errorf(o, exit_code, __VA_ARGS__); \
     } \
   } while(0)
 
@@ -301,12 +290,27 @@ int nqpairs; /* how many is stored */
 
 static void trurl_cleanup_options(struct option *o)
 {
-    curl_slist_free_all(o->url_list);
-    curl_slist_free_all(o->set_list);
-    curl_slist_free_all(o->iter_list);
-    curl_slist_free_all(o->append_query);
-    curl_slist_free_all(o->trim_list);
-    curl_slist_free_all(o->append_path);
+  if(!o)
+    return;
+  curl_slist_free_all(o->url_list);
+  curl_slist_free_all(o->set_list);
+  curl_slist_free_all(o->iter_list);
+  curl_slist_free_all(o->append_query);
+  curl_slist_free_all(o->trim_list);
+  curl_slist_free_all(o->append_path);
+}
+
+static void errorf(struct option *o, int exit_code, char *fmt, ...)
+{
+  va_list ap;
+  va_start(ap, fmt);
+  fputs(ERROR_PREFIX, stderr);
+  vfprintf(stderr, fmt, ap);
+  fputs("\n" ERROR_PREFIX "Try " PROGNAME " -h for help\n", stderr);
+  va_end(ap);
+  trurl_cleanup_options(o);
+  curl_global_cleanup();
+  exit(exit_code);
 }
 
 static char *strurldecode(const char *url, int inlength, int *outlength)
@@ -329,11 +333,11 @@ static void urlfile(struct option *o, const char *file)
 {
   FILE *f;
   if(o->url)
-    errorf(ERROR_FLAG, "only one --url-file is supported");
+    errorf(o, ERROR_FLAG, "only one --url-file is supported");
   if(strcmp("-", file)) {
     f = fopen(file, "rt");
     if(!f)
-      errorf(ERROR_FILE, "--url-file %s not found", file);
+      errorf(o, ERROR_FILE, "--url-file %s not found", file);
     o->urlopen = true;
   }
   else
@@ -386,7 +390,7 @@ static void appendadd(struct option *o,
   else if(!strncmp("query=", arg, 6))
     queryadd(o, arg + 6);
   else
-    errorf(ERROR_APPEND, "--append unsupported component: %s", arg);
+    errorf(o, ERROR_APPEND, "--append unsupported component: %s", arg);
 }
 
 static void setadd(struct option *o,
@@ -416,13 +420,13 @@ static void trimadd(struct option *o,
     o->trim_list = n;
 }
 
-static bool checkoptarg(const char *str,
+static bool checkoptarg(struct option *o, const char *str,
                         const char *given,
                         const char *arg)
 {
   if(!strcmp(str, given)) {
     if(!arg)
-      errorf(ERROR_ARG, "Missing argument for %s", str);
+      errorf(o, ERROR_ARG, "Missing argument for %s", str);
     return true;
   }
   return false;
@@ -441,56 +445,61 @@ static int getarg(struct option *o,
     show_version();
   else if(!strcmp("-h", flag) || !strcmp("--help", flag))
     help();
-  else if(checkoptarg("--url", flag, arg)) {
+  else if(checkoptarg(o, "--url", flag, arg)) {
     urladd(o, arg);
     *usedarg = true;
   }
-  else if(checkoptarg("-f", flag, arg) ||
-          checkoptarg("--url-file", flag, arg)) {
+  else if(checkoptarg(o, "-f", flag, arg) ||
+          checkoptarg(o, "--url-file", flag, arg)) {
     urlfile(o, arg);
     *usedarg = true;
   }
-  else if(checkoptarg("-a", flag, arg) || checkoptarg("--append", flag, arg)) {
+  else if(checkoptarg(o, "-a", flag, arg) ||
+          checkoptarg(o, "--append", flag, arg)) {
     appendadd(o, arg);
     *usedarg = true;
   }
-  else if(checkoptarg("-s", flag, arg) || checkoptarg("--set", flag, arg)) {
+  else if(checkoptarg(o, "-s", flag, arg) ||
+          checkoptarg(o, "--set", flag, arg)) {
     setadd(o, arg);
     *usedarg = true;
   }
-  else if(checkoptarg("--iterate", flag, arg)) {
+  else if(checkoptarg(o, "--iterate", flag, arg)) {
     iteradd(o, arg);
     *usedarg = true;
   }
-  else if(checkoptarg("--redirect", flag, arg)) {
+  else if(checkoptarg(o, "--redirect", flag, arg)) {
     if(o->redirect)
-      errorf(ERROR_FLAG, "only one --redirect is supported");
+      errorf(o, ERROR_FLAG, "only one --redirect is supported");
     o->redirect = arg;
     *usedarg = true;
   }
-  else if(checkoptarg("--query-separator", flag, arg)) {
+  else if(checkoptarg(o, "--query-separator", flag, arg)) {
     if(o->qsep)
-      errorf(ERROR_FLAG, "only one --query-separator is supported");
+      errorf(o, ERROR_FLAG, "only one --query-separator is supported");
     if(strlen(arg) != 1)
-      errorf(ERROR_FLAG, "only single-letter query separators are supported");
+      errorf(o, ERROR_FLAG,
+                   "only single-letter query separators are supported");
     o->qsep = arg;
     *usedarg = true;
   }
-  else if(checkoptarg("--trim", flag, arg)) {
+  else if(checkoptarg(o, "--trim", flag, arg)) {
     trimadd(o, arg);
     *usedarg = true;
   }
-  else if(checkoptarg("-g", flag, arg) || checkoptarg("--get", flag, arg)) {
+  else if(checkoptarg(o, "-g", flag, arg) ||
+          checkoptarg(o, "--get", flag, arg)) {
     if(o->format)
-      errorf(ERROR_FLAG, "only one --get is supported");
+      errorf(o, ERROR_FLAG, "only one --get is supported");
     if(o->jsonout)
-      errorf(ERROR_FLAG, "--get is mututally exclusive with --json");
+      errorf(o, ERROR_FLAG,
+                   "--get is mututally exclusive with --json");
     o->format = arg;
     *usedarg = true;
   }
   else if(!strcmp("--json", flag)) {
     if(o->format)
-      errorf(ERROR_FLAG, "--json is mututally exclusive with --get");
+      errorf(o, ERROR_FLAG, "--json is mututally exclusive with --get");
     o->jsonout = true;
   }
   else if(!strcmp("--verify", flag))
@@ -511,12 +520,12 @@ static int getarg(struct option *o,
     o->keep_port = true;
   else if(!strcmp("--punycode", flag)) {
     if(o->puny2idn)
-      errorf(ERROR_FLAG, "--punycode is mutually exclusive with --as-idn");
+      errorf(o, ERROR_FLAG, "--punycode is mutually exclusive with --as-idn");
     o->punycode = true;
   }
   else if(!strcmp("--as-idn", flag)) {
     if(o->punycode)
-      errorf(ERROR_FLAG, "--as-idn is mutually exclusive with --punycode");
+      errorf(o, ERROR_FLAG, "--as-idn is mutually exclusive with --punycode");
     o->puny2idn = true;
   }
   else if(!strcmp("--no-guess-scheme", flag))
@@ -670,13 +679,13 @@ static void get(struct option *o, CURLU *uh)
             mods |= VARMODIFIER_DEFAULT;
           else if(!strncmp(ptr, "puny:", cl - ptr + 1)) {
             if(mods & VARMODIFIER_PUNY2IDN)
-              errorf(ERROR_GET,
+              errorf(o, ERROR_GET,
                      "puny modifier is mutually exclusive with idn");
             mods |= VARMODIFIER_PUNY;
           }
           else if(!strncmp(ptr, "idn:", cl - ptr + 1)) {
             if(mods & VARMODIFIER_PUNY)
-              errorf(ERROR_GET,
+              errorf(o, ERROR_GET,
                      "idn modifier is mutually exclusive with puny");
             mods |= VARMODIFIER_PUNY2IDN;
           }
@@ -706,7 +715,7 @@ static void get(struct option *o, CURLU *uh)
                    queryall);
         }
         else if(!vlen)
-          errorf(ERROR_GET, "Bad --get syntax: %s", start);
+          errorf(o, ERROR_GET, "Bad --get syntax: %s", start);
         else if(!strncmp(ptr, "url", vlen))
           showurl(stream, o, mods, uh);
         else {
@@ -777,7 +786,7 @@ static void get(struct option *o, CURLU *uh)
 }
 
 static const struct var *setone(CURLU *uh, const char *setline,
-                                const struct option *o)
+                                struct option *o)
 {
   char *ptr = strchr(setline, '=');
   const struct var *v = NULL;
@@ -800,10 +809,11 @@ static const struct var *setone(CURLU *uh, const char *setline,
       found = true;
     }
     if(!found)
-      errorf(ERROR_SET, "unknown component: %.*s", (int)vlen, setline);
+      errorf(o, ERROR_SET,
+                   "unknown component: %.*s", (int)vlen, setline);
   }
   else
-    errorf(ERROR_SET, "invalid --set syntax: %s", setline);
+    errorf(o, ERROR_SET, "invalid --set syntax: %s", setline);
   return v;
 }
 
@@ -818,7 +828,8 @@ static unsigned int set(CURLU *uh,
     v = setone(uh, setline, o);
     if(v) {
       if(mask & (1 << v->part))
-        errorf(ERROR_SET, "duplicate --set for component %s", v->name);
+        errorf(o, ERROR_SET,
+                     "duplicate --set for component %s", v->name);
       mask |= (1 << v->part);
     }
   }
@@ -934,7 +945,7 @@ static void trim(struct option *o)
     char *instr = node->data;
     if(strncmp(instr, "query", 5))
       /* for now we can only trim query components */
-      errorf(ERROR_TRIM, "Unsupported trim component: %s", instr);
+      errorf(o, ERROR_TRIM, "Unsupported trim component: %s", instr);
     char *ptr = strchr(instr, '=');
     if(ptr && (ptr > instr)) {
       /* 'ptr' should be a fixed string or a pattern ending with an
@@ -1193,7 +1204,7 @@ static void singleurl(struct option *o,
   if(!uh) {
     uh = curl_url();
     if(!uh)
-      errorf(ERROR_MEM, "out of memory");
+      errorf(o, ERROR_MEM, "out of memory");
     if(url) {
       CURLUcode rc = seturl(o, uh, url);
       if(rc) {
@@ -1235,7 +1246,7 @@ static void singleurl(struct option *o,
         part = iter->data;
         sep = strchr(part, '=');
         if(!sep)
-          errorf(ERROR_ITER, "wrong iterate syntax");
+          errorf(o, ERROR_ITER, "wrong iterate syntax");
         plen = sep - part;
         if(sep[-1] == ':') {
           urlencode = false;
@@ -1247,19 +1258,18 @@ static void singleurl(struct option *o,
         iinfo->plen = plen;
         v = comp2var(part, plen);
         if(!v) {
-          trurl_cleanup_options(o);
           curl_url_cleanup(uh);
-          errorf(ERROR_ITER, "bad component for iterate");
+          errorf(o, ERROR_ITER, "bad component for iterate");
         }
         if(iinfo->varmask & (1<<v->part)) {
-          trurl_cleanup_options(o);
           curl_url_cleanup(uh);
-          errorf(ERROR_ITER, "duplicate component for iterate: %s", v->name);
+          errorf(o, ERROR_ITER,
+                       "duplicate component for iterate: %s", v->name);
         }
         if(setmask & (1 << v->part)) {
-          trurl_cleanup_options(o);
           curl_url_cleanup(uh);
-          errorf(ERROR_ITER, "duplicate --iterate and --set for component %s",
+          errorf(o, ERROR_ITER,
+                 "duplicate --iterate and --set for component %s",
                  v->name);
         }
       }
@@ -1338,16 +1348,16 @@ static void singleurl(struct option *o,
       char *ourl = NULL;
       CURLUcode rc = curl_url_get(uh, CURLUPART_URL, &ourl, 0);
       if(rc) {
-        if(o->verify) {
+        if(o->verify) /* only clean up if we're exiting */
           curl_url_cleanup(uh);
-          trurl_cleanup_options(o);
-        }
         VERIFY(o, ERROR_URL, "not enough input for a URL");
         url_is_invalid = true;
       }
       else {
         rc = seturl(o, uh, ourl);
         if(rc) {
+          if(o->verify) /* only clean up if we're exiting */
+            curl_url_cleanup(uh);
           VERIFY(o, ERROR_BADURL, "%s [%s]", curl_url_strerror(rc),
                  ourl);
           url_is_invalid = true;
@@ -1358,6 +1368,8 @@ static void singleurl(struct option *o,
           if(!rc)
             curl_free(nurl);
           else {
+            if(o->verify) /* only clean up if we're exiting */
+              curl_url_cleanup(uh);
             VERIFY(o, ERROR_BADURL, "url became invalid");
             url_is_invalid = true;
           }
@@ -1411,7 +1423,7 @@ int main(int argc, const char **argv)
     if(!o.end_of_options && argv[0][0] == '-') {
       /* dash-dash prefixed */
       if(getarg(&o, argv[0], argv[1], &usedarg))
-        errorf(ERROR_FLAG, "unknown option: %s", argv[0]);
+        errorf(&o, ERROR_FLAG, "unknown option: %s", argv[0]);
     }
     else {
       /* this is a URL */
