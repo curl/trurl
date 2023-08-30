@@ -450,11 +450,13 @@ static int getarg(struct option *o,
     urlfile(o, arg);
     *usedarg = true;
   }
-  else if(checkoptarg("-a", flag, arg) || checkoptarg("--append", flag, arg)) {
+  else if(checkoptarg("-a", flag, arg) ||
+          checkoptarg("--append", flag, arg)) {
     appendadd(o, arg);
     *usedarg = true;
   }
-  else if(checkoptarg("-s", flag, arg) || checkoptarg("--set", flag, arg)) {
+  else if(checkoptarg("-s", flag, arg) ||
+          checkoptarg("--set", flag, arg)) {
     setadd(o, arg);
     *usedarg = true;
   }
@@ -480,7 +482,8 @@ static int getarg(struct option *o,
     trimadd(o, arg);
     *usedarg = true;
   }
-  else if(checkoptarg("-g", flag, arg) || checkoptarg("--get", flag, arg)) {
+  else if(checkoptarg("-g", flag, arg) ||
+          checkoptarg("--get", flag, arg)) {
     if(o->format)
       errorf(ERROR_FLAG, "only one --get is supported");
     if(o->jsonout)
