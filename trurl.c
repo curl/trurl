@@ -290,18 +290,19 @@ int nqpairs; /* how many is stored */
 
 static void trurl_cleanup_options(struct option *o)
 {
-  if(!o) return;
-  if(o->url_list) 
+  if(!o)
+    return;
+  if(o->url_list)
     curl_slist_free_all(o->url_list);
-  if(o->set_list) 
+  if(o->set_list)
     curl_slist_free_all(o->set_list);
-  if(o->iter_list) 
+  if(o->iter_list)
     curl_slist_free_all(o->iter_list);
-  if(o->append_query) 
+  if(o->append_query)
     curl_slist_free_all(o->append_query);
-  if(o->trim_list) 
+  if(o->trim_list)
     curl_slist_free_all(o->trim_list);
-  if(o->append_path) 
+  if(o->append_path)
     curl_slist_free_all(o->append_path);
 }
 
@@ -480,7 +481,8 @@ static int getarg(struct option *o,
     if(o->qsep)
       trurl_errorf(o, ERROR_FLAG, "only one --query-separator is supported");
     if(strlen(arg) != 1)
-      trurl_errorf(o, ERROR_FLAG, "only single-letter query separators are supported");
+      trurl_errorf(o, ERROR_FLAG,
+                   "only single-letter query separators are supported");
     o->qsep = arg;
     *usedarg = true;
   }
@@ -492,7 +494,8 @@ static int getarg(struct option *o,
     if(o->format)
       trurl_errorf(o, ERROR_FLAG, "only one --get is supported");
     if(o->jsonout)
-      trurl_errorf(o, ERROR_FLAG, "--get is mututally exclusive with --json");
+      trurl_errorf(o, ERROR_FLAG,
+                   "--get is mututally exclusive with --json");
     o->format = arg;
     *usedarg = true;
   }
@@ -808,7 +811,8 @@ static const struct var *setone(CURLU *uh, const char *setline,
       found = true;
     }
     if(!found)
-      trurl_errorf(o, ERROR_SET, "unknown component: %.*s", (int)vlen, setline);
+      trurl_errorf(o, ERROR_SET,
+                   "unknown component: %.*s", (int)vlen, setline);
   }
   else
     trurl_errorf(o, ERROR_SET, "invalid --set syntax: %s", setline);
@@ -826,7 +830,8 @@ static unsigned int set(CURLU *uh,
     v = setone(uh, setline, o);
     if(v) {
       if(mask & (1 << v->part))
-        trurl_errorf(o, ERROR_SET, "duplicate --set for component %s", v->name);
+        trurl_errorf(o, ERROR_SET,
+                     "duplicate --set for component %s", v->name);
       mask |= (1 << v->part);
     }
   }
@@ -1260,11 +1265,13 @@ static void singleurl(struct option *o,
         }
         if(iinfo->varmask & (1<<v->part)) {
           curl_url_cleanup(uh);
-          trurl_errorf(o, ERROR_ITER, "duplicate component for iterate: %s", v->name);
+          trurl_errorf(o, ERROR_ITER,
+                       "duplicate component for iterate: %s", v->name);
         }
         if(setmask & (1 << v->part)) {
           curl_url_cleanup(uh);
-          trurl_errorf(o, ERROR_ITER, "duplicate --iterate and --set for component %s",
+          trurl_errorf(o, ERROR_ITER,
+                 "duplicate --iterate and --set for component %s",
                  v->name);
         }
       }
