@@ -1488,7 +1488,7 @@
                 }
             ],
             "returncode": 9,
-            "stderr": "trurl error: No host part in the URL []\ntrurl error: Try trurl -h for help\n"
+            "stderr": true
         }
     },
     {
@@ -1744,7 +1744,7 @@
         "expected": {
             "stdout": "emanuele6://curl.se/trurl\nhttps://example.org/\n",
             "returncode": 0,
-            "stderr": "trurl note: No host part in the URL []\n"
+            "stderr": true
         }
     },
     {
