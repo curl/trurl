@@ -177,6 +177,7 @@ static void help(void)
     "Usage: " PROGNAME " [options] [URL]\n"
     "  -a, --append [component]=[data]  - append data to component\n"
     "      --accept-space               - give in to this URL abuse\n"
+    "      --curl                       - only schemes supported by libcurl\n"
     "      --default-port               - add known default ports\n"
     "  -f, --url-file [file/-]          - read URLs from file or stdin\n"
     "  -g, --get [{component}s]         - output component(s)\n"
@@ -266,6 +267,7 @@ struct option {
   bool jsonout;
   bool verify;
   bool accept_space;
+  bool curl;
   bool default_port;
   bool keep_port;
   bool punycode;
@@ -504,6 +506,8 @@ static int getarg(struct option *op,
         "built with too old libcurl version, --accept-space does not work");
 #endif
   }
+  else if(!strcmp("--curl", flag))
+    op->curl = true;
   else if(!strcmp("--default-port", flag))
     op->default_port = true;
   else if(!strcmp("--keep-port", flag))
@@ -579,7 +583,7 @@ static CURLUcode geturlpart(struct option *o, int modifiers, CURLU *uh,
                        (((modifiers & VARMODIFIER_PUNY2IDN) || o->puny2idn) ?
                         CURLU_PUNY2IDN : 0) |
 #endif
-                      CURLU_NON_SUPPORT_SCHEME|
+                      (o->curl ? 0 : CURLU_NON_SUPPORT_SCHEME)|
                       (((modifiers & VARMODIFIER_URLENCODED) ||
                         o->urlencode) ?
                        0 :CURLU_URLDECODE));
@@ -775,7 +779,8 @@ static void get(struct option *op, CURLU *uh)
   fputc('\n', stream);
 }
 
-static const struct var *setone(CURLU *uh, const char *setline)
+static const struct var *setone(CURLU *uh, const char *setline,
+                                const struct option *o)
 {
   char *ptr = strchr(setline, '=');
   const struct var *v = NULL;
@@ -791,7 +796,7 @@ static const struct var *setone(CURLU *uh, const char *setline)
     if(v) {
       CURLUcode rc;
       rc = curl_url_set(uh, v->part, ptr[1] ? &ptr[1] : NULL,
-                        CURLU_NON_SUPPORT_SCHEME|
+                        (o->curl ? 0 : CURLU_NON_SUPPORT_SCHEME)|
                         (urlencode ? CURLU_URLENCODE : 0) );
       if(rc)
         warnf("Error setting %s: %s", v->name, curl_url_strerror(rc));
@@ -813,7 +818,7 @@ static unsigned int set(CURLU *uh,
   for(node =  o->set_list; node; node = node->next) {
     const struct var *v;
     char *setline = node->data;
-    v = setone(uh, setline);
+    v = setone(uh, setline, o);
     if(v) {
       if(mask & (1 << v->part))
         errorf(ERROR_SET, "duplicate --set for component %s", v->name);
@@ -1176,7 +1181,7 @@ static CURLUcode seturl(struct option *o, CURLU *uh, const char *url)
   return curl_url_set(uh, CURLUPART_URL, url,
                       (o->no_guess_scheme ?
                        0 : CURLU_GUESS_SCHEME)|
-                      CURLU_NON_SUPPORT_SCHEME|
+                      (o->curl ? 0 : CURLU_NON_SUPPORT_SCHEME)|
                       (o->accept_space ?
                        CURLU_ALLOW_SPACE : 0)|
                       CURLU_URLENCODE);
@@ -1281,7 +1286,7 @@ static void singleurl(struct option *o,
       curl_msnprintf(iterbuf, sizeof(iterbuf), "%.*s%s=%.*s", (int)plen, part,
                      urlencode ? "" : ":",
                      (int)wlen, w);
-      setone(uh, iterbuf);
+      setone(uh, iterbuf, o);
       if(iter->next) {
         struct iterinfo info;
         memset(&info, 0, sizeof(info));
