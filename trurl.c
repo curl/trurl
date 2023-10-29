@@ -453,11 +453,13 @@ static int getarg(struct option *o,
     urlfile(o, arg);
     *usedarg = true;
   }
-  else if(checkoptarg("-a", flag, arg) || checkoptarg("--append", flag, arg)) {
+  else if(checkoptarg(o, "-a", flag, arg) ||
+          checkoptarg(o, "--append", flag, arg)) {
     appendadd(o, arg);
     *usedarg = true;
   }
-  else if(checkoptarg("-s", flag, arg) || checkoptarg("--set", flag, arg)) {
+  else if(checkoptarg(o, "-s", flag, arg) ||
+          checkoptarg(o, "--set", flag, arg)) {
     setadd(o, arg);
     *usedarg = true;
   }
@@ -484,7 +486,8 @@ static int getarg(struct option *o,
     trimadd(o, arg);
     *usedarg = true;
   }
-  else if(checkoptarg("-g", flag, arg) || checkoptarg("--get", flag, arg)) {
+  else if(checkoptarg(o, "-g", flag, arg) ||
+          checkoptarg(o, "--get", flag, arg)) {
     if(o->format)
       errorf(o, ERROR_FLAG, "only one --get is supported");
     if(o->jsonout)
@@ -516,12 +519,12 @@ static int getarg(struct option *o,
     o->keep_port = true;
   else if(!strcmp("--punycode", flag)) {
     if(o->puny2idn)
-      errorf(ERROR_FLAG, "--punycode is mutually exclusive with --as-idn");
+      errorf(o, ERROR_FLAG, "--punycode is mutually exclusive with --as-idn");
     o->punycode = true;
   }
   else if(!strcmp("--as-idn", flag)) {
     if(o->punycode)
-      errorf(ERROR_FLAG, "--as-idn is mutually exclusive with --punycode");
+      errorf(o, ERROR_FLAG, "--as-idn is mutually exclusive with --punycode");
     o->puny2idn = true;
   }
   else if(!strcmp("--no-guess-scheme", flag))
@@ -675,13 +678,13 @@ static void get(struct option *o, CURLU *uh)
             mods |= VARMODIFIER_DEFAULT;
           else if(!strncmp(ptr, "puny:", cl - ptr + 1)) {
             if(mods & VARMODIFIER_PUNY2IDN)
-              errorf(ERROR_GET,
+              errorf(o, ERROR_GET,
                      "puny modifier is mutually exclusive with idn");
             mods |= VARMODIFIER_PUNY;
           }
           else if(!strncmp(ptr, "idn:", cl - ptr + 1)) {
             if(mods & VARMODIFIER_PUNY)
-              errorf(ERROR_GET,
+              errorf(o, ERROR_GET,
                      "idn modifier is mutually exclusive with puny");
             mods |= VARMODIFIER_PUNY2IDN;
           }
