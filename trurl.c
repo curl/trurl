@@ -309,6 +309,7 @@ static void errorf(struct option *o, int exit_code, char *fmt, ...)
   fputs("\n" ERROR_PREFIX "Try " PROGNAME " -h for help\n", stderr);
   va_end(ap);
   trurl_cleanup_options(o);
+  curl_global_cleanup();
   exit(exit_code);
 }
 
@@ -1347,12 +1348,16 @@ static void singleurl(struct option *o,
       char *ourl = NULL;
       CURLUcode rc = curl_url_get(uh, CURLUPART_URL, &ourl, 0);
       if(rc) {
+        if(o->verify) /* only clean up if we're exiting */
+          curl_url_cleanup(uh);
         VERIFY(o, ERROR_URL, "not enough input for a URL");
         url_is_invalid = true;
       }
       else {
         rc = seturl(o, uh, ourl);
         if(rc) {
+          if(o->verify) /* only clean up if we're exiting */
+            curl_url_cleanup(uh);
           VERIFY(o, ERROR_BADURL, "%s [%s]", curl_url_strerror(rc),
                  ourl);
           url_is_invalid = true;
