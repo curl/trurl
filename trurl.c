@@ -786,7 +786,7 @@ static void get(struct option *o, CURLU *uh)
 }
 
 static const struct var *setone(CURLU *uh, const char *setline,
-                                const struct option *o)
+                                struct option *o)
 {
   char *ptr = strchr(setline, '=');
   const struct var *v = NULL;
