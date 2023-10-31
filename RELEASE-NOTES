@@ -1,18 +1,18 @@
-trurl 0.8
+trurl 0.9
 
 Changes since previous release
 
- o add --urlencode
+ o add --as-idn and punycode to IDN conversion
+ o add --curl to only count as valid URLs supported by libcurl
+ o add vs2022 project files
 
 Bugfixes since previous release
 
- o --json/--get: .[].parts and {component} should be urldecoded not encoded
- o tests: use empty file instead of /dev/null
- o typos in manpage
- o Makefile: Allow CFLAGS to be appendable
- o Makefile: be explicit in C standard to use
+ o accept \* as a trim name to trim a literal asterisk name
+ o format null as \u0000 for --json
+ o run  --trim query  before  --append query
 
 Contributors to this release:
 
-  Daniel Stenberg, Emanuele Torre, Krishean Draconis, Michael Ablassmeier,
-  Paul Wise, Sevan Janiyan
+  Daniel Stenberg, Ehsan, Emanuele Torre, Jacob Mealey, Krishean Draconis,
+  Michael Ablassmeier, 積丹尼 Dan Jacobson
