@@ -1368,6 +1368,8 @@ static void singleurl(struct option *o,
           if(!rc)
             curl_free(nurl);
           else {
+            if(o->verify) /* only clean up if we're exiting */
+              curl_url_cleanup(uh);
             VERIFY(o, ERROR_BADURL, "url became invalid");
             url_is_invalid = true;
           }
