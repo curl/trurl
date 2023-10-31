@@ -9,7 +9,7 @@ Copyright: Daniel Stenberg, <daniel@haxx.se>, et al.
 License: curl
 
 # Docs
-Files: CONTRIBUTING.md README.md RELEASE-NOTES THANKS URL-QUIRKS.md
+Files: CONTRIBUTING.md README.md RELEASE-NOTES THANKS URL-QUIRKS.md RELEASE-PROCEDURE.md
 Copyright: Daniel Stenberg, <daniel@haxx.se>, et al.
 License: curl
 
