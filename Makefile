@@ -24,8 +24,8 @@
 
 TARGET = trurl
 OBJS = trurl.o
-LDLIBS = $$(~/.curl/bin/curl-config --libs)
-CFLAGS += $$(~/.curl/bin/curl-config --cflags) -W -Wall -Wshadow -Werror -pedantic -g -std=gnu99
+LDLIBS = $$(curl-config --libs)
+CFLAGS += $$(curl-config --cflags) -W -Wall -Wshadow -Werror -pedantic -g -std=gnu99
 MANUAL = trurl.1
 
 PREFIX ?= /usr/local
