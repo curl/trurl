@@ -504,7 +504,7 @@ static int getarg(struct option *o,
 #endif
   }
   else if(!strcmp("--curl", flag))
-    op->curl = true;
+    o->curl = true;
   else if(!strcmp("--default-port", flag))
     o->default_port = true;
   else if(!strcmp("--keep-port", flag))
