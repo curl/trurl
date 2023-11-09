@@ -59,8 +59,9 @@ def testComponent(value, exp):
 
 
 class TestCase:
-    def __init__(self, testIndex, baseCmd, **testCase):
+    def __init__(self, testIndex, runnerCmd, baseCmd, **testCase):
         self.testIndex = testIndex
+        self.runnerCmd = runnerCmd
         self.baseCmd = baseCmd
         self.arguments = testCase["input"]["arguments"]
         self.expected = testCase["expected"]
@@ -74,7 +75,10 @@ class TestCase:
 
         cmd = [self.baseCmd]
         args = self.arguments
-        if runWithValgrind:
+        if self.runnerCmd != "":
+            cmd = [self.runnerCmd]
+            args = [self.baseCmd] + self.arguments
+        elif runWithValgrind:
             cmd = [VALGRINDTEST]
             args = VALGRINDARGS + [self.baseCmd] + self.arguments
 
@@ -95,6 +99,11 @@ class TestCase:
 
         # assume stderr is always going to be string
         stderr = output.stderr
+
+        # runners (e.g. wine) spill their own output into stderr,
+        # ignore stderr tests when using a runner.
+        if self.runnerCmd != "" and "stderr" in self.expected:
+            stderr = self.expected["stderr"]
 
         self.commandOutput = CommandOutput(stdout, output.returncode, stderr)
         return True
@@ -161,40 +170,52 @@ def main(argc, argv):
     # the .exe on the end is necessary when using absolute paths
     if sys.platform == "win32" or sys.platform == "cygwin":
         baseCmd += ".exe"
+
+    with open(path.join(baseDir, TESTFILE), "r") as file:
+        allTests = json.load(file)
+        testIndexesToRun = []
+
+    # if argv[1] exists and starts with int
+    cmdfilter = ""
+    testIndexesToRun = list(range(len(allTests)))
+    runWithValgrind = False
+    verboseDetail = False
+    runnerCmd = ""
+
+    if argc > 1:
+        for arg in argv[1:]:
+            if arg[0].isnumeric():
+                # run only test cases separated by ","
+                testIndexesToRun = []
+
+                for caseIndex in arg.split(","):
+                    testIndexesToRun.append(int(caseIndex))
+            elif arg == "--with-valgrind":
+                runWithValgrind = True
+            elif arg == "--verbose":
+                verboseDetail = True
+            elif arg.startswith("--trurl="):
+                baseCmd = arg[len("--trurl="):]
+            elif arg.startswith("--runner="):
+                runnerCmd = arg[len("--runner="):]
+            else:
+                cmdfilter = argv[1]
+
     # check if the trurl executable exists
     if path.isfile(baseCmd):
         # get the version info for the feature list
+        args = ["--version"]
+        if runnerCmd != "":
+            cmd = [runnerCmd]
+            args = [baseCmd] + args
+        else:
+            cmd = [baseCmd]
         output = run(
-            [baseCmd, "--version"],
+            cmd + args,
             stdout=PIPE, stderr=PIPE,
             encoding="utf-8"
         )
         features = output.stdout.split('\n')[1].split()[1:]
-
-        with open(path.join(baseDir, TESTFILE), "r") as file:
-            allTests = json.load(file)
-            testIndexesToRun = []
-
-        # if argv[1] exists and starts with int
-        cmdfilter = ""
-        testIndexesToRun = list(range(len(allTests)))
-        runWithValgrind = False
-        verboseDetail = False
-
-        if argc > 1:
-            for arg in argv[1:]:
-                if arg[0].isnumeric():
-                    # run only test cases separated by ","
-                    testIndexesToRun = []
-
-                    for caseIndex in arg.split(","):
-                        testIndexesToRun.append(int(caseIndex))
-                elif arg == "--with-valgrind":
-                    runWithValgrind = True
-                elif arg == "--verbose":
-                    verboseDetail = True
-                else:
-                    cmdfilter = argv[1]
 
         numTestsFailed = 0
         numTestsPassed = 0
@@ -208,7 +229,7 @@ def main(argc, argv):
                     numTestsSkipped += 1
                     continue
 
-            test = TestCase(testIndex + 1, baseCmd, **allTests[testIndex])
+            test = TestCase(testIndex + 1, runnerCmd, baseCmd, **allTests[testIndex])
 
             if test.runCommand(cmdfilter, runWithValgrind):
                 if test.test():  # passed

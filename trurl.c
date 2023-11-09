@@ -202,8 +202,8 @@ static void show_version(void)
           PROGNAME, TRURL_VERSION_TXT, data->version, LIBCURL_VERSION);
   /* puny code isn't guaranteed based on the version, so it must be polled
    * from libcurl */
+#if defined(SUPPORTS_PUNYCODE) || defined(SUPPORTS_PUNY2IDN)
   bool supports_puny = false;
-#ifdef SUPPORTS_PUNYCODE
   const char *const *feature_name = data->feature_names;
   while(*feature_name && !supports_puny) {
     supports_puny = !strncmp(*feature_name, "IDN", 3);
@@ -211,21 +211,26 @@ static void show_version(void)
   }
 #endif
 
-  fprintf(stdout, "features: %s", supports_puny?"punycode ":"");
+  fprintf(stdout, "features:");
+#ifdef SUPPORTS_PUNY2IDN
+  if(supports_puny)
+    fprintf(stdout, " punycode");
+#endif
 #ifdef SUPPORTS_ALLOW_SPACE
-  fprintf(stdout, "white-space ");
+  fprintf(stdout, " white-space");
 #endif
 #ifdef SUPPORTS_ZONEID
-  fprintf(stdout, "zone-id ");
+  fprintf(stdout, " zone-id");
 #endif
 #ifdef SUPPORTS_URL_STRERROR
-  fprintf(stdout, "url-strerror ");
+  fprintf(stdout, " url-strerror");
 #endif
 #ifdef SUPPORTS_NORM_IPV4
-  fprintf(stdout, "normalize-ipv4 ");
+  fprintf(stdout, " normalize-ipv4");
 #endif
 #ifdef SUPPORTS_PUNY2IDN
-  fprintf(stdout, "punycode2idn");
+  if(supports_puny)
+    fprintf(stdout, " punycode2idn");
 #endif
 
   fprintf(stdout, "\n");
