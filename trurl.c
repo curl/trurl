@@ -137,14 +137,14 @@ static char *curl_url_strerror(CURLUcode error)
 }
 #endif
 
-static void warnf_low(char *fmt, va_list ap)
+static void warnf_low(const char *fmt, va_list ap)
 {
   fputs(WARN_PREFIX, stderr);
   vfprintf(stderr, fmt, ap);
   fputs("\n", stderr);
 }
 
-static void warnf(char *fmt, ...)
+static void warnf(const char *fmt, ...)
 {
   va_list ap;
   va_start(ap, fmt);
@@ -264,7 +264,7 @@ struct option {
   unsigned int urls;
 };
 
-void trurl_warnf(struct option *o, char *fmt, ...)
+static void trurl_warnf(struct option *o, const char *fmt, ...)
 {
   if(!o->quiet_warnings) {
     va_list ap;
@@ -293,14 +293,14 @@ static void trurl_cleanup_options(struct option *o)
   curl_slist_free_all(o->append_path);
 }
 
-static void errorf_low(char *fmt, va_list ap)
+static void errorf_low(const char *fmt, va_list ap)
 {
   fputs(ERROR_PREFIX, stderr);
   vfprintf(stderr, fmt, ap);
   fputs("\n" ERROR_PREFIX "Try " PROGNAME " -h for help\n", stderr);
 }
 
-static void errorf(struct option *o, int exit_code, char *fmt, ...)
+static void errorf(struct option *o, int exit_code, const char *fmt, ...)
 {
   va_list ap;
   va_start(ap, fmt);
@@ -311,7 +311,7 @@ static void errorf(struct option *o, int exit_code, char *fmt, ...)
   exit(exit_code);
 }
 
-static void verify(struct option *o, int exit_code, char *fmt, ...)
+static void verify(struct option *o, int exit_code, const char *fmt, ...)
 {
   va_list ap;
   va_start(ap, fmt);
@@ -383,7 +383,7 @@ static void queryadd(struct option *o, const char *query)
   char *urle;
   if(p) {
     /* URL encode the left and the right side of the '=' separately */
-    char *f1 = curl_easy_escape(NULL, query, p - query);
+    char *f1 = curl_easy_escape(NULL, query, (int)(p - query));
     char *f2 = curl_easy_escape(NULL, p + 1, 0);
     urle = curl_maprintf("%s=%s", f1, f2);
     curl_free(f1);
@@ -1023,7 +1023,7 @@ static void trim(struct option *o)
 }
 
 /* memdup the amount and add a trailing zero */
-struct string *memdupzero(char *source, size_t len)
+static struct string *memdupzero(char *source, size_t len)
 {
   struct string *ret = malloc(sizeof(struct string));
   if(!ret)
@@ -1040,7 +1040,7 @@ struct string *memdupzero(char *source, size_t len)
 }
 
 /* URL decode the pair and return it in an allocated chunk */
-struct string *memdupdec(char *source, size_t len, bool json)
+static struct string *memdupdec(char *source, size_t len, bool json)
 {
   char *sep = memchr(source, '=', len);
   char *left = NULL;
@@ -1049,12 +1049,12 @@ struct string *memdupdec(char *source, size_t len, bool json)
   int left_len = 0;
   char *str;
 
-  left = strurldecode(source, sep ? (size_t)(sep - source) : len,
+  left = strurldecode(source, (int)(sep ? (size_t)(sep - source) : len),
                       &left_len);
   if(sep) {
     char *p;
     int plen;
-    right = strurldecode(sep + 1, len - (sep - source) - 1,
+    right = strurldecode(sep + 1, (int)(len - (sep - source) - 1),
             (int *)&right_len);
 
     /* convert null bytes to periods */
@@ -1180,8 +1180,8 @@ static void qpair2query(CURLU *uh, struct option *o)
 /* sort case insensitively */
 static int cmpfunc(const void *p1, const void *p2)
 {
-  int len = (((struct string *)p1)->len) < (((struct string *)p2)->len)?
-             (((struct string *)p1)->len):(((struct string *)p2)->len);
+  int len = (int)((((struct string *)p1)->len) < (((struct string *)p2)->len)?
+                  (((struct string *)p1)->len) : (((struct string *)p2)->len));
 
   for(int i = 0; i < len; i++) {
     char c1 = ((struct string *)p1)->str[i] | ('a' - 'A');
