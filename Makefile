@@ -24,8 +24,14 @@
 
 TARGET = trurl
 OBJS = trurl.o
-LDLIBS = $$(curl-config --libs)
-CFLAGS += $$(curl-config --cflags) -W -Wall -Wshadow -Werror -pedantic -g -std=gnu99
+ifndef TRURL_IGNORE_CURL_CONFIG
+LDLIBS += $$(curl-config --libs)
+CFLAGS += $$(curl-config --cflags)
+endif
+CFLAGS += -W -Wall -Wshadow -Werror -pedantic
+ifndef NDEBUG
+CFLAGS += -g
+endif
 MANUAL = trurl.1
 
 PREFIX ?= /usr/local
@@ -38,7 +44,7 @@ PYTHON3 ?= python3
 $(TARGET): $(OBJS)
 	$(CC) $(OBJS) -o $(TARGET) $(LDLIBS) $(LDFLAGS)
 
-trurl.o:trurl.c version.h
+trurl.o: trurl.c version.h
 
 .PHONY: install
 install:
