@@ -137,27 +137,20 @@ static char *curl_url_strerror(CURLUcode error)
 }
 #endif
 
+static void warnf_low(char *fmt, va_list ap)
+{
+  fputs(WARN_PREFIX, stderr);
+  vfprintf(stderr, fmt, ap);
+  fputs("\n", stderr);
+}
+
 static void warnf(char *fmt, ...)
 {
   va_list ap;
   va_start(ap, fmt);
-  fputs(WARN_PREFIX, stderr);
-  vfprintf(stderr, fmt, ap);
-  fputs("\n", stderr);
+  warnf_low(fmt, ap);
   va_end(ap);
 }
-
-#define VERIFY(o, exit_code, ...) \
-  do { \
-    if(!o->verify) \
-      warnf(__VA_ARGS__); \
-    else { \
-      /* make sure to terminate the JSON array */ \
-      if(o->jsonout) \
-        printf("%s]\n", o->urls ? "\n" : ""); \
-      errorf(o, exit_code, __VA_ARGS__); \
-    } \
-  } while(0)
 
 static void help(void)
 {
@@ -300,17 +293,42 @@ static void trurl_cleanup_options(struct option *o)
   curl_slist_free_all(o->append_path);
 }
 
+static void errorf_low(char *fmt, va_list ap)
+{
+  fputs(ERROR_PREFIX, stderr);
+  vfprintf(stderr, fmt, ap);
+  fputs("\n" ERROR_PREFIX "Try " PROGNAME " -h for help\n", stderr);
+}
+
 static void errorf(struct option *o, int exit_code, char *fmt, ...)
 {
   va_list ap;
   va_start(ap, fmt);
-  fputs(ERROR_PREFIX, stderr);
-  vfprintf(stderr, fmt, ap);
-  fputs("\n" ERROR_PREFIX "Try " PROGNAME " -h for help\n", stderr);
+  errorf_low(fmt, ap);
   va_end(ap);
   trurl_cleanup_options(o);
   curl_global_cleanup();
   exit(exit_code);
+}
+
+static void verify(struct option *o, int exit_code, char *fmt, ...)
+{
+  va_list ap;
+  va_start(ap, fmt);
+  if(!o->verify) {
+    warnf_low(fmt, ap);
+    va_end(ap);
+  }
+  else {
+    /* make sure to terminate the JSON array */
+    if(o->jsonout)
+      printf("%s]\n", o->urls ? "\n" : "");
+    errorf_low(fmt, ap);
+    va_end(ap);
+    trurl_cleanup_options(o);
+    curl_global_cleanup();
+    exit(exit_code);
+  }
 }
 
 static char *strurldecode(const char *url, int inlength, int *outlength)
@@ -617,7 +635,7 @@ static void showurl(FILE *stream, struct option *o, int modifiers,
   CURLUcode rc = geturlpart(o, modifiers, uh, CURLUPART_URL, &url);
   if(rc) {
     trurl_cleanup_options(o);
-    VERIFY(o, ERROR_BADURL, "invalid url [%s]", curl_url_strerror(rc));
+    verify(o, ERROR_BADURL, "invalid url [%s]", curl_url_strerror(rc));
     return;
   }
   fputs(url, stream);
@@ -889,7 +907,7 @@ static void json(struct option *o, CURLU *uh)
   CURLUcode rc = geturlpart(o, 0, uh, CURLUPART_URL, &url);
   if(rc) {
     trurl_cleanup_options(o);
-    VERIFY(o, ERROR_BADURL, "invalid url [%s]", curl_url_strerror(rc));
+    verify(o, ERROR_BADURL, "invalid url [%s]", curl_url_strerror(rc));
     return;
   }
   printf("%s\n  {\n    \"url\": ", o->urls ? "," : "");
@@ -1209,14 +1227,14 @@ static void singleurl(struct option *o,
       CURLUcode rc = seturl(o, uh, url);
       if(rc) {
         curl_url_cleanup(uh);
-        VERIFY(o, ERROR_BADURL, "%s [%s]", curl_url_strerror(rc), url);
+        verify(o, ERROR_BADURL, "%s [%s]", curl_url_strerror(rc), url);
         return;
       }
       if(o->redirect) {
         rc = seturl(o, uh, o->redirect);
         if(rc) {
           curl_url_cleanup(uh);
-          VERIFY(o, ERROR_BADURL, "invalid redirection: %s [%s]",
+          verify(o, ERROR_BADURL, "invalid redirection: %s [%s]",
                  curl_url_strerror(rc), o->redirect);
           return;
         }
@@ -1350,7 +1368,7 @@ static void singleurl(struct option *o,
       if(rc) {
         if(o->verify) /* only clean up if we're exiting */
           curl_url_cleanup(uh);
-        VERIFY(o, ERROR_URL, "not enough input for a URL");
+        verify(o, ERROR_URL, "not enough input for a URL");
         url_is_invalid = true;
       }
       else {
@@ -1358,7 +1376,7 @@ static void singleurl(struct option *o,
         if(rc) {
           if(o->verify) /* only clean up if we're exiting */
             curl_url_cleanup(uh);
-          VERIFY(o, ERROR_BADURL, "%s [%s]", curl_url_strerror(rc),
+          verify(o, ERROR_BADURL, "%s [%s]", curl_url_strerror(rc),
                  ourl);
           url_is_invalid = true;
         }
@@ -1370,7 +1388,7 @@ static void singleurl(struct option *o,
           else {
             if(o->verify) /* only clean up if we're exiting */
               curl_url_cleanup(uh);
-            VERIFY(o, ERROR_BADURL, "url became invalid");
+            verify(o, ERROR_BADURL, "url became invalid");
             url_is_invalid = true;
           }
         }
