@@ -137,11 +137,17 @@ static char *curl_url_strerror(CURLUcode error)
 }
 #endif
 
+static void message_low(const char *prefix, const char *suffix,
+                        const char *fmt, va_list ap)
+{
+  fputs(prefix, stderr);
+  vfprintf(stderr, fmt, ap);
+  fputs(suffix, stderr);
+}
+
 static void warnf_low(const char *fmt, va_list ap)
 {
-  fputs(WARN_PREFIX, stderr);
-  vfprintf(stderr, fmt, ap);
-  fputs("\n", stderr);
+  message_low(WARN_PREFIX, "\n", fmt, ap);
 }
 
 static void warnf(const char *fmt, ...)
@@ -295,9 +301,8 @@ static void trurl_cleanup_options(struct option *o)
 
 static void errorf_low(const char *fmt, va_list ap)
 {
-  fputs(ERROR_PREFIX, stderr);
-  vfprintf(stderr, fmt, ap);
-  fputs("\n" ERROR_PREFIX "Try " PROGNAME " -h for help\n", stderr);
+  message_low(ERROR_PREFIX, "\n"
+              ERROR_PREFIX "Try " PROGNAME " -h for help\n", fmt, ap);
 }
 
 static void errorf(struct option *o, int exit_code, const char *fmt, ...)
