@@ -61,6 +61,9 @@
 #if CURL_AT_LEAST_VERSION(8,3,0)
 #define SUPPORTS_PUNY2IDN
 #endif
+#if CURL_AT_LEAST_VERSION(7,30,0)
+#define SUPPORTS_IMAP_OPTIONS
+#endif
 
 #define OUTPUT_URL      0  /* default */
 #define OUTPUT_SCHEME   1
@@ -203,6 +206,14 @@ static void show_version(void)
 #if defined(SUPPORTS_PUNYCODE) || defined(SUPPORTS_PUNY2IDN)
   bool supports_puny = (data->features & CURL_VERSION_IDN) != 0;
 #endif
+#if defined(SUPPORTS_IMAP_OPTIONS)
+  bool supports_imap = false;
+  const char *const *protocol_name = data->protocols;
+  while(*protocol_name && !supports_imap) {
+    supports_imap = !strncmp(*protocol_name, "IMAP", 3);
+    protocol_name++;
+  }
+#endif
 
   fprintf(stdout, "%s version %s libcurl/%s [built-with %s]\n",
           PROGNAME, TRURL_VERSION_TXT, data->version, LIBCURL_VERSION);
@@ -222,6 +233,9 @@ static void show_version(void)
 #endif
 #ifdef SUPPORTS_NORM_IPV4
   fprintf(stdout, " normalize-ipv4");
+#endif
+#ifdef SUPPORTS_IMAP_OPTIONS
+  fprintf(stdout, " imap-options");
 #endif
 #ifdef SUPPORTS_PUNY2IDN
   if(supports_puny)
