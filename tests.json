@@ -388,6 +388,7 @@
                 "{options}"
             ]
         },
+        "required": ["imap-options"],
         "expected": {
             "stdout": "crazy\n",
             "stderr": "",
@@ -1680,6 +1681,7 @@
                 "--json"
             ]
         },
+        "required": ["imap-options"],
         "expected": {
             "returncode": 0,
             "stdout": [
