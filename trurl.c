@@ -212,7 +212,7 @@ static void show_version(void)
 #endif
 
   fprintf(stdout, "features:");
-#ifdef SUPPORTS_PUNY2IDN
+#ifdef SUPPORTS_PUNYCODE
   if(supports_puny)
     fprintf(stdout, " punycode");
 #endif
