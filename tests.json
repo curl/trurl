@@ -260,13 +260,14 @@
     {
         "input": {
             "arguments": [
-                "http://curl.se:22/",
+                "imap://curl.se:22/",
                 "-s",
-                "port=80"
+                "port=143"
             ]
         },
+        "required": ["imap-options"],
         "expected": {
-            "stdout": "http://curl.se/\n",
+            "stdout": "imap://curl.se/\n",
             "stderr": "",
             "returncode": 0
         }
@@ -323,13 +324,14 @@
             "arguments": [
                 "--default-port",
                 "--url",
-                "http://curl.se/we/are.html",
+                "imap://curl.se/we/are.html",
                 "--get",
                 "{port}"
             ]
         },
+        "required": ["imap-options"],
         "expected": {
-            "stdout": "80\n",
+            "stdout": "143\n",
             "stderr": "",
             "returncode": 0
         }
@@ -506,13 +508,14 @@
         "input": {
             "arguments": [
                 "--url",
-                "http://curl.se/we/are.html",
+                "imap://curl.se/we/are.html",
                 "-g",
                 "{default:port}"
             ]
         },
+        "required": ["imap-options"],
         "expected": {
-            "stdout": "80\n",
+            "stdout": "143\n",
             "stderr": "",
             "returncode": 0
         }
@@ -1716,14 +1719,15 @@
     {
         "input": {
             "arguments": [
-                "http://example.com/",
+                "imap://example.com/",
                 "--get",
                 "port: {port}, default:port: {default:port}"
             ]
         },
+        "required": ["imap-options"],
         "expected": {
             "returncode": 0,
-            "stdout": "port: , default:port: 80\n"
+            "stdout": "port: , default:port: 143\n"
         }
     },
     {
