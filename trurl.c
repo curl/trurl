@@ -235,7 +235,8 @@ static void show_version(void)
   fprintf(stdout, " normalize-ipv4");
 #endif
 #ifdef SUPPORTS_IMAP_OPTIONS
-  fprintf(stdout, " imap-options");
+  if(supports_imap)
+    fprintf(stdout, " imap-options");
 #endif
 #ifdef SUPPORTS_PUNY2IDN
   if(supports_puny)
