@@ -198,19 +198,14 @@ static void help(void)
 static void show_version(void)
 {
   curl_version_info_data *data = curl_version_info(CURLVERSION_NOW);
-  fprintf(stdout, "%s version %s libcurl/%s [built-with %s]\n",
-          PROGNAME, TRURL_VERSION_TXT, data->version, LIBCURL_VERSION);
   /* puny code isn't guaranteed based on the version, so it must be polled
    * from libcurl */
 #if defined(SUPPORTS_PUNYCODE) || defined(SUPPORTS_PUNY2IDN)
-  bool supports_puny = false;
-  const char *const *feature_name = data->feature_names;
-  while(*feature_name && !supports_puny) {
-    supports_puny = !strncmp(*feature_name, "IDN", 3);
-    feature_name++;
-  }
+  bool supports_puny = (data->features & CURL_VERSION_IDN) != 0;
 #endif
 
+  fprintf(stdout, "%s version %s libcurl/%s [built-with %s]\n",
+          PROGNAME, TRURL_VERSION_TXT, data->version, LIBCURL_VERSION);
   fprintf(stdout, "features:");
 #ifdef SUPPORTS_PUNYCODE
   if(supports_puny)
