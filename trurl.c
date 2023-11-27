@@ -181,6 +181,7 @@ static void help(void)
     "      --as-idn                     - encode hostnames in idn\n"
     "      --query-separator [letter]   - if something else than '&'\n"
     "      --redirect [URL]             - redirect to this\n"
+    "      --replace [component]=[data] - replace a component\n"
     "  -s, --set [component]=[data]     - set component content\n"
     "      --sort-query                 - alpha-sort the query pairs\n"
     "      --trim [component]=[what]    - trim component\n"
@@ -262,6 +263,7 @@ struct option {
   struct curl_slist *set_list;
   struct curl_slist *trim_list;
   struct curl_slist *iter_list;
+  struct curl_slist *replace_list;
   const char *redirect;
   const char *qsep;
   const char *format;
@@ -311,6 +313,7 @@ static void trurl_cleanup_options(struct option *o)
   curl_slist_free_all(o->iter_list);
   curl_slist_free_all(o->append_query);
   curl_slist_free_all(o->trim_list);
+  curl_slist_free_all(o->replace_list);
   curl_slist_free_all(o->append_path);
 }
 
@@ -458,6 +461,14 @@ static void trimadd(struct option *o,
     o->trim_list = n;
 }
 
+static void replaceadd(struct option *o,
+                       const char *replace_list) /* [component]=[data] */
+{
+  struct curl_slist *n;
+  n = curl_slist_append(o->replace_list, replace_list);
+  if(n)
+    o->replace_list = n;
+}
 static bool checkoptarg(struct option *o, const char *str,
                         const char *given,
                         const char *arg)
@@ -574,6 +585,10 @@ static int getarg(struct option *o,
     o->urlencode = true;
   else if(!strcmp("--quiet", flag))
     o->quiet_warnings = true;
+  else if(!strcmp("--replace", flag)) {
+    replaceadd(o, arg);
+    *usedarg = true;
+  }
   else
     return 1;  /* unrecognized option */
   return 0;
@@ -1042,6 +1057,7 @@ static void trim(struct option *o)
   }
 }
 
+
 /* memdup the amount and add a trailing zero */
 static struct string *memdupzero(char *source, size_t len)
 {
@@ -1222,6 +1238,41 @@ static void sortquery(struct option *o)
   }
 }
 
+static void replace(struct option *o)
+{
+  struct curl_slist *node;
+  for(node = o->replace_list; node; node = node->next) {
+    char *instr = node->data;
+    char *repl_str;
+    char *value;
+    int i;
+    bool replaced = false;
+    if(strncmp(instr, "query", 5))
+      /* for now we can only replace query components */
+      errorf(o, ERROR_TRIM, "Unsupported replace component: %s", instr);
+    repl_str = strchr(node->data, '=');
+    repl_str++; /* trim leading '=' */
+    value = strchr(repl_str, '=');
+    for(i = 0 ; i < nqpairs && !replaced; i++) {
+      char *q = qpairs[i].str;
+      if(strncmp(q, repl_str, value ? value - repl_str -1 : strlen(repl_str)))
+        /* not the correct query, move on */
+        continue;
+      curl_free(qpairs[i].str);
+      qpairs[i].len = strlen(repl_str) + 1;
+      qpairs[i].str = malloc(sizeof(char) * qpairs[i].len);
+      memcpy(qpairs[i].str, repl_str, qpairs[i].len);
+      replaced = true;
+    }
+
+    if(!replaced) {
+      trurl_warnf(o, "key '%.*s' not in url, appending to query",
+                  value - repl_str,
+                  repl_str);
+      addqpair(repl_str, strlen(repl_str), o->jsonout);
+    }
+  }
+}
 static CURLUcode seturl(struct option *o, CURLU *uh, const char *url)
 {
   return curl_url_set(uh, CURLUPART_URL, url,
@@ -1370,6 +1421,9 @@ static void singleurl(struct option *o,
 
     /* trim parts */
     trim(o);
+
+    /* replace parts */
+    replace(o);
 
     /* append query segments */
     for(p = o->append_query; p; p = p->next) {

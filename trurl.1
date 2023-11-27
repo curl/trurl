@@ -196,6 +196,12 @@ properly.
 Redirect the URL to this new location.
 The redirection is performed on the base URL, so, if no base URL is specified,
 no redirection will be performed.
+.IP "--replace [component]=[data]"
+Replaces this URL component. Only a query component maybe replaced with this.
+
+data can either take the form of a single value, or as a key/value pair in the
+shape \fIfoo=bar\fP. If replace is called on an item that isn't in the list of
+queries trurl will append it to the end of the query list and throw a warning.
 .IP "-s, --set [component][:]=[data]"
 Set this URL component. Setting blank string ("") will clear the component
 from the URL.
