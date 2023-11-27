@@ -196,6 +196,15 @@ properly.
 Redirect the URL to this new location.
 The redirection is performed on the base URL, so, if no base URL is specified,
 no redirection will be performed.
+.IP "--replace [data]"
+Replaces a URL query.
+
+data can either take the form of a single value, or as a key/value pair in the
+shape \fIfoo=bar\fP. If replace is called on an item that isn't in the list of
+queries trurl will ignore that item.
+.IP "--force-replace [data]"
+Works the same as \fI--replace\fP, but trurl will append a missing query string if 
+it is not in the query list already.
 .IP "-s, --set [component][:]=[data]"
 Set this URL component. Setting blank string ("") will clear the component
 from the URL.
