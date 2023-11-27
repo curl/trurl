@@ -1255,10 +1255,11 @@ static void replace(struct option *o)
     value = strchr(repl_str, '=');
     for(i = 0 ; i < nqpairs && !replaced; i++) {
       char *q = qpairs[i].str;
-      if(strncmp(q, repl_str, value ? value - repl_str -1 : strlen(repl_str)))
+      if(strncmp(q, repl_str, value ?
+                  (size_t)(value - repl_str -1): strlen(repl_str)))
         /* not the correct query, move on */
         continue;
-      curl_free(qpairs[i].str);
+      free(qpairs[i].str);
       qpairs[i].len = strlen(repl_str) + 1;
       qpairs[i].str = malloc(sizeof(char) * qpairs[i].len);
       memcpy(qpairs[i].str, repl_str, qpairs[i].len);
