@@ -129,6 +129,7 @@ static const struct var variables[] = {
 #define ERROR_BADURL 9 /* if --verify is set and the URL cannot parse */
 #define ERROR_GET   10 /* bad --get syntax */
 #define ERROR_ITER  11 /* bad --iterate syntax */
+#define ERROR_REPL  12 /* a --replace problem */
 
 #ifndef SUPPORTS_URL_STRERROR
 /* provide a fake local mockup */
@@ -1249,7 +1250,7 @@ static void replace(struct option *o)
     bool replaced = false;
     if(strncmp(instr, "query", 5))
       /* for now we can only replace query components */
-      errorf(o, ERROR_TRIM, "Unsupported replace component: %s", instr);
+      errorf(o, ERROR_REPL, "Unsupported replace component: %s", instr);
     repl_str = strchr(node->data, '=');
     repl_str++; /* trim leading '=' */
     value = strchr(repl_str, '=');
