@@ -1268,7 +1268,7 @@ static void replace(struct option *o)
 
     if(!replaced) {
       trurl_warnf(o, "key '%.*s' not in url, appending to query",
-                  value - repl_str,
+                  (int) (value - repl_str),
                   repl_str);
       addqpair(repl_str, strlen(repl_str), o->jsonout);
     }

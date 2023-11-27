@@ -2241,7 +2241,7 @@
         },
         "expected": {
             "stdout": "http://test.org/?key=foo\n",
-            "stderr": false,
+            "stderr": "",
             "returncode": 0
         }
     },
@@ -2255,7 +2255,7 @@
         },
         "expected": {
             "stdout": "http://test.org/?that=thing&key=foo\n",
-            "stderr": false,
+            "stderr": "",
             "returncode": 0
         }
     },
@@ -2269,7 +2269,7 @@
         },
         "expected": {
             "stdout": "http://test.org/?that=thing&key=foo\n",
-            "stderr": false,
+            "stderr": "",
             "returncode": 0
         }
     },
@@ -2283,7 +2283,7 @@
         },
         "expected": {
             "stdout": "http://test.org/?that=thing&key\n",
-            "stderr": false,
+            "stderr": "",
             "returncode": 0
         }
     },
