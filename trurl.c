@@ -1058,7 +1058,6 @@ static void trim(struct option *o)
   }
 }
 
-
 /* memdup the amount and add a trailing zero */
 static struct string *memdupzero(char *source, size_t len)
 {
