@@ -2304,6 +2304,20 @@
     {
         "input": {
             "arguments": [
+                "https://example.com?a=123&b=321&b=987",
+                "--replace",
+                "query=b=foo"
+            ]
+        },
+        "expected": {
+            "stdout": "https://example.com/?a=123&b=foo\n",
+            "stderr": "",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
                 "http://test.org/?that=thing",
                 "--replace",
                 "path=some/path"

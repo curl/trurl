@@ -1253,17 +1253,24 @@ static void replace(struct option *o)
     repl_str = strchr(node->data, '=');
     repl_str++; /* trim leading '=' */
     value = strchr(repl_str, '=');
-    for(i = 0 ; i < nqpairs && !replaced; i++) {
+    for(i = 0 ; i < nqpairs; i++) {
       char *q = qpairs[i].str;
       if(strncmp(q, repl_str, value ?
                   (size_t)(value - repl_str): strlen(repl_str)))
         /* not the correct query, move on */
         continue;
+      /* this is a duplicate remove it. */
       free(qpairs[i].str);
-      qpairs[i].len = strlen(repl_str) + 1;
-      qpairs[i].str = malloc(sizeof(char) * qpairs[i].len);
-      memcpy(qpairs[i].str, repl_str, qpairs[i].len);
-      replaced = true;
+      if(replaced) {
+        qpairs[i].len = 0;
+        qpairs[i].str = strdup("");
+      }
+      else {
+        qpairs[i].len = strlen(repl_str) + 1;
+        qpairs[i].str = malloc(sizeof(char) * qpairs[i].len);
+        memcpy(qpairs[i].str, repl_str, qpairs[i].len);
+        replaced = true;
+      }
     }
 
     if(!replaced) {
