@@ -1266,10 +1266,11 @@ static void replace(struct option *o)
         qpairs[i].len = 0;
         qpairs[i].str = strdup("");
         qpairsdec[i].len = 0;
-        qpairsdec[i].str = strdup(""); 
+        qpairsdec[i].str = strdup("");
       }
       else {
-        struct string *pdec = memdupdec(repl_str, strlen(repl_str), o->jsonout);
+        struct string *pdec =
+          memdupdec(repl_str, strlen(repl_str), o->jsonout);
         struct string *p = memdupzero(repl_str, strlen(repl_str));
         qpairs[i].len = p->len;
         qpairs[i].str = p->str;
