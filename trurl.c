@@ -1259,16 +1259,24 @@ static void replace(struct option *o)
                   (size_t)(value - repl_str): strlen(repl_str)))
         /* not the correct query, move on */
         continue;
-      /* this is a duplicate remove it. */
       free(qpairs[i].str);
+      curl_free(qpairsdec[i].str);
+      /* this is a duplicate remove it. */
       if(replaced) {
         qpairs[i].len = 0;
         qpairs[i].str = strdup("");
+        qpairsdec[i].len = 0;
+        qpairsdec[i].str = strdup(""); 
       }
       else {
-        qpairs[i].len = strlen(repl_str) + 1;
-        qpairs[i].str = malloc(sizeof(char) * qpairs[i].len);
-        memcpy(qpairs[i].str, repl_str, qpairs[i].len);
+        struct string *pdec = memdupdec(repl_str, strlen(repl_str), o->jsonout);
+        struct string *p = memdupzero(repl_str, strlen(repl_str));
+        qpairs[i].len = p->len;
+        qpairs[i].str = p->str;
+        qpairsdec[i].len = pdec->len;
+        qpairsdec[i].str = pdec->str;
+        free(pdec);
+        free(p);
         replaced = true;
       }
     }

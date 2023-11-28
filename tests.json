@@ -2318,15 +2318,29 @@
     {
         "input": {
             "arguments": [
-                "http://test.org/?that=thing",
+                "example.org/?quest=best",
                 "--replace",
-                "path=some/path"
+                "query=quest=%00",
+                "--json"
             ]
         },
         "expected": {
-            "stdout": "",
-            "stderr": "trurl error: Unsupported replace component: path=some/path\ntrurl error: Try trurl -h for help\n",
-            "returncode": 12
+			"stdout": [{
+				"url": "http://example.org/?quest=%00",
+				"parts": {
+					"scheme": "http",
+					"host": "example.org",
+					"path": "/"
+				},
+				"params": [
+					{
+						"key": "quest",
+						"value": "\u0000"
+					}
+				]
+			}],
+			"stderr": "",
+            "returncode": 0
         }
     }
 ]
