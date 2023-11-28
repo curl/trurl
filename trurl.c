@@ -1251,6 +1251,8 @@ static void replace(struct option *o)
       /* for now we can only replace query components */
       errorf(o, ERROR_REPL, "Unsupported replace component: %s", instr);
     repl_str = strchr(node->data, '=');
+    if(repl_str == NULL)
+        errorf(o, ERROR_REPL, "No data passed to replace component");
     repl_str++; /* trim leading '=' */
     value = strchr(repl_str, '=');
     for(i = 0 ; i < nqpairs; i++) {
