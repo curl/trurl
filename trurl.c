@@ -1256,7 +1256,7 @@ static void replace(struct option *o)
     for(i = 0 ; i < nqpairs && !replaced; i++) {
       char *q = qpairs[i].str;
       if(strncmp(q, repl_str, value ?
-                  (size_t)(value - repl_str -1): strlen(repl_str)))
+                  (size_t)(value - repl_str): strlen(repl_str)))
         /* not the correct query, move on */
         continue;
       free(qpairs[i].str);
