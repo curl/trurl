@@ -2342,5 +2342,19 @@
 			"stderr": "",
             "returncode": 0
         }
+    },
+    {
+        "input": {
+            "arguments": [
+                "example.com",
+                "--replace",
+                "query"
+            ]
+        }, 
+        "expected": {
+            "stderr": "trurl error: No data passed to replace component\ntrurl error: Try trurl -h for help\n",
+            "stdout":"",
+            "returncode": 12
+        }
     }
 ]
