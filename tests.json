@@ -2356,5 +2356,19 @@
             "stdout":"",
             "returncode": 12
         }
-    }
+    },
+    {
+        "input": {
+            "arguments": [
+                "http://test.org/?that=thing",
+                "--replace",
+                "path=some/path"
+            ]
+        },
+        "expected": {
+            "stdout": "",
+            "stderr": "trurl error: Unsupported replace component: path=some/path\ntrurl error: Try trurl -h for help\n",
+            "returncode": 12
+        }
+	}
 ]
