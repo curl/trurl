@@ -210,7 +210,7 @@ static void show_version(void)
   bool supports_imap = false;
   const char *const *protocol_name = data->protocols;
   while(*protocol_name && !supports_imap) {
-    supports_imap = !strncmp(*protocol_name, "IMAP", 3);
+    supports_imap = !strncmp(*protocol_name, "imap", 3);
     protocol_name++;
   }
 #endif
