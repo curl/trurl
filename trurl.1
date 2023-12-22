@@ -201,7 +201,10 @@ Replaces this URL component. Only a query component may be replaced.
 
 data can either take the form of a single value, or as a key/value pair in the
 shape \fIfoo=bar\fP. If replace is called on an item that isn't in the list of
-queries trurl will append it to the end of the query list and throw a warning.
+queries trurl will ignore that item.
+.IP "--force-replace [component]=[data]"
+Works the same as \fI--replace\fP, but trurl will append a missing component if it is
+not in the query list already.
 .IP "-s, --set [component][:]=[data]"
 Set this URL component. Setting blank string ("") will clear the component
 from the URL.

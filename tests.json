@@ -2296,8 +2296,8 @@
             ]
         },
         "expected": {
-            "stdout": "http://test.org/?that=thing&key=foo\n",
-            "stderr": "trurl note: key 'key' not in url, appending to query\n",
+            "stdout": "http://test.org/?that=thing\n",
+            "stderr": "",
             "returncode": 0
         }
     },
@@ -2370,5 +2370,19 @@
             "stderr": "trurl error: Unsupported replace component: path=some/path\ntrurl error: Try trurl -h for help\n",
             "returncode": 12
         }
-	}
+	},
+  {
+    "input": {
+            "arguments": [
+                "http://test.org/?that=thing",
+                "--force-replace",
+                "query=key=foo"
+            ]
+        },
+        "expected": {
+            "stdout": "http://test.org/?that=thing&key=foo\n",
+            "stderr": "trurl note: key 'key' not in url, appending to query\n",
+            "returncode": 0
+        }
+  }
 ]

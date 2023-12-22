@@ -183,6 +183,7 @@ static void help(void)
     "      --query-separator [letter]   - if something else than '&'\n"
     "      --redirect [URL]             - redirect to this\n"
     "      --replace [component]=[data] - replace a component\n"
+    "      --force-replace              - appends component if not found\n"
     "  -s, --set [component]=[data]     - set component content\n"
     "      --sort-query                 - alpha-sort the query pairs\n"
     "      --trim [component]=[what]    - trim component\n"
@@ -283,6 +284,7 @@ struct option {
   bool urlencode;
   bool end_of_options;
   bool quiet_warnings;
+  bool force_replace;
 
   /* -- stats -- */
   unsigned int urls;
@@ -588,6 +590,12 @@ static int getarg(struct option *o,
     o->quiet_warnings = true;
   else if(!strcmp("--replace", flag)) {
     replaceadd(o, arg);
+    o->force_replace = false;
+    *usedarg = true;
+  }
+  else if(!strcmp("--force-replace", flag)) {
+    replaceadd(o, arg);
+    o->force_replace = true;
     *usedarg = true;
   }
   else
@@ -1284,7 +1292,7 @@ static void replace(struct option *o)
       }
     }
 
-    if(!replaced) {
+    if(!replaced && o->force_replace) {
       trurl_warnf(o, "key '%.*s' not in url, appending to query",
                   (int) (value - repl_str),
                   repl_str);
