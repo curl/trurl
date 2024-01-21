@@ -26,10 +26,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
 #include <curl/curl.h>
 #include <curl/mprintf.h>
 #include <stdint.h>
+
+#if defined(_MSC_VER) && (_MSC_VER < 1800)
+typedef enum {
+  bool_false = 0,
+  bool_true  = 1
+} bool;
+#define false bool_false
+#define true  bool_true
+#else
+#include <stdbool.h>
+#endif
 
 #include <locale.h> /* for setlocale() */
 
@@ -980,11 +990,12 @@ static void trim(struct option *o)
 {
   struct curl_slist *node;
   for(node = o->trim_list; node; node = node->next) {
+    char *ptr;
     char *instr = node->data;
     if(strncmp(instr, "query", 5))
       /* for now we can only trim query components */
       errorf(o, ERROR_TRIM, "Unsupported trim component: %s", instr);
-    char *ptr = strchr(instr, '=');
+    ptr = strchr(instr, '=');
     if(ptr && (ptr > instr)) {
       /* 'ptr' should be a fixed string or a pattern ending with an
          asterisk */
@@ -1068,6 +1079,7 @@ static struct string *memdupdec(char *source, size_t len, bool json)
   int right_len = 0;
   int left_len = 0;
   char *str;
+  struct string *ret;
 
   left = strurldecode(source, (int)(sep ? (size_t)(sep - source) : len),
                       &left_len);
@@ -1094,7 +1106,7 @@ static struct string *memdupdec(char *source, size_t len, bool json)
   }
   curl_free(right);
   curl_free(left);
-  struct string *ret = malloc(sizeof(struct string));
+  ret = malloc(sizeof(struct string));
   if(!ret) {
     return NULL;
   }
@@ -1200,10 +1212,11 @@ static void qpair2query(CURLU *uh, struct option *o)
 /* sort case insensitively */
 static int cmpfunc(const void *p1, const void *p2)
 {
+  int i;
   int len = (int)((((struct string *)p1)->len) < (((struct string *)p2)->len)?
                   (((struct string *)p1)->len) : (((struct string *)p2)->len));
 
-  for(int i = 0; i < len; i++) {
+  for(i = 0; i < len; i++) {
     char c1 = ((struct string *)p1)->str[i] | ('a' - 'A');
     char c2 = ((struct string *)p2)->str[i] | ('a' - 'A');
     if(c1 != c2)
