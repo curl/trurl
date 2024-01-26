@@ -590,7 +590,6 @@ static int getarg(struct option *o,
     o->quiet_warnings = true;
   else if(!strcmp("--replace", flag)) {
     replaceadd(o, arg);
-    o->force_replace = false;
     *usedarg = true;
   }
   else if(!strcmp("--force-replace", flag)) {
