@@ -992,13 +992,9 @@ static void json(struct option *o, CURLU *uh)
       const char *sep = memchr(qpairsdec[j].str, '=', qpairsdec[j].len);
       const char *value = sep ? sep + 1 : "";
       int value_len = (int) qpairsdec[j].len - (int)(value - qpairsdec[j].str);
-
       /* don't print out empty/trimmed values */
-      if(!qpairsdec[j].len)
+      if(!qpairsdec[j].len || !qpairsdec[j].str[0])
         continue;
-      if(!qpairsdec[j].str[0])
-        continue;
-
       if(!first)
         fputs(",\n", stdout);
       first = false;
