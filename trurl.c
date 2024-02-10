@@ -627,7 +627,8 @@ static void showqkey(FILE *stream, const char *key, size_t klen,
     if(!strncmp(key, qp[i].str, klen) && (qp[i].str[klen] == '=')) {
       if(shown)
         fputc(' ', stream);
-      fprintf(stream, "%.*s", (int) qp[i].len, &qp[i].str[klen + 1]);
+      fprintf(stream, "%.*s", (int) (qp[i].len - klen - 1),
+              &qp[i].str[klen + 1]);
       if(!showall)
         break;
       shown = true;
