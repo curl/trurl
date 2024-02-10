@@ -1255,11 +1255,10 @@ static void replace(struct option *o)
   for(node = o->replace_list; node; node = node->next) {
     struct string key;
     struct string value;
-    int i;
     bool replaced = false;
+    int i;
     key.str = node->data;
     value.str = strchr(key.str, '=');
-    value.len = 0;
     if(value.str) {
       key.len = value.str++ - key.str;
       value.len = strlen(value.str);
@@ -1267,11 +1266,12 @@ static void replace(struct option *o)
     else {
       key.len = strlen(key.str);
       value.str = NULL;
+      value.len = 0;
     }
-    for(i = 0 ; i < nqpairs; i++) {
+    for(i = 0; i < nqpairs; i++) {
       char *q = qpairs[i].str;
+      /* not the correct query, move on */
       if(strncmp(q, key.str, key.len))
-        /* not the correct query, move on */
         continue;
       free(qpairs[i].str);
       curl_free(qpairsdec[i].str);
@@ -1281,19 +1281,18 @@ static void replace(struct option *o)
         qpairs[i].str = strdup("");
         qpairsdec[i].len = 0;
         qpairsdec[i].str = strdup("");
+        continue;
       }
-      else {
-        struct string *pdec =
-          memdupdec(key.str, key.len + value.len + 1, o->jsonout);
-        struct string *p = memdupzero(key.str, key.len + value.len + 1);
-        qpairs[i].len = p->len;
-        qpairs[i].str = p->str;
-        qpairsdec[i].len = pdec->len;
-        qpairsdec[i].str = pdec->str;
-        free(pdec);
-        free(p);
-        replaced = true;
-      }
+      struct string *pdec =
+        memdupdec(key.str, key.len + value.len + 1, o->jsonout);
+      struct string *p = memdupzero(key.str, key.len + value.len + 1);
+      qpairs[i].len = p->len;
+      qpairs[i].str = p->str;
+      qpairsdec[i].len = pdec->len;
+      qpairsdec[i].str = pdec->str;
+      free(pdec);
+      free(p);
+      replaced = true;
     }
 
     if(!replaced && o->force_replace) {
