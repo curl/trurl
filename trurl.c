@@ -467,8 +467,11 @@ static void trimadd(struct option *o,
 static void replaceadd(struct option *o,
                        const char *replace_list) /* [component]=[data] */
 {
-  struct curl_slist *n;
-  n = curl_slist_append(o->replace_list, replace_list);
+  struct curl_slist *n = NULL;
+  if(replace_list)
+      n = curl_slist_append(o->replace_list, replace_list);
+  else
+      errorf(o, ERROR_REPL, "No data passed to replace component");
   if(n)
     o->replace_list = n;
 }
@@ -1249,23 +1252,24 @@ static void replace(struct option *o)
 {
   struct curl_slist *node;
   for(node = o->replace_list; node; node = node->next) {
-    char *instr = node->data;
-    char *repl_str;
-    char *value;
+    struct string key;
+    struct string value;
     int i;
     bool replaced = false;
-    if(strncmp(instr, "query", 5))
-      /* for now we can only replace query components */
-      errorf(o, ERROR_REPL, "Unsupported replace component: %s", instr);
-    repl_str = strchr(node->data, '=');
-    if(!repl_str)
-      errorf(o, ERROR_REPL, "No data passed to replace component");
-    repl_str++; /* trim leading '=' */
-    value = strchr(repl_str, '=');
+    key.str = node->data;
+    value.str = strchr(key.str, '=');
+    value.len = 0;
+    if(value.str) {
+      key.len = value.str++ - key.str;
+      value.len = strlen(value.str);
+    }
+    else {
+      key.len = strlen(key.str);
+      value.str = NULL;
+    }
     for(i = 0 ; i < nqpairs; i++) {
       char *q = qpairs[i].str;
-      if(strncmp(q, repl_str, value ?
-                  (size_t)(value - repl_str): strlen(repl_str)))
+      if(strncmp(q, key.str, key.len))
         /* not the correct query, move on */
         continue;
       free(qpairs[i].str);
@@ -1279,8 +1283,8 @@ static void replace(struct option *o)
       }
       else {
         struct string *pdec =
-          memdupdec(repl_str, strlen(repl_str), o->jsonout);
-        struct string *p = memdupzero(repl_str, strlen(repl_str));
+          memdupdec(key.str, key.len + value.len + 1, o->jsonout);
+        struct string *p = memdupzero(key.str, key.len + value.len + 1);
         qpairs[i].len = p->len;
         qpairs[i].str = p->str;
         qpairsdec[i].len = pdec->len;
@@ -1293,9 +1297,9 @@ static void replace(struct option *o)
 
     if(!replaced && o->force_replace) {
       trurl_warnf(o, "key '%.*s' not in url, appending to query",
-                  (int) (value - repl_str),
-                  repl_str);
-      addqpair(repl_str, strlen(repl_str), o->jsonout);
+                  (int) (key.len),
+                  key.str);
+      addqpair(key.str, strlen(key.str), o->jsonout);
     }
   }
 }

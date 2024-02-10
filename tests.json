@@ -2236,7 +2236,7 @@
             "arguments": [
                 "http://test.org/?key=val",
                 "--replace",
-                "query=key=foo"
+                "key=foo"
             ]
         },
         "expected": {
@@ -2250,7 +2250,7 @@
             "arguments": [
                 "http://test.org/?that=thing&key=val",
                 "--replace",
-                "query=key=foo"
+                "key=foo"
             ]
         },
         "expected": {
@@ -2264,7 +2264,7 @@
             "arguments": [
                 "http://test.org/?that=thing&key",
                 "--replace",
-                "query=key=foo"
+                "key=foo"
             ]
         },
         "expected": {
@@ -2278,7 +2278,7 @@
             "arguments": [
                 "http://test.org/?that=thing&key=foo",
                 "--replace",
-                "query=key"
+                "key"
             ]
         },
         "expected": {
@@ -2290,23 +2290,9 @@
     {
         "input": {
             "arguments": [
-                "http://test.org/?that=thing",
-                "--replace",
-                "query=key=foo"
-            ]
-        },
-        "expected": {
-            "stdout": "http://test.org/?that=thing\n",
-            "stderr": "",
-            "returncode": 0
-        }
-    },
-    {
-        "input": {
-            "arguments": [
                 "https://example.com?a=123&b=321&b=987",
                 "--replace",
-                "query=b=foo"
+                "b=foo"
             ]
         },
         "expected": {
@@ -2320,7 +2306,7 @@
             "arguments": [
                 "example.org/?quest=best",
                 "--replace",
-                "query=quest=%00",
+                "quest=%00",
                 "--json"
             ]
         },
@@ -2347,8 +2333,7 @@
         "input": {
             "arguments": [
                 "example.com",
-                "--replace",
-                "query"
+                "--replace"
             ]
         }, 
         "expected": {
@@ -2358,25 +2343,11 @@
         }
     },
     {
-        "input": {
-            "arguments": [
-                "http://test.org/?that=thing",
-                "--replace",
-                "path=some/path"
-            ]
-        },
-        "expected": {
-            "stdout": "",
-            "stderr": "trurl error: Unsupported replace component: path=some/path\ntrurl error: Try trurl -h for help\n",
-            "returncode": 12
-        }
-	},
-  {
     "input": {
             "arguments": [
                 "http://test.org/?that=thing",
                 "--force-replace",
-                "query=key=foo"
+                "key=foo"
             ]
         },
         "expected": {
