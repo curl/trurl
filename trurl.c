@@ -994,7 +994,9 @@ static void json(struct option *o, CURLU *uh)
       int value_len = (int) qpairsdec[j].len - (int)(value - qpairsdec[j].str);
 
       /* don't print out empty/trimmed values */
-      if(!qpairsdec[j].str[0] || !qpairsdec[j].len)
+      if(!qpairsdec[j].len)
+        continue;
+      if(!qpairsdec[j].str[0])
         continue;
 
       if(!first)
