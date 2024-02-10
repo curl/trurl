@@ -469,9 +469,10 @@ static void replaceadd(struct option *o,
 {
   struct curl_slist *n = NULL;
   if(replace_list)
-      n = curl_slist_append(o->replace_list, replace_list);
+    n = curl_slist_append(o->replace_list, replace_list);
   else
-      errorf(o, ERROR_REPL, "No data passed to replace component");
+    errorf(o, ERROR_REPL, "No data passed to replace component");
+
   if(n)
     o->replace_list = n;
 }
