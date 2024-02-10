@@ -624,11 +624,10 @@ static void showqkey(FILE *stream, const char *key, size_t klen,
   struct string *qp = urldecode ? qpairsdec : qpairs;
 
   for(i = 0; i< nqpairs; i++) {
-    if(!strncmp(key, qp[i].str, klen) &&
-       (qp[i].str[klen] == '=')) {
+    if(!strncmp(key, qp[i].str, klen) && (qp[i].str[klen] == '=')) {
       if(shown)
         fputc(' ', stream);
-      fputs(&qp[i].str[klen + 1], stream);
+      fprintf(stream, "%.*s", (int) qp[i].len, &qp[i].str[klen + 1]);
       if(!showall)
         break;
       shown = true;
@@ -989,12 +988,14 @@ static void json(struct option *o, CURLU *uh)
     int j;
     fputs(",\n    \"params\": [\n", stdout);
     for(j = 0 ; j < nqpairs; j++) {
-      const char *sep = strchr(qpairsdec[j].str, '=');
+      const char *sep = memchr(qpairsdec[j].str, '=', qpairsdec[j].len);
       const char *value = sep ? sep + 1 : "";
+      int value_len = (int) qpairsdec[j].len - (int)(value - qpairsdec[j].str);
 
       /* don't print out empty/trimmed values */
-      if(!qpairsdec[j].str[0])
+      if(!qpairsdec[j].str[0] || !qpairsdec[j].len)
         continue;
+
       if(!first)
         fputs(",\n", stdout);
       first = false;
@@ -1004,7 +1005,7 @@ static void json(struct option *o, CURLU *uh)
                        qpairsdec[j].len,
                  false);
       fputs(",\n        \"value\": ", stdout);
-      jsonString(stdout, sep?value:"", sep?qpairsdec[j].len:0, false);
+      jsonString(stdout, sep?value:"", sep?value_len:0, false);
       fputs("\n      }", stdout);
     }
     fputs("\n    ]", stdout);
@@ -1107,14 +1108,13 @@ static struct string *memdupdec(char *source, size_t len, bool json)
   int left_len = 0;
   char *str;
   struct string *ret;
-
   left = strurldecode(source, (int)(sep ? (size_t)(sep - source) : len),
                       &left_len);
   if(sep) {
     char *p;
     int plen;
     right = strurldecode(sep + 1, (int)(len - (sep - source) - 1),
-            (int *)&right_len);
+            &right_len);
 
     /* convert null bytes to periods */
     for(plen = right_len, p = right; plen; plen--, p++) {
@@ -1123,13 +1123,13 @@ static struct string *memdupdec(char *source, size_t len, bool json)
       }
      }
   }
-
-  str = curl_maprintf("%.*s%s%.*s", left_len, left,
-                      right ? "=":"",
-                      right_len, right?right:"");
-  /* handle strings with null characters */
-  if(sep && right) {
-    memcpy(str + left_len + 1, right, right_len);
+  str = malloc(sizeof(char) * (left_len + (sep?(right_len + 1):0)));
+  if(!str)
+    return NULL;
+  memcpy(str, left, left_len);
+  if(sep) {
+    str[left_len] = '=';
+    memcpy(str + 1 + left_len, right, right_len);
   }
   curl_free(right);
   curl_free(left);
@@ -1138,11 +1138,7 @@ static struct string *memdupdec(char *source, size_t len, bool json)
     return NULL;
   }
   ret->str = str;
-  if(right)
-    ret->len = right_len;
-  else {
-    ret->len = left_len;
-  }
+  ret->len = left_len + (sep?(right_len + 1):0);
   return ret;
 }
 
