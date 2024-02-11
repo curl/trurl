@@ -1068,7 +1068,7 @@ static void trim(struct option *o)
             !strncasecmp(q, ptr, inslen))) {
           /* this qpair should be stripped out */
           free(qpairs[i].str);
-          curl_free(qpairsdec[i].str);
+          free(qpairsdec[i].str);
           qpairs[i].str = strdup(""); /* marked as deleted */
           qpairs[i].len = 0;
           qpairsdec[i].str = strdup(""); /* marked as deleted */
@@ -1149,7 +1149,7 @@ static void freeqpairs(void)
     if(qpairs[i].len) {
       free(qpairs[i].str);
       qpairs[i].str = NULL;
-      curl_free(qpairsdec[i].str);
+      free(qpairsdec[i].str);
       qpairsdec[i].str = NULL;
     }
   }
