@@ -1,18 +1,16 @@
-trurl 0.9
+trurl 0.10
 
 Changes since previous release
 
- o add --as-idn and punycode to IDN conversion
- o add --curl to only count as valid URLs supported by libcurl
- o add vs2022 project files
+ o add --replace
 
 Bugfixes since previous release
 
- o accept \* as a trim name to trim a literal asterisk name
- o format null as \u0000 for --json
- o run  --trim query  before  --append query
+ o fixed buffer overflows on %00 use
+ o support compiling with old versions of Visual Studio
+ o enable more C compiler warnings and fix them
+ o ci: add Windows builds
 
 Contributors to this release:
 
-  Daniel Stenberg, Ehsan, Emanuele Torre, Jacob Mealey, Krishean Draconis,
-  Michael Ablassmeier, 積丹尼 Dan Jacobson
+  Daniel Stenberg, Jacob Mealey, Jay Satiro, Michael Lass, Viktor Szakats
