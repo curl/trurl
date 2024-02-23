@@ -27,7 +27,7 @@ import sys
 from os import getcwd, path
 import json
 import shlex
-from subprocess import PIPE, run
+from subprocess import PIPE, run, Popen
 from dataclasses import dataclass, asdict
 from typing import Any, Optional, TextIO
 
@@ -39,6 +39,8 @@ VALGRINDARGS = ["--error-exitcode=1", "--leak-check=full", "-q"]
 RED = "\033[91m"  # used to mark unsuccessful tests
 NOCOLOR = "\033[0m"
 
+EXIT_SUCCESS = 0
+EXIT_ERROR = 1
 
 @dataclass
 class CommandOutput:
@@ -56,6 +58,15 @@ def testComponent(value, exp):
             return not result
 
     return value == exp
+
+# checks if valgrind is installed
+def check_valgrind():
+    process = Popen(VALGRINDTEST + " --version",
+                    shell=True, stdout=PIPE, stderr=PIPE, encoding="utf-8")
+    output, error = process.communicate()
+    if output.startswith(VALGRINDTEST) and not len(error):
+        return True
+    return False
 
 
 class TestCase:
@@ -159,7 +170,7 @@ class TestCase:
 
 
 def main(argc, argv):
-    ret = 0
+    ret = EXIT_SUCCESS
     baseDir = path.dirname(path.realpath(argv[0]))
     # python on windows does not always seem to find the
     # executable if it is in a different output directory than
@@ -200,6 +211,10 @@ def main(argc, argv):
                 runnerCmd = arg[len("--runner="):]
             else:
                 cmdfilter = argv[1]
+
+    if runWithValgrind and not check_valgrind():
+        print(f'Error: {VALGRINDTEST} is not installed!', file=sys.stderr)
+        return EXIT_ERROR
 
     # check if the trurl executable exists
     if path.isfile(baseCmd):
