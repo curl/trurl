@@ -1641,6 +1641,7 @@
             ]
         },
         "required": ["punycode"],
+        "encoding": "UTF-8",
         "expected": {
             "stderr": "",
             "returncode": 0,
@@ -1656,6 +1657,7 @@
             ]
         },
         "required": ["punycode"],
+        "encoding": "UTF-8",
         "expected": {
             "stderr": "",
             "returncode": 0,
@@ -1671,6 +1673,7 @@
             ]
         },
         "required": ["punycode"],
+        "encoding": "UTF-8",
         "expected": {
             "stderr": "",
             "returncode": 0,
@@ -2149,6 +2152,7 @@
             ]
         },
         "required": ["punycode2idn"],
+        "encoding": "UTF-8",
         "expected": {
             "stdout": "http://räksmörgås/\n",
             "stderr": "",
@@ -2165,6 +2169,7 @@
             ]
         },
         "required": ["punycode2idn"],
+        "encoding": "UTF-8",
         "expected": {
             "stdout": "räksmörgås\n",
             "stderr": "",
@@ -2181,6 +2186,7 @@
             ]
         },
         "required": ["punycode2idn"],
+        "encoding": "UTF-8",
         "expected": {
             "stdout": "http://xn-----/\n",
             "stderr": "",
@@ -2196,6 +2202,7 @@
             ]
         },
         "required": ["punycode2idn"],
+        "encoding": "UTF-8",
         "expected": {
             "stdout": "http://xn-----/\n",
             "stderr": "trurl note: Error converting url to IDN [Bad hostname]\n",

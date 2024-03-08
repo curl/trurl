@@ -30,6 +30,7 @@ import shlex
 from subprocess import PIPE, run, Popen
 from dataclasses import dataclass, asdict
 from typing import Any, Optional, TextIO
+import locale
 
 PROGNAME = "trurl"
 TESTFILE = "tests.json"
@@ -67,6 +68,12 @@ def check_valgrind():
     if output.startswith(VALGRINDTEST) and not len(error):
         return True
     return False
+
+
+def getcharmap():
+    process = Popen("locale charmap", shell=True, stdout=PIPE, stderr=PIPE, encoding="utf-8");
+    output, error = process.communicate()
+    return output.strip()
 
 
 class TestCase:
@@ -172,6 +179,7 @@ class TestCase:
 def main(argc, argv):
     ret = EXIT_SUCCESS
     baseDir = path.dirname(path.realpath(argv[0]))
+    locale.setlocale(locale.LC_ALL, "")
     # python on windows does not always seem to find the
     # executable if it is in a different output directory than
     # the python script, even if it is in the current working
@@ -237,12 +245,16 @@ def main(argc, argv):
         numTestsSkipped = 0
         for testIndex in testIndexesToRun:
             # skip tests if required features are not met
-            if "required" in allTests[testIndex]:
-                required = allTests[testIndex]["required"]
-                if not set(required).issubset(set(features)):
-                    print(f"Missing feature, skipping test {testIndex + 1}.")
-                    numTestsSkipped += 1
-                    continue
+            required = allTests[testIndex].get("required", None)
+            if required and not set(required).issubset(set(features)):
+                print(f"Missing feature, skipping test {testIndex + 1}.")
+                numTestsSkipped += 1
+                continue
+            encoding = allTests[testIndex].get("encoding", None)
+            if encoding and encoding != getcharmap():
+                print(f"Invalid locale, skipping test {testIndex + 1}.")
+                numTestsSkipped += 1
+                continue;
 
             test = TestCase(testIndex + 1, runnerCmd, baseCmd, **allTests[testIndex])
 
