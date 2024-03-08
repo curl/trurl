@@ -190,7 +190,7 @@ def main(argc, argv):
     if sys.platform == "win32" or sys.platform == "cygwin":
         baseCmd += ".exe"
 
-    with open(path.join(baseDir, TESTFILE), "r") as file:
+    with open(path.join(baseDir, TESTFILE), "r", encoding="utf-8") as file:
         allTests = json.load(file)
         testIndexesToRun = []
 
