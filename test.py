@@ -74,10 +74,11 @@ class TestCase:
         self.testIndex = testIndex
         self.runnerCmd = runnerCmd
         self.baseCmd = baseCmd
-        self.arguments = testCase["input"]["arguments"]
+        self.arguments = testCase["input"].get("arguments", [""])
         self.expected = testCase["expected"]
         self.commandOutput: CommandOutput = None
         self.testPassed: bool = False
+        self.stdin = testCase["input"].get("stdin", None)
 
     def runCommand(self, cmdfilter: Optional[str], runWithValgrind: bool):
         # Skip test if none of the arguments contain the keyword
@@ -96,7 +97,8 @@ class TestCase:
         output = run(
             cmd + args,
             stdout=PIPE, stderr=PIPE,
-            encoding="utf-8"
+            encoding="utf-8",
+            input=self.stdin
         )
 
         if isinstance(self.expected["stdout"], list):

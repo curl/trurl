@@ -2423,5 +2423,15 @@
               }
           ]
       }
+  },
+  {
+        "input": {
+            "stdin": "google.com"
+        },
+        "expected": {
+            "returncode": 0,
+            "stderr": "",
+            "stdout": "http://google.com/\n"
+        }
   }
 ]
