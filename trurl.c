@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <curl/curl.h>
 #include <curl/mprintf.h>
 #include <stdint.h>
@@ -1570,6 +1571,11 @@ int main(int argc, const char **argv)
 
   if(o.jsonout)
     putchar('[');
+
+  if(!o.url && !o.iter_list && isatty(STDIN_FILENO)) {
+    o.url = stdin;
+  }
+
 
   if(o.url) {
     /* this is a file to read URLs from */
