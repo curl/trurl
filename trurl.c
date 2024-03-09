@@ -1580,6 +1580,7 @@ int main(int argc, const char **argv)
     /* this is a file to read URLs from */
     char buffer[4096]; /* arbitrary max */
     bool end_of_file = false;
+    bool is_empty = true;
     while(!end_of_file && fgets(buffer, sizeof(buffer), o.url)) {
       char *eol = strchr(buffer, '\n');
       if(eol && (eol > buffer)) {
@@ -1618,6 +1619,7 @@ int main(int argc, const char **argv)
 
       if(eol > buffer) {
         /* if there is actual content left to deal with */
+        is_empty = false;
         struct iterinfo iinfo;
         memset(&iinfo, 0, sizeof(iinfo));
         *eol = 0; /* end of URL */
@@ -1625,6 +1627,8 @@ int main(int argc, const char **argv)
       }
     }
 
+    if(is_empty && !o.jsonout)
+      errorf(&o, ERROR_BADURL, "not enough input for a URL");
     if(!end_of_file && ferror(o.url))
       trurl_warnf(&o, "fgets: %s", strerror(errno));
     if(o.urlopen)
