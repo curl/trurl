@@ -94,19 +94,12 @@ class TestCase:
             cmd = [VALGRINDTEST]
             args = VALGRINDARGS + [self.baseCmd] + self.arguments
 
-        if self.stdin:
-            output = run(
-                cmd + args,
-                stdout=PIPE, stderr=PIPE,
-                encoding="utf-8",
-                input=self.stdin 
-            )
-        else:
-            output = run(
-                cmd + args,
-                stdout=PIPE, stderr=PIPE,
-                encoding="utf-8",
-            )
+        output = run(
+            cmd + args,
+            stdout=PIPE, stderr=PIPE,
+            encoding="utf-8",
+        )
+
         if isinstance(self.expected["stdout"], list):
             # if we don't expect string, parse to json
             try:
