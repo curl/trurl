@@ -1573,6 +1573,7 @@ int main(int argc, const char **argv)
     putchar('[');
 
   if(!o.url && !o.iter_list && !isatty(STDIN_FILENO)) {
+    printf("What is going on?? are we getting in here?\n");
     o.url = stdin;
   }
 
