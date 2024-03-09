@@ -2426,7 +2426,8 @@
   },
   {
         "input": {
-            "stdin": "google.com"
+            "stdin": "google.com",
+            "arguments": [""]
         },
         "expected": {
             "returncode": 0,

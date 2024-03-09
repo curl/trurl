@@ -74,7 +74,7 @@ class TestCase:
         self.testIndex = testIndex
         self.runnerCmd = runnerCmd
         self.baseCmd = baseCmd
-        self.arguments = testCase["input"].get("arguments", [""])
+        self.arguments = testCase["input"]["arguments"]
         self.expected = testCase["expected"]
         self.commandOutput: CommandOutput = None
         self.testPassed: bool = False
