@@ -1572,8 +1572,7 @@ int main(int argc, const char **argv)
   if(o.jsonout)
     putchar('[');
 
-  if(!o.url && !o.iter_list && !isatty(STDIN_FILENO)) {
-    printf("What is going on?? are we getting in here?\n");
+  if(!o.url && !o.url_list && !isatty(STDIN_FILENO)) {
     o.url = stdin;
   }
 

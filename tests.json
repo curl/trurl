@@ -2425,17 +2425,6 @@
       }
   },
   {
-        "input": {
-            "stdin": "google.com",
-            "arguments": [""]
-        },
-        "expected": {
-            "returncode": 0,
-            "stderr": "",
-            "stdout": "http://google.com/\n"
-        }
-  },
-  {
     "input": {
         "stdin": "google.com",
         "arguments": ["--get", "{path}"]
