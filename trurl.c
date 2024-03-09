@@ -1572,12 +1572,9 @@ int main(int argc, const char **argv)
   if(o.jsonout)
     putchar('[');
 
-  /*
   if(!o.url && !o.iter_list && !isatty(STDIN_FILENO)) {
     o.url = stdin;
   }
-  */
-
 
   if(o.url) {
     /* this is a file to read URLs from */
