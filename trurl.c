@@ -1572,8 +1572,6 @@ int main(int argc, const char **argv)
   if(o.jsonout)
     putchar('[');
 
-  // if iter_list and url havent been set AND we're not running in 
-  // a TTY then use stdin to read URLs from.
   if(!o.url && !o.iter_list && !isatty(STDIN_FILENO)) {
     o.url = stdin;
   }
