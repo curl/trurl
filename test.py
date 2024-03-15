@@ -78,7 +78,7 @@ class TestCase:
         self.expected = testCase["expected"]
         self.commandOutput: CommandOutput = None
         self.testPassed: bool = False
-        self.stdin = testCase["input"].get("stdin", None)
+        # self.stdin = testCase["input"].get("stdin", None)
 
     def runCommand(self, cmdfilter: Optional[str], runWithValgrind: bool):
         # Skip test if none of the arguments contain the keyword
