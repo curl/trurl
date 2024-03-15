@@ -97,8 +97,7 @@ class TestCase:
         output = run(
             cmd + args,
             stdout=PIPE, stderr=PIPE,
-            encoding="utf-8",
-            input=self.stdin
+            encoding="utf-8"
         )
 
         if isinstance(self.expected["stdout"], list):
