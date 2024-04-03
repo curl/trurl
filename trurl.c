@@ -45,6 +45,14 @@ typedef enum {
 
 #include "version.h"
 
+#if defined(HAVE_LINUX_LANDLOCK)
+  #include <linux/landlock.h>
+  #include <sys/syscall.h>
+  #include <sys/prctl.h>
+  #include <sys/syscall.h>
+  #include <unistd.h>
+#endif
+
 #ifdef _MSC_VER
 #define strncasecmp _strnicmp
 #define strcasecmp _stricmp
@@ -140,6 +148,7 @@ static const struct var variables[] = {
 #define ERROR_GET   10 /* bad --get syntax */
 #define ERROR_ITER  11 /* bad --iterate syntax */
 #define ERROR_REPL  12 /* a --replace problem */
+#define ERROR_LANDLOCK 13 /* a landlock related error */
 
 #ifndef SUPPORTS_URL_STRERROR
 /* provide a fake local mockup */
@@ -1539,12 +1548,133 @@ static void singleurl(struct option *o,
     curl_url_cleanup(uh);
 }
 
+#if defined(HAVE_LINUX_LANDLOCK)
+
+#ifndef landlock_create_ruleset
+static inline int landlock_create_ruleset(
+  const struct landlock_ruleset_attr *const attr,
+  const size_t size, const __u32 flags)
+{
+  return (int)syscall(__NR_landlock_create_ruleset, attr, size, flags);
+}
+#endif
+
+#ifndef landlock_add_rule
+static inline int landlock_add_rule(
+  const int ruleset_fd,
+  const enum landlock_rule_type rule_type,
+  const void *const rule_attr,
+  const __u32 flags)
+{
+  return (int)syscall(__NR_landlock_add_rule, ruleset_fd, rule_type, rule_attr, flags);
+}
+#endif
+
+#ifndef landlock_restrict_self
+static inline int landlock_restrict_self(
+  const int ruleset_fd,
+  const __u32 flags)
+{
+  return (int)syscall(__NR_landlock_restrict_self, ruleset_fd, flags);
+}
+#endif
+
+static void sandbox_drop_all() {
+  int abi;
+  int ruleset_fd;
+
+  struct landlock_ruleset_attr ruleset_attr = {
+    .handled_access_fs =
+      LANDLOCK_ACCESS_FS_EXECUTE |
+      LANDLOCK_ACCESS_FS_WRITE_FILE |
+      LANDLOCK_ACCESS_FS_READ_FILE |
+      LANDLOCK_ACCESS_FS_READ_DIR |
+      LANDLOCK_ACCESS_FS_REMOVE_DIR |
+      LANDLOCK_ACCESS_FS_REMOVE_FILE |
+      LANDLOCK_ACCESS_FS_MAKE_CHAR |
+      LANDLOCK_ACCESS_FS_MAKE_DIR |
+      LANDLOCK_ACCESS_FS_MAKE_REG |
+      LANDLOCK_ACCESS_FS_MAKE_SOCK |
+      LANDLOCK_ACCESS_FS_MAKE_FIFO |
+      LANDLOCK_ACCESS_FS_MAKE_BLOCK |
+      LANDLOCK_ACCESS_FS_MAKE_SYM |
+      LANDLOCK_ACCESS_FS_REFER |       // ABI 2
+      LANDLOCK_ACCESS_FS_TRUNCATE,     // ABI 3
+    .handled_access_net =
+      LANDLOCK_ACCESS_NET_BIND_TCP |   // ABI 4
+      LANDLOCK_ACCESS_NET_CONNECT_TCP, // ABI 4
+  };
+
+  abi = landlock_create_ruleset(NULL, 0, LANDLOCK_CREATE_RULESET_VERSION);
+
+  if (abi < 0) {
+    switch(errno) {
+      case ENOSYS:
+        fprintf(stderr, "LANDLOCK: not supported by kernel\n");
+        break;
+      case EOPNOTSUPP:
+        fprintf(stderr, "LANDLOCK: currently not enabled\n");
+        break;
+    }
+
+    exit(ERROR_LANDLOCK);
+  }
+
+  fprintf(stderr, "LANDLOCK: detected ABI version %d\n", abi);
+
+  switch (abi) {
+    case 1:
+      ruleset_attr.handled_access_fs &= ~LANDLOCK_ACCESS_FS_REFER;
+      /* fallthrough */
+    case 2:
+      ruleset_attr.handled_access_fs &= ~LANDLOCK_ACCESS_FS_TRUNCATE;
+      /* fallthrough */
+    case 3:
+      ruleset_attr.handled_access_net &=
+        ~(LANDLOCK_ACCESS_NET_BIND_TCP | LANDLOCK_ACCESS_NET_CONNECT_TCP);
+  }
+
+  ruleset_fd = landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr), 0);
+
+  if (ruleset_fd < 0) {
+    fprintf(stderr, "LANDLOCK: failed to create ruleset\n");
+    exit(ERROR_LANDLOCK);
+  }
+
+  if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0)) {
+    fprintf(stderr, "LANDLOCK: failed to lock privileges\n");
+    close(ruleset_fd);
+    exit(ERROR_LANDLOCK);
+  }
+
+  if (landlock_restrict_self(ruleset_fd, 0)) {
+    fprintf(stderr, "LANDLOCK: failed to restrict self\n");
+    close(ruleset_fd);
+    exit(ERROR_LANDLOCK);
+  }
+
+  fprintf(stderr, "LANDLOCK: sandbox enabled\n");
+
+  close(ruleset_fd);
+}
+
+#else // HAVE_LINUX_LANDLOCK
+
+static void sandbox_drop_all() {
+  fprintf(stderr, "LANDLOCK: not compiled in\n");
+}
+
+#endif
+
 int main(int argc, const char **argv)
 {
   int exit_status = 0;
   struct option o;
   struct curl_slist *node;
   memset(&o, 0, sizeof(o));
+
+  sandbox_drop_all();
+
   setlocale(LC_ALL, "");
   curl_global_init(CURL_GLOBAL_ALL);
 
