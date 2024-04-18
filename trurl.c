@@ -1233,7 +1233,8 @@ static void qpair2query(CURLU *uh, struct option *o)
     if(nq) {
       int rc = curl_url_set(uh, CURLUPART_QUERY, nq, 0);
       if(rc)
-        trurl_warnf(o, "internal problem");
+        trurl_warnf(o,
+                    "internal problem: failed to store updated query in URL");
     }
     curl_free(nq);
   }
