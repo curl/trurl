@@ -1552,12 +1552,12 @@
         "expected": {
             "stdout": [
                 {
-                    "url": "https://curl.se/",
+                    "url": "https://curl.se/?&&&",
                     "parts": {
                         "scheme": "https",
                         "host": "curl.se",
                         "path": "/",
-                        "query": ""
+                        "query": "&&&"
                     },
                     "params": []
                 }
