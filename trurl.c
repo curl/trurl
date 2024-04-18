@@ -822,6 +822,9 @@ static void get(struct option *o, CURLU *uh)
               break;
             }
           }
+          else
+            errorf(o, ERROR_GET, "\"%.*s\" is not a recognized URL component",
+                   (int)vlen, ptr);
         }
         ptr = end + 1; /* pass the end */
       }
