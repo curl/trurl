@@ -317,6 +317,7 @@ static void trurl_warnf(struct option *o, const char *fmt, ...)
 struct string qpairs[MAX_QPAIRS]; /* encoded */
 struct string qpairsdec[MAX_QPAIRS]; /* decoded */
 int nqpairs; /* how many is stored */
+bool query_is_modified = false;
 
 static void trurl_cleanup_options(struct option *o)
 {
@@ -1081,6 +1082,7 @@ static void trim(struct option *o)
       }
       free(temp);
     }
+    query_is_modified = true;
   }
 }
 
@@ -1218,21 +1220,23 @@ static void extractqpairs(CURLU *uh, struct option *o)
 
 static void qpair2query(CURLU *uh, struct option *o)
 {
-  int i;
-  char *nq = NULL;
-  for(i = 0; i<nqpairs; i++) {
-    char *oldnq = nq;
-    nq = curl_maprintf("%s%s%s", nq?nq:"",
-                       (nq && *nq && *(qpairs[i].str))? o->qsep: "",
-                       qpairs[i].str);
-    curl_free(oldnq);
+  if(query_is_modified) {
+    int i;
+    char *nq = NULL;
+    for(i = 0; i<nqpairs; i++) {
+      char *oldnq = nq;
+      nq = curl_maprintf("%s%s%s", nq?nq:"",
+                         (nq && *nq && *(qpairs[i].str))? o->qsep: "",
+                         qpairs[i].str);
+      curl_free(oldnq);
+    }
+    if(nq) {
+      int rc = curl_url_set(uh, CURLUPART_QUERY, nq, 0);
+      if(rc)
+        trurl_warnf(o, "internal problem");
+    }
+    curl_free(nq);
   }
-  if(nq) {
-    int rc = curl_url_set(uh, CURLUPART_QUERY, nq, 0);
-    if(rc)
-      trurl_warnf(o, "internal problem");
-  }
-  curl_free(nq);
 }
 
 /* sort case insensitively */
@@ -1258,6 +1262,7 @@ static void sortquery(struct option *o)
     /* not these two lists may no longer be the same order after the sort */
     qsort(&qpairs[0], nqpairs, sizeof(struct string), cmpfunc);
     qsort(&qpairsdec[0], nqpairs, sizeof(struct string), cmpfunc);
+    query_is_modified = true;
   }
 }
 
@@ -1313,6 +1318,7 @@ static void replace(struct option *o)
                   key.str);
       addqpair(key.str, strlen(key.str), o->jsonout);
     }
+    query_is_modified = true;
   }
 }
 static CURLUcode seturl(struct option *o, CURLU *uh, const char *url)
@@ -1470,6 +1476,7 @@ static void singleurl(struct option *o,
     /* append query segments */
     for(p = o->append_query; p; p = p->next) {
       addqpair(p->data, strlen(p->data), o->jsonout);
+      query_is_modified = true;
     }
 
     sortquery(o);
