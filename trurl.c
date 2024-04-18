@@ -87,7 +87,7 @@ typedef enum {
 #define OUTPUT_FRAGMENT 9
 #define OUTPUT_ZONEID   10
 
-#define NUM_COMPONENTS 11 /* including "url" */
+#define NUM_COMPONENTS 10 /* excluding "url" */
 
 #define PROGNAME        "trurl"
 
@@ -204,7 +204,8 @@ static void help(void)
     "      --quiet                      - Suppress (some) notes and comments\n"
     " URL COMPONENTS:\n"
     "  ", stdout);
-  for(i = 0; i< NUM_COMPONENTS; i++) {
+  fputs("url, ", stdout);
+  for(i = 0; i< NUM_COMPONENTS ; i++) {
     printf("%s%s", i?", ":"", variables[i].name);
   }
   fputs("\n", stdout);
