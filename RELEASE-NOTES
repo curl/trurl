@@ -1,16 +1,17 @@
-trurl 0.10
+# trurl 0.12
 
-Changes since previous release
+## What's Changed
 
- o add --replace
+- This is the same as 0.11 but with the version string set correctly
 
-Bugfixes since previous release
-
- o fixed buffer overflows on %00 use
- o support compiling with old versions of Visual Studio
- o enable more C compiler warnings and fix them
- o ci: add Windows builds
+- check valgrind function by @eh-san in #273
+- Added UTF-8 detection to test runner by @jacobmealey in #276
+- use of free() instead of curl_free() by @bagder in #283
+- output the list of components correctly in the help output by @bagder in #282
+- if query is not updated, leave it untouched by @bagder in #284
+- expand the warning on "internal problem" by @bagder in #285
+- error when using an unrecognized URL component by @bagder in #286
 
 Contributors to this release:
 
-  Daniel Stenberg, Jacob Mealey, Jay Satiro, Michael Lass, Viktor Szakats
+  Daniel Stenberg, Jacob Mealey, Ehsan
