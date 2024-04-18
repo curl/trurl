@@ -876,6 +876,9 @@ static const struct var *setone(CURLU *uh, const char *setline,
     v = comp2var(setline, vlen);
     if(v) {
       CURLUcode rc;
+      if((v->part == CURLUPART_HOST) && ('[' == ptr[1]))
+        /* when setting an IPv6 numerical address, disable URL encoding */
+        urlencode = false;
       rc = curl_url_set(uh, v->part, ptr[1] ? &ptr[1] : NULL,
                         (o->curl ? 0 : CURLU_NON_SUPPORT_SCHEME)|
                         (urlencode ? CURLU_URLENCODE : 0) );
