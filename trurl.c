@@ -1282,7 +1282,7 @@ static void replace(struct option *o)
       if(strncmp(q, key.str, key.len))
         continue;
       free(qpairs[i].str);
-      curl_free(qpairsdec[i].str);
+      free(qpairsdec[i].str);
       /* this is a duplicate remove it. */
       if(replaced) {
         qpairs[i].len = 0;
