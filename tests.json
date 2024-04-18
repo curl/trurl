@@ -2430,5 +2430,19 @@
               }
           ]
       }
+  },
+  {
+      "input": {
+          "arguments": [
+              "example.com",
+              "--set",
+              "host=[::1]"
+          ]
+      },
+      "expected": {
+          "stdout": "http://[::1]/\n",
+          "stderr": "",
+          "returncode": 0
+      }
   }
 ]
