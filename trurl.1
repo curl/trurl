@@ -84,7 +84,8 @@ scheme, this option is pretty much ignored unless one of \fI--get\fP,
 \fI--json\fP, and \fI--keep-port\fP is not also specified.
 .IP "-f, --url-file [file name]"
 Read URLs to work on from the given file. Use the file name "-" (a single
-minus) to tell trurl to read the URLs from stdin.
+minus) to tell trurl to read the URLs from stdin, or you may use pipes to feed
+urls to trurl.
 
 Each line needs to be a single valid URL. trurl will remove one carriage return
 character at the end of the line if present, trim off all the trailing space and

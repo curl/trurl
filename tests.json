@@ -2444,5 +2444,44 @@
           "stderr": "",
           "returncode": 0
       }
+  },
+  {
+    "input": {
+        "stdin": "google.com",
+        "arguments": ["--get", "{path}"]
+    },
+    "expected": {
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "/\n"
+    }
+  },
+  {
+    "input": {
+        "stdin": "http://example.org/?quest=best",
+        "arguments": [
+            "--replace",
+            "quest=%00",
+            "--json"
+        ]
+    },
+    "expected": {
+        "stdout": [{
+            "url": "http://example.org/?quest=%00",
+            "parts": {
+                "scheme": "http",
+                "host": "example.org",
+                "path": "/"
+            },
+            "params": [
+                {
+                    "key": "quest",
+                    "value": "\u0000"
+                }
+            ]
+        }],
+        "stderr": "",
+        "returncode": 0
+    }
   }
 ]

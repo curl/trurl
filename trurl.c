@@ -29,6 +29,7 @@
 #include <curl/curl.h>
 #include <curl/mprintf.h>
 #include <stdint.h>
+#include <unistd.h>
 
 #if defined(_MSC_VER) && (_MSC_VER < 1800)
 typedef enum {
@@ -1586,10 +1587,15 @@ int main(int argc, const char **argv)
   if(o.jsonout)
     putchar('[');
 
+  if(!o.url && !o.url_list && !o.set_list && !isatty(STDIN_FILENO)) {
+    o.url = stdin;
+  }
+
   if(o.url) {
     /* this is a file to read URLs from */
     char buffer[4096]; /* arbitrary max */
     bool end_of_file = false;
+    bool is_empty = true;
     while(!end_of_file && fgets(buffer, sizeof(buffer), o.url)) {
       char *eol = strchr(buffer, '\n');
       if(eol && (eol > buffer)) {
@@ -1628,6 +1634,7 @@ int main(int argc, const char **argv)
 
       if(eol > buffer) {
         /* if there is actual content left to deal with */
+        is_empty = false;
         struct iterinfo iinfo;
         memset(&iinfo, 0, sizeof(iinfo));
         *eol = 0; /* end of URL */
@@ -1635,6 +1642,8 @@ int main(int argc, const char **argv)
       }
     }
 
+    if(is_empty && !o.jsonout)
+      errorf(&o, ERROR_URL, "Not enough inputs for a URL");
     if(!end_of_file && ferror(o.url))
       trurl_warnf(&o, "fgets: %s", strerror(errno));
     if(o.urlopen)
