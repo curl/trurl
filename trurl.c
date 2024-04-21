@@ -1643,7 +1643,7 @@ int main(int argc, const char **argv)
     }
 
     if(is_empty && !o.jsonout)
-      errorf(&o, ERROR_URL, "not enough inputs for a URL");
+      errorf(&o, ERROR_URL, "not enough input for a URL");
     if(!end_of_file && ferror(o.url))
       trurl_warnf(&o, "fgets: %s", strerror(errno));
     if(o.urlopen)
