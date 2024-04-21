@@ -49,7 +49,7 @@ jobs:
 
       - name: 'list dependencies'
         run: cat urls.txt
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: 'trurl-windows'
           retention-days: 5
