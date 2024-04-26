@@ -29,6 +29,8 @@
 #include <curl/curl.h>
 #include <curl/mprintf.h>
 #include <stdint.h>
+#include <json.h>
+
 
 #if defined(_MSC_VER) && (_MSC_VER < 1800)
 typedef enum {
@@ -140,6 +142,7 @@ static const struct var variables[] = {
 #define ERROR_GET   10 /* bad --get syntax */
 #define ERROR_ITER  11 /* bad --iterate syntax */
 #define ERROR_REPL  12 /* a --replace problem */
+#define ERROR_JSON  13 /* a json string could not be parse */
 
 #ifndef SUPPORTS_URL_STRERROR
 /* provide a fake local mockup */
@@ -296,6 +299,7 @@ struct option {
   bool end_of_options;
   bool quiet_warnings;
   bool force_replace;
+  bool json_in;
 
   /* -- stats -- */
   unsigned int urls;
@@ -638,6 +642,9 @@ static int getarg(struct option *o,
     replaceadd(o, arg);
     o->force_replace = true;
     *usedarg = gap;
+  }
+  else if(!strcmp("--json-in", flag)) {
+    o->json_in = true;
   }
   else
     return 1;  /* unrecognized option */
@@ -1620,6 +1627,54 @@ static void singleurl(struct option *o,
     curl_url_cleanup(uh);
 }
 
+// a null terminated json string.
+static void from_json(char *json_string, struct option *o)
+{
+  // can we use json_tokener_parse_ex for clearer messaging?
+  json_object *jobj = json_tokener_parse(json_string);
+  printf("%s\n", json_object_to_json_string_ext(jobj, JSON_C_TO_STRING_SPACED | JSON_C_TO_STRING_PRETTY));
+  CURLU *uh = curl_url();
+  if(jobj == NULL) {
+    fprintf(stderr, "Error parsing JSON, exiting.\n");
+    exit(ERROR_JSON);
+  }
+
+  if(json_object_get_type(jobj) != json_type_array) {
+    fprintf(stderr, "Error: JSON must be an array.\n");
+    exit(ERROR_JSON);
+  }
+  bool scheme_set = false;
+  //json_object *field; 
+  size_t array_len = json_object_array_length(jobj);
+  for(size_t i = 0; i < array_len; i++){ 
+    json_object *wholeurl = json_object_array_get_idx(jobj, i);
+    json_object *parts = json_object_object_get(wholeurl, "parts");
+    json_object_object_foreach(parts, key, field) {
+      if(scheme_set != true && !strcmp(key, "scheme"))
+          scheme_set = true;
+      const char * val_str = json_object_get_string(field);
+      size_t key_len = strlen(key);
+      size_t val_len = strlen(val_str);
+      // +2 because one for '=' and one for null terminator.
+      char * set_str = malloc(val_len + key_len + 2);
+      memset(set_str, 0, val_len + key_len + 2);
+      memcpy(set_str, key, key_len);
+      memcpy(set_str + key_len + 1, val_str, val_len);
+      set_str[key_len] = '=';
+      setone(uh, set_str, o);
+      free(set_str);
+    }
+    if(!scheme_set) {
+      setone(uh, "scheme=http", o);
+    }
+  }
+  struct iterinfo iinfo;
+  memset(&iinfo, 0, sizeof(iinfo));
+  iinfo.uh = uh;
+  singleurl(o, NULL, &iinfo, o->iter_list);
+  json_object_put(jobj);
+}
+
 int main(int argc, const char **argv)
 {
   int exit_status = 0;
@@ -1695,13 +1750,18 @@ int main(int argc, const char **argv)
       while((eol > buffer) &&
             ((eol[-1] == ' ') || eol[-1] == '\t'))
         eol--;
-
+      
       if(eol > buffer) {
-        /* if there is actual content left to deal with */
-        struct iterinfo iinfo;
-        memset(&iinfo, 0, sizeof(iinfo));
-        *eol = 0; /* end of URL */
-        singleurl(&o, buffer, &iinfo, o.iter_list);
+        if(o.json_in) {
+          from_json(buffer, &o);
+        } else {
+          /* if there is actual content left to deal with */
+          struct iterinfo iinfo;
+          memset(&iinfo, 0, sizeof(iinfo));
+          *eol = 0; /* end of URL */
+          singleurl(&o, buffer, &iinfo, o.iter_list);
+        }
+        
       }
     }
 
