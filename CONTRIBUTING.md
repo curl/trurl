@@ -36,7 +36,7 @@ may also use valgrind to test for memory errors by passing `--with-valgrind` as 
 `test.py` will also skip tests that require a specific curl runtime or buildtime.
 
 ### Adding tests
-tests are located in [tests.json](https://github.com/curl/trurl/blob/master/tests.json). This file is an array of json objects when outline an input and what the expected
+Tests are located in [tests.json](https://github.com/curl/trurl/blob/master/tests.json). This file is an array of json objects when outline an input and what the expected
 output should be. Below is a simple example of a single test:
 ```json
     {
@@ -72,7 +72,7 @@ output should be. Below is a simple example of a single test:
     }
 ```
 trurl may also return json. It you are adding a test that returns json to stdout, write the json directly instead of a string in the examples above. Below is an example
-of what stdout should be if it is a json test, where `"input"` is what trul accepts from the command line and `"expected"` is what trurl should return.
+of what stdout should be if it is a json test, where `"input"` is what trurl accepts from the command line and `"expected"` is what trurl should return.
 ```json
 "expected": {
     "stdout": [
