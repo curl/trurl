@@ -561,13 +561,13 @@ static int getarg(struct option *o,
       errorf(o, ERROR_FLAG, "only one --get is supported");
     if(o->jsonout)
       errorf(o, ERROR_FLAG,
-                   "--get is mututally exclusive with --json");
+                   "--get is mutually exclusive with --json");
     o->format = arg;
     *usedarg = true;
   }
   else if(!strcmp("--json", flag)) {
     if(o->format)
-      errorf(o, ERROR_FLAG, "--json is mututally exclusive with --get");
+      errorf(o, ERROR_FLAG, "--json is mutually exclusive with --get");
     o->jsonout = true;
   }
   else if(!strcmp("--verify", flag))
