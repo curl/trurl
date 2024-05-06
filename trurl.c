@@ -488,13 +488,17 @@ static void replaceadd(struct option *o,
   if(n)
     o->replace_list = n;
 }
-static bool checkoptarg(struct option *o, const char *str,
+static bool checkoptarg(struct option *o, const char *flag,
                         const char *given,
                         const char *arg)
 {
-  if(!strcmp(str, given)) {
+  bool single = false;
+  if((flag[0] == '-') && (flag[1] != '-'))
+    single = true;
+  if((!strcmp(flag, given) && !single) ||
+     (!strncmp(flag, given, 2) && single)) {
     if(!arg)
-      errorf(o, ERROR_ARG, "Missing argument for %s", str);
+      errorf(o, ERROR_ARG, "Missing argument for %s", flag);
     return true;
   }
   return false;
@@ -505,7 +509,13 @@ static int getarg(struct option *o,
                   const char *arg,
                   bool *usedarg)
 {
+  bool gap = true;
   *usedarg = false;
+
+  if((flag[0] == '-') && (flag[1] != '-') && flag[2]) {
+    arg = (char *)&flag[2];
+    gap = false;
+  }
 
   if(!strcmp("--", flag))
     o->end_of_options = true;
@@ -515,32 +525,32 @@ static int getarg(struct option *o,
     help();
   else if(checkoptarg(o, "--url", flag, arg)) {
     urladd(o, arg);
-    *usedarg = true;
+    *usedarg = gap;
   }
   else if(checkoptarg(o, "-f", flag, arg) ||
           checkoptarg(o, "--url-file", flag, arg)) {
     urlfile(o, arg);
-    *usedarg = true;
+    *usedarg = gap;
   }
   else if(checkoptarg(o, "-a", flag, arg) ||
           checkoptarg(o, "--append", flag, arg)) {
     appendadd(o, arg);
-    *usedarg = true;
+    *usedarg = gap;
   }
   else if(checkoptarg(o, "-s", flag, arg) ||
           checkoptarg(o, "--set", flag, arg)) {
     setadd(o, arg);
-    *usedarg = true;
+    *usedarg = gap;
   }
   else if(checkoptarg(o, "--iterate", flag, arg)) {
     iteradd(o, arg);
-    *usedarg = true;
+    *usedarg = gap;
   }
   else if(checkoptarg(o, "--redirect", flag, arg)) {
     if(o->redirect)
       errorf(o, ERROR_FLAG, "only one --redirect is supported");
     o->redirect = arg;
-    *usedarg = true;
+    *usedarg = gap;
   }
   else if(checkoptarg(o, "--query-separator", flag, arg)) {
     if(o->qsep)
@@ -549,11 +559,11 @@ static int getarg(struct option *o,
       errorf(o, ERROR_FLAG,
                    "only single-letter query separators are supported");
     o->qsep = arg;
-    *usedarg = true;
+    *usedarg = gap;
   }
   else if(checkoptarg(o, "--trim", flag, arg)) {
     trimadd(o, arg);
-    *usedarg = true;
+    *usedarg = gap;
   }
   else if(checkoptarg(o, "-g", flag, arg) ||
           checkoptarg(o, "--get", flag, arg)) {
@@ -563,7 +573,7 @@ static int getarg(struct option *o,
       errorf(o, ERROR_FLAG,
                    "--get is mutually exclusive with --json");
     o->format = arg;
-    *usedarg = true;
+    *usedarg = gap;
   }
   else if(!strcmp("--json", flag)) {
     if(o->format)
@@ -606,12 +616,12 @@ static int getarg(struct option *o,
     o->quiet_warnings = true;
   else if(!strcmp("--replace", flag)) {
     replaceadd(o, arg);
-    *usedarg = true;
+    *usedarg = gap;
   }
   else if(!strcmp("--force-replace", flag)) {
     replaceadd(o, arg);
     o->force_replace = true;
-    *usedarg = true;
+    *usedarg = gap;
   }
   else
     return 1;  /* unrecognized option */
