@@ -2498,6 +2498,16 @@
           "stderr": "",
           "returncode": 0
       }
+              "--json-in",
+              "-f",
+              "testfiles/test0003.txt"
+          ]
+       },
+       "expected": {
+           "returncode": 0,
+           "stderr": "",
+           "stdout": "http://example.com/\nhttp://example.com/\nhttp://example.com/\nhttp://example.com/\nhttp://example.com/\nhttp://example.com/\nhttp://example.com/\nhttp://example.com/\nhttp://example.com/\nhttp://example.com/\nhttp://example.com/\nhttp://example.com/\nhttp://example.com/\nhttp://example.com/\nhttp://example.com/\nhttp://example.com/\n"
+       }
   },
   {
       "input": {
@@ -2544,5 +2554,19 @@
           "stderr": "",
           "returncode": 0
       }
+  },
+  {
+      "input": {
+          "arguments": [
+              "--json-in",
+              "-f",
+              "testfiles/test0001.txt"
+          ]
+       },
+       "expected": {
+           "returncode": 13 ,
+           "stderr": "trurl error: Cannot parse JSON.\ntrurl error: Try trurl -h for help\n",
+           "stdout": ""
+       }
   }
 ]

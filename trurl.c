@@ -29,6 +29,7 @@
 #include <curl/curl.h>
 #include <curl/mprintf.h>
 #include <stdint.h>
+#include <unistd.h>
 #include <json.h>
 
 
@@ -1627,19 +1628,34 @@ static void singleurl(struct option *o,
     curl_url_cleanup(uh);
 }
 
-/* a null terminated json string. */
-static void from_json(char *json_string, struct option *o)
+/* fd is a file which holds the json string.. */
+static void from_json(FILE *file, struct option *o)
 {
   /* can we use json_tokener_parse_ex for clearer messaging? */
-  json_object *jobj = json_tokener_parse(json_string);
-  if(!jobj) {
-    fprintf(stderr, "Error parsing JSON, exiting.\n");
-    exit(ERROR_JSON);
+  size_t json_buf_size = 1024;
+  size_t latest = 0;
+  char *json_string = calloc(sizeof(char), json_buf_size);
+  if(!json_string) {
+    errorf(o, ERROR_MEM, "Error allocating memory for file operations");
   }
-
+  size_t n = 0;
+  while((n = fread(json_string + latest, sizeof(char), json_buf_size, file))) {
+    latest += n;
+    json_buf_size *= 2;
+    json_string = reallocf(json_string, json_buf_size);
+    if(!json_string) {
+      errorf(o, ERROR_MEM, "Error allocating memory for file operations");
+    }
+    json_string[latest] = 0;
+  }
+  json_object *jobj = json_tokener_parse(json_string);
+  free(json_string);
+  if(!jobj) {
+    errorf(o, ERROR_JSON, "Cannot parse JSON.");
+  }
   if(json_object_get_type(jobj) != json_type_array) {
-    fprintf(stderr, "Error: JSON must be an array.\n");
-    exit(ERROR_JSON);
+    json_object_put(jobj);
+    errorf(o, ERROR_JSON, "JSON must be an array.");
   }
   bool scheme_set = false;
   size_t array_len = json_object_array_length(jobj);
@@ -1650,6 +1666,9 @@ static void from_json(char *json_string, struct option *o)
     json_object_object_foreach(parts, key, field) {
       if(scheme_set != true && !strcmp(key, "scheme"))
         scheme_set = true;
+      if(!strcmp(key, "query")) {
+          /* loop through array of query pairs */
+      }
       const char *val_str = json_object_get_string(field);
       size_t key_len = strlen(key);
       size_t val_len = strlen(val_str);
@@ -1714,7 +1733,10 @@ int main(int argc, const char **argv)
     /* this is a file to read URLs from */
     char buffer[4096]; /* arbitrary max */
     bool end_of_file = false;
-    while(!end_of_file && fgets(buffer, sizeof(buffer), o.url)) {
+    if(o.json_in) {
+      from_json(o.url, &o);
+    }
+    else while(!end_of_file && fgets(buffer, sizeof(buffer), o.url)) {
       char *eol = strchr(buffer, '\n');
       if(eol && (eol > buffer)) {
         if(eol[-1] == '\r')
@@ -1750,16 +1772,11 @@ int main(int argc, const char **argv)
             ((eol[-1] == ' ') || eol[-1] == '\t'))
         eol--;
       if(eol > buffer) {
-        if(o.json_in) {
-          from_json(buffer, &o);
-        }
-        else {
-          /* if there is actual content left to deal with */
-          struct iterinfo iinfo;
-          memset(&iinfo, 0, sizeof(iinfo));
-          *eol = 0; /* end of URL */
-          singleurl(&o, buffer, &iinfo, o.iter_list);
-        }
+        /* if there is actual content left to deal with */
+        struct iterinfo iinfo;
+        memset(&iinfo, 0, sizeof(iinfo));
+        *eol = 0; /* end of URL */
+        singleurl(&o, buffer, &iinfo, o.iter_list);
       }
     }
 

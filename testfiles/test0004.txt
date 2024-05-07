@@ -1,0 +1,14 @@
+[
+  {
+    "parts": {
+      "host": "example.com",
+      "port": 8080,
+      "scheme": "ftp",
+      "query": [
+        "query=string",
+        "foo=bar"
+      ],
+      "user": "guest",
+      "fragment": "thisfragment"
+  }}
+]
