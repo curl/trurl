@@ -64,16 +64,16 @@ with a slash.
 
 For query, this URL encodes and appends the new segment to the query,
 separated with an ampersand (&). If the appended segment contains an equal
-sign ('=') that one will be kept verbatim and both sides of the first
-occurrence will be URL encoded separately.
+sign ('=') that one is kept verbatim and both sides of the first
+occurrence are URL encoded separately.
 .IP "--accept-space"
-When set, trurl will try to accept spaces as part of the URL and instead URL
+When set, trurl tries to accept spaces as part of the URL and instead URL
 encode such occurrences accordingly.
 
 According to RFC 3986, a space cannot legally be part of a URL. This option
 provides a best-effort to convert the provided string into a valid URL.
 .IP "--default-port"
-When set, trurl will use the scheme's default port number for URLs with a known
+When set, trurl uses the scheme's default port number for URLs with a known
 scheme, and without an explicit port number.
 
 Note that trurl only knows default port numbers for URL schemes that are
@@ -86,9 +86,9 @@ scheme, this option is pretty much ignored unless one of \fI--get\fP,
 Read URLs to work on from the given file. Use the file name "-" (a single
 minus) to tell trurl to read the URLs from stdin.
 
-Each line needs to be a single valid URL. trurl will remove one carriage return
-character at the end of the line if present, trim off all the trailing space and
-tab characters, and skip all empty (after trimming) lines.
+Each line needs to be a single valid URL. trurl removes one carriage return
+character at the end of the line if present, trims off all the trailing space
+and tab characters, and skips all empty (after trimming) lines.
 
 The maximum line length supported in a file like this is 4094 bytes. Lines that
 exceed that length are skipped, and a warning is printed to stderr when they are
@@ -103,7 +103,7 @@ command line.
 The following component names are available (case sensitive): url, scheme,
 user, password, options, host, port, path, query, fragment and zoneid.
 
-\fB{component}\fP will expand to nothing if the given component does
+\fB{component}\fP expands to nothing if the given component does
 not have a value.
 
 Components are shown URL decoded by default. If you instead write the
@@ -114,36 +114,36 @@ in any order.
 
 If \fBdefault:\fP is specified, like "{default:url}" or
 "{default:port}", and the port is not explicitly specified in the URL,
-the scheme's default port will be output if it is known.
+the scheme's default port is output if it is known.
 
 If \fBpuny:\fP is specified, like "{puny:url}" or "{puny:host}", the
-"punycoded" version of the host name will be used in the output. This
+"punycoded" version of the host name is used in the output. This
 option is mutually exclusive with \fBidn:\fP.
 
 If \fBidn:\fP is specified like "{idn:url}" or "{idn:host}", the International
-Domain Name version of the host name will be used in the output if it is provided as a correctly encoded punycode version. This
-option is mutually exclusive with \fBpuny:\fP.
+Domain Name version of the host name is used in the output if it is provided as
+a correctly encoded punycode version. This option is mutually exclusive with \fBpuny:\fP.
 
 If \fI--default-port\fP is specified, all formats are expanded as if
 they used \fIdefault:\fP; and if \fI--punycode\fP is used, all formats
 are expanded as if they used \fIpuny:\fP. Also note that "{url}" is
 affected by the \fI--keep-port\fP option.
 
-Hosts provided as IPv6 numerical addresses will be provided within square
+Hosts provided as IPv6 numerical addresses are provided within square
 brackets. Like "[fe80::20c:29ff:fe9c:409b]".
 
-Hosts provided as IPv4 numerical addresses will be "normalized" and provided
+Hosts provided as IPv4 numerical addresses are "normalized" and provided
 as four dot-separated decimal numbers when output.
 
 You can access specific keys in the query string using the format
-\fB{query:key}\fP. Then the value of the first matching key will be output
+\fB{query:key}\fP. Then the value of the first matching key is output
 using a case sensitive match. When extracting a URL decoded query key that
-contains %00, such octet will be replaced with a single period '.' in the
+contains %00, such octet is replaced with a single period '.' in the
 output.
 
 You can access specific keys in the query string and out all values using the
-format \fB{query-all:key}\fP. This looks for 'key' case sensitively and will
-output all values for that key space-separated.
+format \fB{query-all:key}\fP. This looks for 'key' case sensitively and
+outputs all values for that key space-separated.
 
 The "format" string supports the following backslash sequences:
 
@@ -159,7 +159,7 @@ The "format" string supports the following backslash sequences:
 
 \&\\[ - an open bracket that does not start a variable
 
-All other text in the format string will be shown as-is.
+All other text in the format string is shown as-is.
 .IP "-h, --help"
 Show the help output.
 .IP "--iterate [component]=[item1 item2 ...]"
@@ -169,15 +169,15 @@ but only one \fI--iterate\fP option per component. The listed items to iterate
 over should be separated by single spaces.
 .IP "--json"
 Outputs all set components of the URLs as JSON objects. All components of the
-URL that have data will get populated in the parts object using their
-component names. See below for details on the format.
+URL that have data get populated in the parts object using their component
+names. See below for details on the format.
 .IP "--keep-port"
 By default, trurl removes default port numbers from URLs with a known scheme
 even if they are explicitly specified in the input URL. This options, makes
 trurl not remove them.
 .IP "--no-guess-scheme"
 Disables libcurl's scheme guessing feature. URLs that do not contain a scheme
-will be treated as invalid URLs.
+are treated as invalid URLs.
 .IP "--punycode"
 Uses the "punycoded" version of the host name, which is how International Domain
 Names are converted into plain ASCII. If the host name is not using IDN, the
@@ -195,43 +195,42 @@ properly.
 .IP "--redirect [URL]"
 Redirect the URL to this new location.
 The redirection is performed on the base URL, so, if no base URL is specified,
-no redirection will be performed.
+no redirection is performed.
 .IP "--replace [data]"
 Replaces a URL query.
 
 data can either take the form of a single value, or as a key/value pair in the
 shape \fIfoo=bar\fP. If replace is called on an item that isn't in the list of
-queries trurl will ignore that item.
+queries trurl ignores that item.
 .IP "--force-replace [data]"
-Works the same as \fI--replace\fP, but trurl will append a missing query string if 
+Works the same as \fI--replace\fP, but trurl appends a missing query string if
 it is not in the query list already.
 .IP "-s, --set [component][:]=[data]"
-Set this URL component. Setting blank string ("") will clear the component
+Set this URL component. Setting blank string ("") clears the component
 from the URL.
 
 The following components can be set: url, scheme, user, password,
 options, host, port, path, query, fragment and zoneid.
 
 If a simple "="-assignment is used, the data is URL encoded when applied. If
-":=" is used, the data is assumed to already be URL encoded and will be stored
-as-is.
+":=" is used, the data is assumed to already be URL encoded and stored as-is.
 
-If no URL or \fI--url-file\fP argument is provided, trurl will try to create
+If no URL or \fI--url-file\fP argument is provided, trurl tries to create
 a URL using the components provided by the \fI--set\fP options. If not enough
-components are specified, this will fail.
+components are specified, this fails.
 .IP "--sort-query"
 The "variable=content" tuplets in the query component are sorted in a case
 insensitive alphabetical order. This helps making URLs identical that
 otherwise only had their query pairs in different orders.
 .IP "--url [URL]"
 Set the input URL to work with. The URL may be provided without a scheme,
-which then typically is not actually a legal URL but trurl will try to figure
+which then typically is not actually a legal URL but trurl tries to figure
 out what is meant and guess what scheme to use (unless \fI--no-guess-scheme\fP
 is used).
 
-Providing multiple URLs will make trurl act on all URLs in a serial fashion.
+Providing multiple URLs makes trurl act on all URLs in a serial fashion.
 
-If the URL cannot be parsed for whatever reason, trurl will simply move on to
+If the URL cannot be parsed for whatever reason, trurl simply moves on to
 the next provided URL - unless \fI--verify\fP is used.
 .IP "--urlencode"
 Outputs URL encoded version of components by default when using \fI--get\fP or
@@ -292,7 +291,7 @@ with a bracket (\fB[\fP) - and no other host names can contain such a symbol. If
 .B "port"
 The provided port number as a string. If the port number was not provided in the
 URL, but the scheme is a known one, and \fI--default-port\fP is in use, the
-default port for that scheme will be provided here.
+default port for that scheme is provided here.
 .TP
 .B "path"
 The path. Including the leading slash.
@@ -335,7 +334,7 @@ $ trurl --url https://curl.se/we/are.html --redirect here.html
 https://curl.se/we/here.html
 .fi
 .IP "Change port number"
-This also shows how trurl will remove dot-dot sequences
+This also shows how trurl removes dot-dot sequences
 .nf
 $ trurl --url https://curl.se/we/../are.html --set port=8080
 https://curl.se:8080/are.html
