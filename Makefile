@@ -25,10 +25,10 @@
 TARGET = trurl
 OBJS = trurl.o
 ifndef TRURL_IGNORE_CURL_CONFIG
-LDLIBS += $$(curl-config --libs) -ljson-c -L /opt/homebrew/lib/ -fsanitize=address
-CFLAGS += $$(curl-config --cflags) -I /opt/homebrew/Cellar/json-c/0.17/include/json-c/ -Wno-gnu
+LDLIBS += $$(curl-config --libs) -ljson-c 
+CFLAGS += $$(curl-config --cflags) -Wno-gnu
 endif
-CFLAGS += -W -Wall -Wshadow -Werror -pedantic -fsanitize=address
+CFLAGS += -W -Wall -Wshadow -Werror -pedantic
 CFLAGS += -Wconversion -Wmissing-prototypes -Wwrite-strings -Wsign-compare -Wno-sign-conversion
 ifndef NDEBUG
 CFLAGS += -g

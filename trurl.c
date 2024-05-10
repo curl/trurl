@@ -30,7 +30,7 @@
 #include <curl/mprintf.h>
 #include <stdint.h>
 #include <unistd.h>
-#include <json.h>
+#include <json-c/json.h>
 
 
 #if defined(_MSC_VER) && (_MSC_VER < 1800)
@@ -1628,10 +1628,9 @@ static void singleurl(struct option *o,
     curl_url_cleanup(uh);
 }
 
-/* fd is a file which holds the json string.. */
+/* fd is a file which holds the json string. */
 static void from_json(FILE *file, struct option *o)
 {
-  /* can we use json_tokener_parse_ex for clearer messaging? */
   size_t json_buf_size = 1024;
   size_t latest = 0;
   char *json_string = calloc(sizeof(char), json_buf_size);
@@ -1639,15 +1638,19 @@ static void from_json(FILE *file, struct option *o)
     errorf(o, ERROR_MEM, "Error allocating memory for file operations");
   }
   size_t n = 0;
+  /* read the entire file in */
   while((n = fread(json_string + latest, sizeof(char), json_buf_size, file))) {
     latest += n;
     json_buf_size *= 2;
-    json_string = reallocf(json_string, json_buf_size);
-    if(!json_string) {
+    char *new_json_string = realloc(json_string, json_buf_size);
+    if(!new_json_string) {
+      free(json_string);
       errorf(o, ERROR_MEM, "Error allocating memory for file operations");
     }
+    json_string = new_json_string;
     json_string[latest] = 0;
   }
+  /* can we use json_tokener_parse_ex for clearer messaging? */
   json_object *jobj = json_tokener_parse(json_string);
   free(json_string);
   if(!jobj) {
@@ -1659,20 +1662,52 @@ static void from_json(FILE *file, struct option *o)
   }
   bool scheme_set = false;
   size_t array_len = json_object_array_length(jobj);
+  /* loop through array of url objects */
   for(size_t i = 0; i < array_len; i++) {
     CURLU *uh = curl_url();
     json_object *wholeurl = json_object_array_get_idx(jobj, i);
+    /* extract all key / value pairs from params array */
+    json_object *params = json_object_object_get(wholeurl, "params");
+    if(params) {
+      size_t params_length = json_object_array_length(params);
+      for(size_t j = 0; j < params_length; j++) {
+        json_object *param = json_object_array_get_idx(params, j);
+        json_object *param_k_obj = json_object_object_get(param, "key");
+        json_object *param_v_obj = json_object_object_get(param, "value");
+        const char *param_k = json_object_get_string(param_k_obj);
+        const char *param_v = json_object_get_string(param_v_obj);
+        size_t value_length = strlen(param_v);
+        size_t key_length = strlen(param_k);
+        int set = value_length > 0 ? 1:0;
+        size_t qpair_len = key_length + value_length + set + 1;
+        char *qpair = calloc(qpair_len, sizeof(char));
+        if(!qpair) {
+          errorf(o, ERROR_MEM, "Out of memory");
+        }
+        memcpy(qpair, param_k, key_length);
+        if(value_length) {
+          qpair[key_length] = '=';
+          memcpy(qpair + key_length + 1, param_v, value_length);
+        }
+        queryadd(o, qpair);
+        free(qpair);
+      }
+    }
+    /* Get all other parts of the url info. */
     json_object *parts = json_object_object_get(wholeurl, "parts");
     json_object_object_foreach(parts, key, field) {
+      if(!strcmp(key, "query")) {
+        trurl_warnf(o,
+          "'query' part will be ignored, to add querys use a params array.");
+        continue;
+      }
+      /* Scheme is required to be set, so we need to ensure its set */
       if(scheme_set != true && !strcmp(key, "scheme"))
         scheme_set = true;
-      if(!strcmp(key, "query")) {
-          /* loop through array of query pairs */
-      }
       const char *val_str = json_object_get_string(field);
       size_t key_len = strlen(key);
       size_t val_len = strlen(val_str);
-      /* +2 because one for '=' and one for null terminator. */
+      /* +2, one char for '=' and one for null terminator. */
       char *set_str = malloc(val_len + key_len + 2);
       memset(set_str, 0, val_len + key_len + 2);
       memcpy(set_str, key, key_len);
@@ -1688,6 +1723,7 @@ static void from_json(FILE *file, struct option *o)
     memset(&iinfo, 0, sizeof(iinfo));
     iinfo.uh = uh;
     singleurl(o, NULL, &iinfo, o->iter_list);
+    curl_url_cleanup(iinfo.uh);
   }
   json_object_put(jobj);
 }

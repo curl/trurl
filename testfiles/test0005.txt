@@ -1,0 +1,31 @@
+[
+  {
+    "url": "ftp://scream@url.com/?query=bear&moose=lobster#a-fragment",
+    "parts": {
+      "scheme": "ftp",
+      "user": "scream",
+      "host": "url.com",
+      "path": "/",
+      "query": "query=bear&moose=lobster",
+      "fragment": "a-fragment"
+    },
+    "params": [
+      {
+        "key": "query",
+        "value": "bear"
+      },
+      {
+        "key": "moose",
+        "value": "lobster"
+      }
+    ]
+  },
+  {
+    "url": "http://example.org/",
+    "parts": {
+      "scheme": "http",
+      "host": "example.org",
+      "path": "/"
+    }
+  }
+]
