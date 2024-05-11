@@ -1666,7 +1666,12 @@ static void from_json(FILE *file, struct option *o)
   for(size_t i = 0; i < array_len; i++) {
     CURLU *uh = curl_url();
     json_object *wholeurl = json_object_array_get_idx(jobj, i);
-    /* extract all key / value pairs from params array */
+    /* extract all key / value pairs from params array and generate a
+     * new query=... string from the values. We are doing this instead of
+     * using a function like appendquery or addpqairs because those do it
+     * for all urls, and we only want it associated w/ the current url.*/
+    char *this_query = NULL;
+    size_t this_q_size = 0;
     json_object *params = json_object_object_get(wholeurl, "params");
     if(params) {
       size_t params_length = json_object_array_length(params);
@@ -1689,16 +1694,28 @@ static void from_json(FILE *file, struct option *o)
           qpair[key_length] = '=';
           memcpy(qpair + key_length + 1, param_v, value_length);
         }
-        queryadd(o, qpair);
+        this_query = realloc(this_query, this_q_size + qpair_len);
+        memcpy(this_query + this_q_size, qpair, qpair_len);
+        this_q_size += qpair_len;
+        this_query[this_q_size - 1] = '&';
         free(qpair);
       }
+    }
+    if(this_q_size) {
+      this_query[this_q_size - 1] = '\0';
+      printf("this_query %s\n", this_query);
+      const char *qss = "query:="; /* do not encode the url */
+      char *query_set_str = malloc(sizeof(char) * (this_q_size + strlen(qss)));
+      memcpy(query_set_str, qss, strlen(qss));
+      memcpy(query_set_str + strlen(qss), this_query, this_q_size);
+      setone(uh, query_set_str, o);
+      free(query_set_str);
     }
     /* Get all other parts of the url info. */
     json_object *parts = json_object_object_get(wholeurl, "parts");
     json_object_object_foreach(parts, key, field) {
       if(!strcmp(key, "query")) {
-        trurl_warnf(o,
-          "'query' part will be ignored, to add querys use a params array.");
+        trurl_warnf(o, "Not using 'query', use a seperate 'params' array.");
         continue;
       }
       /* Scheme is required to be set, so we need to ensure its set */
@@ -1723,7 +1740,7 @@ static void from_json(FILE *file, struct option *o)
     memset(&iinfo, 0, sizeof(iinfo));
     iinfo.uh = uh;
     singleurl(o, NULL, &iinfo, o->iter_list);
-    curl_url_cleanup(iinfo.uh);
+    curl_url_cleanup(uh);
   }
   json_object_put(jobj);
 }
