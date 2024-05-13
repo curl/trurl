@@ -930,8 +930,10 @@ static const struct var *setone(CURLU *uh, const char *setline,
       if(conditional) {
         char *piece;
         rc = curl_url_get(uh, v->part, &piece, 0);
-        if(!rc)
+        if(!rc) {
           skip = true;
+          curl_free(piece);
+        }
       }
 
       if(!skip)
