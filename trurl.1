@@ -217,6 +217,11 @@ options, host, port, path, query, fragment and zoneid.
 If a simple "="-assignment is used, the data is URL encoded when applied. If
 ":=" is used, the data is assumed to already be URL encoded and stored as-is.
 
+If "?=" is used, the set is only performed if the component is not already
+set. It avoids overwriting any already set data.
+
+You can also combine : and ? into "?:=" if desired.
+
 If no URL or \fI--url-file\fP argument is provided, trurl tries to create
 a URL using the components provided by the \fI--set\fP options. If not enough
 components are specified, this fails.
