@@ -488,15 +488,24 @@ static void replaceadd(struct option *o,
   if(n)
     o->replace_list = n;
 }
+
+static bool longarg(const char *flag, const char *check)
+{
+  /* the given flag might end with an equals sign */
+  size_t len = strlen(flag);
+  return (!strcmp(flag, check) ||
+          (!strncmp(flag, check, len) && check[len] == '='));
+}
+
 static bool checkoptarg(struct option *o, const char *flag,
                         const char *given,
                         const char *arg)
 {
-  bool single = false;
+  bool shortopt = false;
   if((flag[0] == '-') && (flag[1] != '-'))
-    single = true;
-  if((!strcmp(flag, given) && !single) ||
-     (!strncmp(flag, given, 2) && single)) {
+    shortopt = true;
+  if((!shortopt && longarg(flag, given)) ||
+     (!strncmp(flag, given, 2) && shortopt)) {
     if(!arg)
       errorf(o, ERROR_ARG, "Missing argument for %s", flag);
     return true;
@@ -515,6 +524,13 @@ static int getarg(struct option *o,
   if((flag[0] == '-') && (flag[1] != '-') && flag[2]) {
     arg = (char *)&flag[2];
     gap = false;
+  }
+  else if((flag[0] == '-') && (flag[1] == '-')) {
+    char *equals = strchr(&flag[2], '=');
+    if(equals) {
+      arg = (char *)&equals[1];
+      gap = false;
+    }
   }
 
   if(!strcmp("--", flag))
@@ -1578,8 +1594,12 @@ int main(int argc, const char **argv)
     bool usedarg = false;
     if(!o.end_of_options && argv[0][0] == '-') {
       /* dash-dash prefixed */
-      if(getarg(&o, argv[0], argv[1], &usedarg))
-        errorf(&o, ERROR_FLAG, "unknown option: %s", argv[0]);
+      if(getarg(&o, argv[0], argv[1], &usedarg)) {
+        /* if the long option ends with an equals sign, cut it there,
+           if it is a short option, show just two letters */
+        size_t not_e = argv[0][1] == '-' ? strcspn(argv[0], "=") : 2;
+        errorf(&o, ERROR_FLAG, "unknown option: %.*s", (int)not_e, argv[0]);
+      }
     }
     else {
       /* this is a URL */

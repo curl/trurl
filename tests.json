@@ -164,6 +164,19 @@
     {
         "input": {
             "arguments": [
+                "--set=host=moo",
+                "--set=scheme=http"
+            ]
+        },
+        "expected": {
+            "stdout": "http://moo/\n",
+            "stderr": "",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
                 "-s",
                 "host=moo",
                 "-s",
