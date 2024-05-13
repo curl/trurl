@@ -1595,8 +1595,9 @@ int main(int argc, const char **argv)
     if(!o.end_of_options && argv[0][0] == '-') {
       /* dash-dash prefixed */
       if(getarg(&o, argv[0], argv[1], &usedarg)) {
-        /* if the option ends with an equals sign, cut it there */
-        size_t not_e = strcspn(argv[0], "=");
+        /* if the long option ends with an equals sign, cut it there,
+           if it is a short option, show just two letters */
+        size_t not_e = argv[0][1] == '-' ? strcspn(argv[0], "=") : 2;
         errorf(&o, ERROR_FLAG, "unknown option: %.*s", (int)not_e, argv[0]);
       }
     }
