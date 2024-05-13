@@ -2484,5 +2484,33 @@
           "stderr": "",
           "returncode": 0
       }
+  },
+  {
+      "input": {
+          "arguments": [
+              "example.com:88",
+              "--set",
+              "port?=99"
+          ]
+      },
+      "expected": {
+          "stdout": "http://example.com:88/\n",
+          "stderr": "",
+          "returncode": 0
+      }
+  },
+  {
+      "input": {
+          "arguments": [
+              "example.com",
+              "--set",
+              "port?=99"
+          ]
+      },
+      "expected": {
+          "stdout": "http://example.com:99/\n",
+          "stderr": "",
+          "returncode": 0
+      }
   }
 ]

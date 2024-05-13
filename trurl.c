@@ -899,20 +899,47 @@ static const struct var *setone(CURLU *uh, const char *setline,
   if(ptr && (ptr > setline)) {
     size_t vlen = ptr - setline;
     bool urlencode = true;
+    bool conditional = false;
     bool found = false;
-    if(ptr[-1] == ':') {
-      urlencode = false;
-      vlen--;
+    if(vlen) {
+      int back = -1;
+      size_t reqlen = 1;
+      while(vlen > reqlen) {
+        if(ptr[back] == ':') {
+          urlencode = false;
+          vlen--;
+        }
+        else if(ptr[back] == '?') {
+          conditional = true;
+          vlen--;
+        }
+        else
+          break;
+        reqlen++;
+        back--;
+      }
     }
     v = comp2var(setline, vlen);
     if(v) {
-      CURLUcode rc;
+      CURLUcode rc = CURLUE_OK;
+      bool skip = false;
       if((v->part == CURLUPART_HOST) && ('[' == ptr[1]))
         /* when setting an IPv6 numerical address, disable URL encoding */
         urlencode = false;
-      rc = curl_url_set(uh, v->part, ptr[1] ? &ptr[1] : NULL,
-                        (o->curl ? 0 : CURLU_NON_SUPPORT_SCHEME)|
-                        (urlencode ? CURLU_URLENCODE : 0) );
+
+      if(conditional) {
+        char *piece;
+        rc = curl_url_get(uh, v->part, &piece, 0);
+        if(!rc) {
+          skip = true;
+          curl_free(piece);
+        }
+      }
+
+      if(!skip)
+        rc = curl_url_set(uh, v->part, ptr[1] ? &ptr[1] : NULL,
+                          (o->curl ? 0 : CURLU_NON_SUPPORT_SCHEME)|
+                          (urlencode ? CURLU_URLENCODE : 0) );
       if(rc)
         warnf("Error setting %s: %s", v->name, curl_url_strerror(rc));
       found = true;
