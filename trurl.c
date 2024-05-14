@@ -1175,18 +1175,21 @@ static struct string *memdupdec(char *source, size_t len, bool json)
     char *p;
     int plen;
     right = strurldecode(sep + 1, (int)(len - (sep - source) - 1),
-            &right_len);
+                         &right_len);
 
     /* convert null bytes to periods */
     for(plen = right_len, p = right; plen; plen--, p++) {
       if(!*p && !json) {
         *p = REPLACE_NULL_BYTE;
       }
-     }
+    }
   }
   str = malloc(sizeof(char) * (left_len + (sep?(right_len + 1):0)));
-  if(!str)
+  if(!str) {
+    curl_free(right);
+    curl_free(left);
     return NULL;
+  }
   memcpy(str, left, left_len);
   if(sep) {
     str[left_len] = '=';
