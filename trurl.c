@@ -1396,6 +1396,7 @@ static void singleurl(struct option *o,
                       struct curl_slist *iter)
 {
   CURLU *uh = iinfo->uh;
+  bool first_lap = true;
   if(!uh) {
     uh = curl_url();
     if(!uh)
@@ -1498,29 +1499,31 @@ static void singleurl(struct option *o,
       }
     }
 
-    /* append path segments */
-    for(p = o->append_path; p; p = p->next) {
-      char *apath = p->data;
-      char *opath;
-      char *npath;
-      size_t olen;
-      /* extract the current path */
-      curl_url_get(uh, CURLUPART_PATH, &opath, 0);
+    if(first_lap) {
+      /* append path segments */
+      for(p = o->append_path; p; p = p->next) {
+        char *apath = p->data;
+        char *opath;
+        char *npath;
+        size_t olen;
+        /* extract the current path */
+        curl_url_get(uh, CURLUPART_PATH, &opath, 0);
 
-      /* does the existing path end with a slash, then don't
-         add one in between */
-      olen = strlen(opath);
+        /* does the existing path end with a slash, then don't
+           add one in between */
+        olen = strlen(opath);
 
-      /* append the new segment */
-      npath = curl_maprintf("%s%s%s", opath,
-                            opath[olen-1] == '/' ? "" : "/",
-                            apath);
-      if(npath) {
-        /* set the new path */
-        curl_url_set(uh, CURLUPART_PATH, npath, 0);
+        /* append the new segment */
+        npath = curl_maprintf("%s%s%s", opath,
+                              opath[olen-1] == '/' ? "" : "/",
+                              apath);
+        if(npath) {
+          /* set the new path */
+          curl_url_set(uh, CURLUPART_PATH, npath, 0);
+        }
+        curl_free(npath);
+        curl_free(opath);
       }
-      curl_free(npath);
-      curl_free(opath);
     }
 
     extractqpairs(uh, o);
@@ -1531,10 +1534,12 @@ static void singleurl(struct option *o,
     /* replace parts */
     replace(o);
 
-    /* append query segments */
-    for(p = o->append_query; p; p = p->next) {
-      addqpair(p->data, strlen(p->data), o->jsonout);
-      query_is_modified = true;
+    if(first_lap) {
+      /* append query segments */
+      for(p = o->append_query; p; p = p->next) {
+        addqpair(p->data, strlen(p->data), o->jsonout);
+        query_is_modified = true;
+      }
     }
 
     sortquery(o);
@@ -1603,6 +1608,7 @@ static void singleurl(struct option *o,
 
     o->urls++;
 
+    first_lap = false;
   } while(iinfo->ptr);
   if(!iinfo->uh)
     curl_url_cleanup(uh);
