@@ -29,8 +29,8 @@ jobs:
 
       - name: install libcurl
         run: |
-          sudo apt-get update
-          sudo apt-get install libcurl4-openssl-dev ${{ matrix.build.install_packages }}
+          apt-get -yqq update
+          apt-get -yqq install libcurl4-openssl-dev libjson-c-dev ${{ matrix.build.install_packages }}
 
       - name: code style check
         run: make checksrc

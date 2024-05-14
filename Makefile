@@ -25,11 +25,12 @@
 TARGET = trurl
 OBJS = trurl.o
 ifndef TRURL_IGNORE_CURL_CONFIG
-LDLIBS += $$(curl-config --libs) -ljson-c 
-CFLAGS += $$(curl-config --cflags) -Wno-gnu
+LDLIBS += $$(curl-config --libs)
+CFLAGS += $$(curl-config --cflags)
 endif
-CFLAGS += -W -Wall -Wshadow -Werror -pedantic
-CFLAGS += -Wconversion -Wmissing-prototypes -Wwrite-strings -Wsign-compare -Wno-sign-conversion
+CFLAGS += -W -Wall -Wshadow -Werror -pedantic -Wno-gnu
+CFLAGS += -Wconversion -Wmissing-prototypes -Wwrite-strings -Wsign-compare -Wno-sign-conversion -I/opt/homebrew/include
+LDLIBS += -ljson-c -L/opt/homebrew/lib
 ifndef NDEBUG
 CFLAGS += -g
 endif

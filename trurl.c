@@ -123,7 +123,9 @@ static const struct var variables[] = {
   {"path",     CURLUPART_PATH},
   {"query",    CURLUPART_QUERY},
   {"fragment", CURLUPART_FRAGMENT},
+#ifdef SUPPORTS_ZONEID
   {"zoneid",   CURLUPART_ZONEID},
+#endif
   {NULL, 0}
 };
 
@@ -190,6 +192,7 @@ static void help(void)
     "  -h, --help                       - this help\n"
     "      --iterate [component]=[list] - create multiple URL outputs\n"
     "      --json                       - output URL as JSON\n"
+    "  -j, --json-file [file/-]         - json input from file or stdin\n"
     "      --keep-port                  - keep known default ports\n"
     "      --no-guess-scheme            - require scheme in URLs\n"
     "      --punycode                   - encode hostnames in punycode\n"
@@ -644,7 +647,10 @@ static int getarg(struct option *o,
     o->force_replace = true;
     *usedarg = gap;
   }
-  else if(!strcmp("--json-in", flag)) {
+  else if(checkoptarg(o, "--json-file", flag, arg) ||
+          checkoptarg(o, "-j", flag, arg)) {
+    urlfile(o, arg);
+    *usedarg = gap;
     o->json_in = true;
   }
   else
@@ -1665,20 +1671,22 @@ static void from_json(FILE *file, struct option *o)
   /* loop through array of url objects */
   for(size_t i = 0; i < array_len; i++) {
     CURLU *uh = curl_url();
-    json_object *wholeurl = json_object_array_get_idx(jobj, i);
+    json_object *wholeurl = json_object_array_get_idx(jobj, (int)i);
     /* extract all key / value pairs from params array and generate a
      * new query=... string from the values. We are doing this instead of
      * using a function like appendquery or addpqairs because those do it
      * for all urls, and we only want it associated w/ the current url.*/
     char *this_query = NULL;
     size_t this_q_size = 0;
-    json_object *params = json_object_object_get(wholeurl, "params");
-    if(params) {
+    json_object *params = json_object_new_object();
+    if(json_object_object_get_ex(wholeurl, "params", &params)) {
       size_t params_length = json_object_array_length(params);
       for(size_t j = 0; j < params_length; j++) {
-        json_object *param = json_object_array_get_idx(params, j);
-        json_object *param_k_obj = json_object_object_get(param, "key");
-        json_object *param_v_obj = json_object_object_get(param, "value");
+        json_object *param = json_object_array_get_idx(params, (int)j);
+        json_object *param_k_obj = json_object_new_object();
+        json_object *param_v_obj = json_object_new_object();
+        json_object_object_get_ex(param, "key", &param_k_obj);
+        json_object_object_get_ex(param, "value", &param_v_obj);
         const char *param_k = json_object_get_string(param_k_obj);
         const char *param_v = json_object_get_string(param_v_obj);
         size_t value_length = strlen(param_v);
@@ -1703,7 +1711,6 @@ static void from_json(FILE *file, struct option *o)
     }
     if(this_q_size) {
       this_query[this_q_size - 1] = '\0';
-      printf("this_query %s\n", this_query);
       const char *qss = "query:="; /* do not encode the url */
       char *query_set_str = malloc(sizeof(char) * (this_q_size + strlen(qss)));
       memcpy(query_set_str, qss, strlen(qss));
@@ -1712,7 +1719,8 @@ static void from_json(FILE *file, struct option *o)
       free(query_set_str);
     }
     /* Get all other parts of the url info. */
-    json_object *parts = json_object_object_get(wholeurl, "parts");
+    json_object *parts = json_object_new_object();
+    json_object_object_get_ex(wholeurl, "parts", &parts);
     json_object_object_foreach(parts, key, field) {
       if(!strcmp(key, "query")) {
         trurl_warnf(o, "Not using 'query', use a seperate 'params' array.");

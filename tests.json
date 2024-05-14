@@ -2498,8 +2498,11 @@
           "stderr": "",
           "returncode": 0
       }
-              "--json-in",
-              "-f",
+  },
+  {
+      "input": {
+          "arguments": [
+              "--json-file",
               "testfiles/test0003.txt"
           ]
        },
@@ -2558,8 +2561,7 @@
   {
       "input": {
           "arguments": [
-              "--json-in",
-              "-f",
+              "-j",
               "testfiles/test0001.txt"
           ]
        },
@@ -2567,20 +2569,6 @@
            "returncode": 13 ,
            "stderr": "trurl error: Cannot parse JSON.\ntrurl error: Try trurl -h for help\n",
            "stdout": ""
-       }
-  },
-  {
-    "input": {
-          "arguments": [
-              "--json-in",
-              "-f",
-              "testfiles/test0005.txt"
-          ]
-       },
-       "expected": {
-           "returncode": 0,
-           "stderr": "trurl note: 'query' part will be ignored, to add querys use a params array.\n",
-           "stdout": "ftp://scream@url.com/?query=bear&moose=lobster#a-fragment\n"
        }
   }
 ]
