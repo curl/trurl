@@ -1489,9 +1489,10 @@ static void singleurl(struct option *o,
         wlen = strlen(w);
         iinfo->ptr = NULL;
       }
-      curl_msnprintf(iterbuf, sizeof(iterbuf), "%.*s%s=%.*s", (int)plen, part,
-                     urlencode ? "" : ":",
-                     (int)wlen, w);
+      (void)curl_msnprintf(iterbuf, sizeof(iterbuf),
+                           "%.*s%s=%.*s", (int)plen, part,
+                           urlencode ? "" : ":",
+                           (int)wlen, w);
       setone(uh, iterbuf, o);
       if(iter->next) {
         struct iterinfo info;
@@ -1510,7 +1511,8 @@ static void singleurl(struct option *o,
         char *npath;
         size_t olen;
         /* extract the current path */
-        curl_url_get(uh, CURLUPART_PATH, &opath, 0);
+        if(curl_url_get(uh, CURLUPART_PATH, &opath, 0))
+          errorf(o, ERROR_ITER, "out of memory");
 
         /* does the existing path end with a slash, then don't
            add one in between */
@@ -1522,7 +1524,8 @@ static void singleurl(struct option *o,
                               apath);
         if(npath) {
           /* set the new path */
-          curl_url_set(uh, CURLUPART_PATH, npath, 0);
+          if(curl_url_set(uh, CURLUPART_PATH, npath, 0))
+            errorf(o, ERROR_ITER, "out of memory");
         }
         curl_free(npath);
         curl_free(opath);
