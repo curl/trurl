@@ -2512,5 +2512,37 @@
           "stderr": "",
           "returncode": 0
       }
+  },
+  {
+      "input": {
+          "arguments": [
+              "example.com",
+              "--append",
+              "query=add",
+              "--iterate",
+              "scheme=http ftp"
+          ]
+      },
+      "expected": {
+          "stdout": "http://example.com/?add\nftp://example.com/?add\n",
+          "stderr": "",
+          "returncode": 0
+      }
+  },
+  {
+      "input": {
+          "arguments": [
+              "example.com",
+              "--append",
+              "path=add",
+              "--iterate",
+              "scheme=http ftp"
+          ]
+      },
+      "expected": {
+          "stdout": "http://example.com/add\nftp://example.com/add\n",
+          "stderr": "",
+          "returncode": 0
+      }
   }
 ]
