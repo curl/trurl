@@ -2544,5 +2544,33 @@
           "stderr": "",
           "returncode": 0
       }
+  },
+  {
+      "input": {
+          "arguments": [
+              "example.com?hello=%00",
+              "-g",
+              "{query}"
+          ]
+      },
+      "expected": {
+          "stdout": "",
+          "stderr": "trurl error: URL decode error, most likely because of rubbish in the input (query)\n\ntrurl error: Try trurl -h for help\n",
+          "returncode": 10
+      }
+  },
+  {
+      "input": {
+          "arguments": [
+              "example.com/hello%00",
+              "-g",
+              "{path}"
+          ]
+      },
+      "expected": {
+          "stdout": "",
+          "stderr": "trurl error: URL decode error, most likely because of rubbish in the input (path)\n\ntrurl error: Try trurl -h for help\n",
+          "returncode": 10
+      }
   }
 ]
