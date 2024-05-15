@@ -53,7 +53,7 @@ jobs:
       - name: install cygwin
         uses: cygwin/cygwin-install-action@master
         with:
-          packages: curl, libcurl-devel, libcurl4, make, gcc-core, python39
+          packages: curl, libcurl-devel, libcurl4, make, gcc-core, python39, json-c
 
       - name: make
         run: make
@@ -70,8 +70,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install Homebrew
+        id: install-homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+      
+      - name: Install json-c
+        run: brew json-c
+
       - name: make
-        run: make
+        run: make CFLAGS="-I ${{ steps.install-homebrew.outputs.gems-path }}/include" LDFLAGS="-L${{{ steps.install-homebrew.outputs.gems-path }}/lib"
 
       - name: sanity test
         run: ./trurl -v
