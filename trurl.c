@@ -844,7 +844,7 @@ static void get(struct option *o, CURLU *uh)
               /* silently ignore */
               break;
             default:
-              trurl_warnf(o, "%s (%s)\n", curl_url_strerror(rc), v->name);
+              trurl_warnf(o, "%s (%s)", curl_url_strerror(rc), v->name);
               break;
             }
           }
