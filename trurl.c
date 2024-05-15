@@ -1724,7 +1724,7 @@ static void from_json(FILE *file, struct option *o)
     json_object_object_get_ex(wholeurl, "parts", &parts);
     json_object_object_foreach(parts, key, field) {
       if(!strcmp(key, "query")) {
-        trurl_warnf(o, "Not using 'query', use a seperate 'params' array.");
+        trurl_warnf(o, "Not using 'query', use a separate 'params' array.");
         continue;
       }
       /* Scheme is required to be set, so we need to ensure its set */
