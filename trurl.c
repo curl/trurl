@@ -1718,6 +1718,7 @@ static void from_json(FILE *file, struct option *o)
       memcpy(query_set_str + strlen(qss), this_query, this_q_size);
       setone(uh, query_set_str, o);
       free(query_set_str);
+      free(this_query);
     }
     /* Get all other parts of the url info. */
     json_object *parts = NULL;
