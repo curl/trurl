@@ -1752,7 +1752,6 @@ static void from_json(FILE *file, struct option *o)
     singleurl(o, NULL, &iinfo, o->iter_list);
     curl_url_cleanup(uh);
   }
-  //json_object_put(jobj);
 }
 
 
