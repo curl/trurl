@@ -75,10 +75,10 @@ jobs:
         uses: Homebrew/actions/setup-homebrew@master
       
       - name: Install json-c
-        run: brew json-c
+        run: brew install json-c
 
       - name: make
-        run: make CFLAGS="-I ${{ steps.install-homebrew.outputs.gems-path }}/include" LDFLAGS="-L${{{ steps.install-homebrew.outputs.gems-path }}/lib"
+        run: make CFLAGS="-I ${{ steps.install-homebrew.outputs.gems-path }}/include" LDFLAGS="-L${{ steps.install-homebrew.outputs.gems-path }}/lib"
 
       - name: sanity test
         run: ./trurl -v
