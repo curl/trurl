@@ -1,17 +1,17 @@
-# trurl 0.12
+# trurl 0.13
 
 ## What's Changed
 
-- This is the same as 0.11 but with the version string set correctly
-
-- check valgrind function by @eh-san in #273
-- Added UTF-8 detection to test runner by @jacobmealey in #276
-- use of free() instead of curl_free() by @bagder in #283
-- output the list of components correctly in the help output by @bagder in #282
-- if query is not updated, leave it untouched by @bagder in #284
-- expand the warning on "internal problem" by @bagder in #285
-- error when using an unrecognized URL component by @bagder in #286
+ - (also) support --flag=argument style for long options
+ - fix unchecked return values from libcurl calls
+ - fixed typos
+ - free allocated pointer on OOM error
+ - memdupdec: free memory in OOM exit path
+ - only --append in the first iterate loop
+ - short options need no space separation for the argument anymore
+ - support ?= for set, to only do it if not already set
+ - trurl.1: use present tense
 
 Contributors to this release:
 
-  Daniel Stenberg, Jacob Mealey, Ehsan
+ Daniel Gustafsson, Daniel Stenberg, Jacob Mealey, Viktor Szakats
