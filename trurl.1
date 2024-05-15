@@ -431,6 +431,32 @@ http://curl.se/path/index.html
 ftp://curl.se/path/index.html
 sftp://curl.se/path/index.html
 .fi
+.SH "EXIT CODES"
+trurl returns a non-zero exit code to indicate problems.
+.IP 1
+A problem with --url-file
+.IP 2
+A problem with --append
+.IP 3
+A command line option misses an argument
+.IP 4
+A command line option mistake or an illegal option combination.
+.IP 5
+A problem with --set
+.IP 6
+Out of memory
+.IP 7
+Could not output a valid URL
+.IP 8
+A problem with --trim
+.IP 9
+If --verify is set and the input URL cannot parse.
+.IP 10
+A problem with --get
+.IP 11
+A problem with --iterate
+.IP 12
+A problem with --replace or --force-replace
 .SH WWW
 https://curl.se/trurl
 .SH "SEE ALSO"
