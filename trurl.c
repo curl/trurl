@@ -1742,6 +1742,7 @@ static void from_json(FILE *file, struct option *o)
       setone(uh, set_str, o);
       free(set_str);
     }
+    json_object_put(parts);
     if(!scheme_set) {
       setone(uh, "scheme=http", o);
     }
@@ -1749,10 +1750,9 @@ static void from_json(FILE *file, struct option *o)
     memset(&iinfo, 0, sizeof(iinfo));
     iinfo.uh = uh;
     singleurl(o, NULL, &iinfo, o->iter_list);
-    json_object_put(parts);
     curl_url_cleanup(uh);
   }
-  json_object_put(jobj);
+  //json_object_put(jobj);
 }
 
 
