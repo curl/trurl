@@ -29,8 +29,8 @@ LDLIBS += $$(curl-config --libs)
 CFLAGS += $$(curl-config --cflags)
 endif
 CFLAGS += -W -Wall -Wshadow -Werror -pedantic -Wno-gnu 
-CFLAGS += -Wconversion -Wmissing-prototypes -Wwrite-strings -Wsign-compare -Wno-sign-conversion -I/opt/homebrew/include
-LDLIBS += -ljson-c -L/opt/homebrew/lib 
+CFLAGS += -Wconversion -Wmissing-prototypes -Wwrite-strings -Wsign-compare -Wno-sign-conversion
+LDLIBS += -ljson-c
 ifndef NDEBUG
 CFLAGS += -g
 endif

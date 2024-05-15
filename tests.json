@@ -2580,7 +2580,7 @@
        },
        "expected": {
            "returncode": 0,
-           "stderr": "trurl note: Not using 'query', provide a separate 'params' array.\n",
+           "stderr": "trurl note: ignoring 'query', provide a separate 'params' array.\n",
            "stdout": "ftp://scream@url.com/?query=pair&singlequery#a-fragment\nhttp://example.org/\n"
        }
   }
