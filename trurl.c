@@ -1709,7 +1709,6 @@ static void from_json(FILE *file, struct option *o)
         this_query[this_q_size - 1] = '&';
         free(qpair);
       }
-      json_object_put(params);
     }
     if(this_q_size) {
       this_query[this_q_size - 1] = '\0';
