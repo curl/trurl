@@ -1678,7 +1678,7 @@ static void from_json(FILE *file, struct option *o)
      * for all urls, and we only want it associated w/ the current url.*/
     char *this_query = NULL;
     size_t this_q_size = 0;
-    json_object *params = json_object_new_object();
+    json_object *params = NULL;
     if(json_object_object_get_ex(wholeurl, "params", &params)) {
       size_t params_length = json_object_array_length(params);
       for(size_t j = 0; j < params_length; j++) {
@@ -1708,8 +1708,8 @@ static void from_json(FILE *file, struct option *o)
         this_query[this_q_size - 1] = '&';
         free(qpair);
       }
+      json_object_put(params);
     }
-    json_object_put(params);
     if(this_q_size) {
       this_query[this_q_size - 1] = '\0';
       const char *qss = "query:="; /* do not encode the url */
@@ -1720,7 +1720,7 @@ static void from_json(FILE *file, struct option *o)
       free(query_set_str);
     }
     /* Get all other parts of the url info. */
-    json_object *parts = json_object_new_object();
+    json_object *parts = NULL;
     json_object_object_get_ex(wholeurl, "parts", &parts);
     json_object_object_foreach(parts, key, field) {
       if(!strcmp(key, "query")) {
@@ -1742,7 +1742,6 @@ static void from_json(FILE *file, struct option *o)
       setone(uh, set_str, o);
       free(set_str);
     }
-    json_object_put(parts);
     if(!scheme_set) {
       setone(uh, "scheme=http", o);
     }
@@ -1752,6 +1751,7 @@ static void from_json(FILE *file, struct option *o)
     singleurl(o, NULL, &iinfo, o->iter_list);
     curl_url_cleanup(uh);
   }
+  json_object_put(jobj);
 }
 
 
