@@ -1709,6 +1709,7 @@ static void from_json(FILE *file, struct option *o)
         free(qpair);
       }
     }
+    json_object_put(params);
     if(this_q_size) {
       this_query[this_q_size - 1] = '\0';
       const char *qss = "query:="; /* do not encode the url */
@@ -1748,6 +1749,7 @@ static void from_json(FILE *file, struct option *o)
     memset(&iinfo, 0, sizeof(iinfo));
     iinfo.uh = uh;
     singleurl(o, NULL, &iinfo, o->iter_list);
+    json_object_put(parts);
     curl_url_cleanup(uh);
   }
   json_object_put(jobj);
