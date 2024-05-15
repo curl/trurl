@@ -1685,18 +1685,19 @@ static void from_json(FILE *file, struct option *o)
         json_object *param = json_object_array_get_idx(params, (int)j);
         json_object *param_k_obj = json_object_new_object();
         json_object *param_v_obj = json_object_new_object();
-        json_object_object_get_ex(param, "key", &param_k_obj);
-        json_object_object_get_ex(param, "value", &param_v_obj);
-        const char *param_k = json_object_get_string(param_k_obj);
-        const char *param_v = json_object_get_string(param_v_obj);
-        size_t value_length = strlen(param_v);
-        size_t key_length = strlen(param_k);
+        const char *param_k = NULL; 
+        const char *param_v = NULL; 
+        if(json_object_object_get_ex(param, "key", &param_k_obj))
+          param_k = json_object_get_string(param_k_obj);
+        if(json_object_object_get_ex(param, "value", &param_v_obj))
+          param_v = json_object_get_string(param_v_obj);
+        size_t value_length = param_v ? strlen(param_v) : 0;
+        size_t key_length = param_k ? strlen(param_k) : 0;
         int set = value_length > 0 ? 1:0;
         size_t qpair_len = key_length + value_length + set + 1;
         char *qpair = calloc(qpair_len, sizeof(char));
-        if(!qpair) {
+        if(!qpair)
           errorf(o, ERROR_MEM, "Out of memory");
-        }
         memcpy(qpair, param_k, key_length);
         if(value_length) {
           qpair[key_length] = '=';
@@ -1724,7 +1725,7 @@ static void from_json(FILE *file, struct option *o)
     json_object_object_get_ex(wholeurl, "parts", &parts);
     json_object_object_foreach(parts, key, field) {
       if(!strcmp(key, "query")) {
-        trurl_warnf(o, "Not using 'query', use a separate 'params' array.");
+        trurl_warnf(o, "Not using 'query', provide a separate 'params' array.");
         continue;
       }
       /* Scheme is required to be set, so we need to ensure its set */

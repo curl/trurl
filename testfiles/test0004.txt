@@ -1,14 +1,28 @@
 [
   {
     "parts": {
-      "host": "example.com",
-      "port": 8080,
       "scheme": "ftp",
-      "query": [
-        "query=string",
-        "foo=bar"
-      ],
-      "user": "guest",
-      "fragment": "thisfragment"
-  }}
+      "user": "scream",
+      "host": "url.com",
+      "path": "/",
+      "query": "ignoredquery",
+      "fragment": "a-fragment"
+    },
+    "params": [
+      {
+        "key": "query",
+        "value": "pair"
+      },
+      {
+        "key": "singlequery",
+      }
+    ]
+  },
+  {
+    "parts": {
+      "scheme": "http",
+      "host": "example.org",
+      "path": "/"
+    }
+  }
 ]

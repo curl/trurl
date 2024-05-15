@@ -2570,5 +2570,18 @@
            "stderr": "trurl error: Cannot parse JSON.\ntrurl error: Try trurl -h for help\n",
            "stdout": ""
        }
+  },
+  {
+     "input": {
+          "arguments": [
+              "-j",
+              "testfiles/test0004.txt"
+          ]
+       },
+       "expected": {
+           "returncode": 0,
+           "stderr": "trurl note: Not using 'query', provide a separate 'params' array.\n",
+           "stdout": "ftp://scream@url.com/?query=pair&singlequery#a-fragment\nhttp://example.org/\n"
+       }
   }
 ]
