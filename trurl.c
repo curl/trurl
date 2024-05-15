@@ -1683,8 +1683,8 @@ static void from_json(FILE *file, struct option *o)
       size_t params_length = json_object_array_length(params);
       for(size_t j = 0; j < params_length; j++) {
         json_object *param = json_object_array_get_idx(params, (int)j);
-        json_object *param_k_obj = json_object_new_object();
-        json_object *param_v_obj = json_object_new_object();
+        json_object *param_k_obj = NULL;
+        json_object *param_v_obj = NULL;
         const char *param_k = NULL;
         const char *param_v = NULL;
         if(json_object_object_get_ex(param, "key", &param_k_obj))
