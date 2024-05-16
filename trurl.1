@@ -1,4 +1,4 @@
-.\" **************************************************************************;
+.\" **************************************************************************
 .\" *                                  _   _ ____  _
 .\" *  Project                     ___| | | |  _ \| |
 .\" *                             / __| | | | |_) | |
@@ -169,11 +169,16 @@ Set the component to multiple values and output the result once for each
 iteration. Several combined iterations are allowed to generate combinations,
 but only one \fI--iterate\fP option per component. The listed items to iterate
 over should be separated by single spaces.
-.IP "-j, --json-file"
-Creates urls based on the inputs of a JSON array. trurl expectects each element 
-of the JSON array to have the "parts" in --json. To construct a query, an array
-of params must be used. The only required element of the "parts" object is "host".
-  
+.IP "-j, --json-file [file]"
+Creates urls based on a file which holds a JSON array. The --json-file option expects
+an array of objects, each object containing a "parts" object and optionally a "params"
+array. The keys of the "parts" object are equivalent to the options for --get or --set.
+The only required key in the parts object is "host". the get/set option "query" is not
+a valid key for the parts object. --json-file requires a seperate "params" array where
+each element of the array specifies a "key" and a "value".
+
+Like --url-file, [file] may either be a path to a file, or if the file name is '-' then
+--json-file will read from standard in.
 .IP "--json"
 Outputs all set components of the URLs as JSON objects. All components of the
 URL that have data get populated in the parts object using their component

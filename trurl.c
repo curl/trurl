@@ -29,7 +29,6 @@
 #include <curl/curl.h>
 #include <curl/mprintf.h>
 #include <stdint.h>
-#include <unistd.h>
 #include <json-c/json.h>
 
 
@@ -123,9 +122,7 @@ static const struct var variables[] = {
   {"path",     CURLUPART_PATH},
   {"query",    CURLUPART_QUERY},
   {"fragment", CURLUPART_FRAGMENT},
-#ifdef SUPPORTS_ZONEID
   {"zoneid",   CURLUPART_ZONEID},
-#endif
   {NULL, 0}
 };
 
@@ -145,7 +142,7 @@ static const struct var variables[] = {
 #define ERROR_GET   10 /* bad --get syntax */
 #define ERROR_ITER  11 /* bad --iterate syntax */
 #define ERROR_REPL  12 /* a --replace problem */
-#define ERROR_JSON  13 /* a json string could not be parse */
+#define ERROR_JSON  13 /* a json string could not be parsed */
 
 #ifndef SUPPORTS_URL_STRERROR
 /* provide a fake local mockup */
@@ -1656,7 +1653,6 @@ static void from_json(FILE *file, struct option *o)
     json_string = new_json_string;
     json_string[latest] = 0;
   }
-  /* can we use json_tokener_parse_ex for clearer messaging? */
   json_object *jobj = json_tokener_parse(json_string);
   free(json_string);
   if(!jobj) {

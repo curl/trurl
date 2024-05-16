@@ -2,7 +2,7 @@ name: build
 
 on:
   push:
-    branches: ["master", "trurl-json-in"]
+    branches: ["master"]
   pull_request:
     branches: ["master"]
 
@@ -29,8 +29,8 @@ jobs:
 
       - name: install libcurl
         run: |
-          sudo apt-get -yqq update
-          sudo apt-get -yqq install libcurl4-openssl-dev libjson-c-dev ${{ matrix.build.install_packages }}
+          sudo apt-get update
+          sudo apt-get install libcurl4-openssl-dev libjson-c-dev ${{ matrix.build.install_packages }}
 
       - name: code style check
         run: make checksrc
