@@ -109,10 +109,17 @@ user, password, options, host, port, path, query, fragment and zoneid.
 not have a value.
 
 Components are shown URL decoded by default. If you instead write the
-component prefixed with a colon like "{:path}", it gets output URL encoded.
+component prefixed with "url:" like "{url:path}", it gets output URL encoded.
+As a shortcut, "url:" also works written as a single colon: "{:path}".
 
-You may also prefix components with \fBdefault:\fP and/or \fBpuny:\fP or \fBidn:\fP,
-in any order.
+URL decoding a component may cause problems to display it. Such problems make
+a warning get displayed unless \fB--quiet\fP is used. URL decode problems can
+optionally be turned into errors by prefixing the comopnent name with
+"strict:", as in "{strict:path}". In this stricter mode, a URL decode problem
+makes trurl stop what it is doing and return with exit code 10.
+
+You may also prefix components with \fBdefault:\fP and/or \fBpuny:\fP or
+\fBidn:\fP, in any order.
 
 If \fBdefault:\fP is specified, like "{default:url}" or
 "{default:port}", and the port is not explicitly specified in the URL,
