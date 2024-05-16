@@ -1634,18 +1634,25 @@ static void singleurl(struct option *o,
 /* fd is a file which holds the json string. */
 static void from_json(FILE *file, struct option *o)
 {
-  fseek(file, 0, SEEK_END);
-  size_t file_length = ftell(file);
-  rewind(file);
-  char *json_string = calloc(sizeof(char), file_length + 1);
+  size_t json_buf_size = 1024;
+  size_t latest = 0;
+  char *json_string = calloc(sizeof(char), json_buf_size);
   if(!json_string) {
     errorf(o, ERROR_MEM, "Error allocating memory for file operations");
   }
-  if(!fread(json_string, file_length, 1, file)) {
-    free(json_string);
-    errorf(o, ERROR_JSON, "Could not read from file.");
+  size_t n = 0;
+  /* read the entire file in */
+  while((n = fread(json_string + latest, sizeof(char), json_buf_size, file))) {
+    latest += n;
+    json_buf_size *= 2;
+    char *new_json_string = realloc(json_string, json_buf_size);
+    if(!new_json_string) {
+      free(json_string);
+      errorf(o, ERROR_MEM, "Error allocating memory for file operations");
+    }
+    json_string = new_json_string;
+    json_string[latest] = 0;
   }
-
   json_object *jobj = json_tokener_parse(json_string);
   free(json_string);
   if(!jobj) {
