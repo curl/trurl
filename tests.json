@@ -2544,5 +2544,33 @@
           "stderr": "",
           "returncode": 0
       }
+  },
+  {
+      "input": {
+          "arguments": [
+              "https://curl.se?name=mr%00smith",
+              "--get",
+              "{query}"
+          ]
+      },
+      "expected": {
+          "stderr": "trurl note: URL decode error, most likely because of rubbish in the input (query)\n",
+          "returncode": 0,
+          "stdout": "\n"
+      }
+  },
+  {
+      "input": {
+          "arguments": [
+              "https://curl.se?name=mr%00smith",
+              "--get",
+              "{strict:query}"
+          ]
+      },
+      "expected": {
+          "stderr": "trurl error: problems URL decoding query\ntrurl error: Try trurl -h for help\n",
+          "returncode": 10,
+          "stdout": ""
+      }
   }
 ]

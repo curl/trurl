@@ -757,6 +757,7 @@ static void get(struct option *o, CURLU *uh)
         size_t vlen;
         bool isquery = false;
         bool queryall = false;
+        bool strict = false; /* strict mode, fail on URL decode problems */
         int mods = 0;
         end = strchr(ptr, endbyte);
         ptr++; /* pass the { */
@@ -766,39 +767,44 @@ static void get(struct option *o, CURLU *uh)
           continue;
         }
 
-        /* {path} {:path} */
+        /* {path} {:path} {/path} */
         if(*ptr == ':') {
           mods |= VARMODIFIER_URLENCODED;
           ptr++;
         }
         vlen = end - ptr;
         do {
+          size_t wordlen;
           cl = memchr(ptr, ':', vlen);
           if(!cl)
             break;
+          wordlen = cl - ptr + 1;
 
           /* modifiers! */
-          if(!strncmp(ptr, "default:", cl - ptr + 1))
+          if(!strncmp(ptr, "default:", wordlen))
             mods |= VARMODIFIER_DEFAULT;
-          else if(!strncmp(ptr, "puny:", cl - ptr + 1)) {
+          else if(!strncmp(ptr, "puny:", wordlen)) {
             if(mods & VARMODIFIER_PUNY2IDN)
               errorf(o, ERROR_GET,
                      "puny modifier is mutually exclusive with idn");
             mods |= VARMODIFIER_PUNY;
           }
-          else if(!strncmp(ptr, "idn:", cl - ptr + 1)) {
+          else if(!strncmp(ptr, "idn:", wordlen)) {
             if(mods & VARMODIFIER_PUNY)
               errorf(o, ERROR_GET,
                      "idn modifier is mutually exclusive with puny");
             mods |= VARMODIFIER_PUNY2IDN;
           }
+          else if(!strncmp(ptr, "strict:", wordlen))
+            strict = true;
+          else if(!strncmp(ptr, "url:", wordlen))
+            mods |= VARMODIFIER_URLENCODED;
           else {
-            /* {query: or {query-all: */
-            if(!strncmp(ptr, "query-all:", cl - ptr + 1)) {
+            if(!strncmp(ptr, "query-all:", wordlen)) {
               isquery = true;
               queryall = true;
             }
-            else if(!strncmp(ptr, "query:", cl - ptr + 1))
+            else if(!strncmp(ptr, "query:", wordlen))
               isquery = true;
             else {
               /* syntax error */
@@ -844,7 +850,10 @@ static void get(struct option *o, CURLU *uh)
               /* silently ignore */
               break;
             default:
-              trurl_warnf(o, "%s (%s)", curl_url_strerror(rc), v->name);
+              if((rc == CURLUE_URLDECODE) && strict)
+                errorf(o, ERROR_GET, "problems URL decoding %s", v->name);
+              else
+                trurl_warnf(o, "%s (%s)", curl_url_strerror(rc), v->name);
               break;
             }
           }
