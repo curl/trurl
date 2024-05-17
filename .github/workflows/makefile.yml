@@ -9,6 +9,9 @@ on:
 jobs:
   ubuntu:
     runs-on: ubuntu-latest
+    
+    env:
+      TRURL_JSON_IN: true
 
     strategy:
       matrix:
@@ -47,6 +50,9 @@ jobs:
   cygwin:
     runs-on: windows-latest
 
+    env:
+      TRURL_JSON_IN: true
+
     steps:
       - uses: actions/checkout@v4
 
@@ -66,6 +72,9 @@ jobs:
 
   macos:
     runs-on: macos-latest
+
+    env:
+      TRURL_JSON_IN: true
 
     steps:
       - uses: actions/checkout@v4

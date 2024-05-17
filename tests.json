@@ -2500,6 +2500,7 @@
       }
   },
   {
+	  "required": ["json-input"],
       "input": {
           "arguments": [
               "--json-file",
@@ -2559,6 +2560,7 @@
       }
   },
   {
+	 "required": ["json-input"],
       "input": {
           "arguments": [
               "-j",
@@ -2572,6 +2574,7 @@
        }
   },
   {
+	 "required": ["json-input"],
      "input": {
           "arguments": [
               "-j",

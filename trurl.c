@@ -29,7 +29,9 @@
 #include <curl/curl.h>
 #include <curl/mprintf.h>
 #include <stdint.h>
+#ifdef TRURL_JSON_IN
 #include <json-c/json.h>
+#endif
 
 
 #if defined(_MSC_VER) && (_MSC_VER < 1800)
@@ -189,7 +191,9 @@ static void help(void)
     "  -h, --help                       - this help\n"
     "      --iterate [component]=[list] - create multiple URL outputs\n"
     "      --json                       - output URL as JSON\n"
+#ifdef TRURL_JSON_IN
     "  -j, --json-file [file/-]         - json input from file or stdin\n"
+#endif
     "      --keep-port                  - keep known default ports\n"
     "      --no-guess-scheme            - require scheme in URLs\n"
     "      --punycode                   - encode hostnames in punycode\n"
@@ -259,6 +263,9 @@ static void show_version(void)
 #ifdef SUPPORTS_PUNY2IDN
   if(supports_puny)
     fprintf(stdout, " punycode2idn");
+#endif
+#ifdef TRURL_JSON_IN
+  fprintf(stdout, " json-input");
 #endif
 
   fprintf(stdout, "\n");
@@ -644,12 +651,14 @@ static int getarg(struct option *o,
     o->force_replace = true;
     *usedarg = gap;
   }
+#ifdef TRURL_JSON_IN
   else if(checkoptarg(o, "--json-file", flag, arg) ||
           checkoptarg(o, "-j", flag, arg)) {
     urlfile(o, arg);
     *usedarg = gap;
     o->json_in = true;
   }
+#endif
   else
     return 1;  /* unrecognized option */
   return 0;
@@ -1631,6 +1640,7 @@ static void singleurl(struct option *o,
     curl_url_cleanup(uh);
 }
 
+#ifdef TRURL_JSON_IN
 /* fd is a file which holds the json string. */
 static void from_json(FILE *file, struct option *o)
 {
@@ -1750,6 +1760,8 @@ static void from_json(FILE *file, struct option *o)
   }
   json_object_put(jobj);
 }
+#endif
+
 
 
 int main(int argc, const char **argv)
@@ -1793,7 +1805,9 @@ int main(int argc, const char **argv)
     char buffer[4096]; /* arbitrary max */
     bool end_of_file = false;
     if(o.json_in) {
+#ifdef TRURL_JSON_IN
       from_json(o.url, &o);
+#endif
     }
     else while(!end_of_file && fgets(buffer, sizeof(buffer), o.url)) {
       char *eol = strchr(buffer, '\n');
