@@ -59,7 +59,7 @@ jobs:
       - name: install cygwin
         uses: cygwin/cygwin-install-action@master
         with:
-          packages: curl, libcurl-devel, libcurl4, make, gcc-core, python39,  libjson-c-devel
+          packages: curl, libcurl-devel, libcurl4, make, gcc-core, python39, libjson-c-devel
 
       - name: make
         run: make
