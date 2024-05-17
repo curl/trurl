@@ -2500,7 +2500,7 @@
       }
   },
   {
-	  "required": ["json-input"],
+      "required": ["json-input"],
       "input": {
           "arguments": [
               "--json-file",
@@ -2560,7 +2560,7 @@
       }
   },
   {
-	 "required": ["json-input"],
+      "required": ["json-input"],
       "input": {
           "arguments": [
               "-j",
@@ -2574,8 +2574,8 @@
        }
   },
   {
-	 "required": ["json-input"],
-     "input": {
+      "required": ["json-input"],
+      "input": {
           "arguments": [
               "-j",
               "testfiles/test0004.txt"
