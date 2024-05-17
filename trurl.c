@@ -191,9 +191,7 @@ static void help(void)
     "  -h, --help                       - this help\n"
     "      --iterate [component]=[list] - create multiple URL outputs\n"
     "      --json                       - output URL as JSON\n"
-#ifdef TRURL_JSON_IN
     "  -j, --json-file [file/-]         - json input from file or stdin\n"
-#endif
     "      --keep-port                  - keep known default ports\n"
     "      --no-guess-scheme            - require scheme in URLs\n"
     "      --punycode                   - encode hostnames in punycode\n"
@@ -651,14 +649,16 @@ static int getarg(struct option *o,
     o->force_replace = true;
     *usedarg = gap;
   }
-#ifdef TRURL_JSON_IN
   else if(checkoptarg(o, "--json-file", flag, arg) ||
           checkoptarg(o, "-j", flag, arg)) {
+#ifdef TRURL_JSON_IN
     urlfile(o, arg);
     *usedarg = gap;
     o->json_in = true;
-  }
+#else
+    trurl_warnf(o, "not built with support for JSON input.");
 #endif
+  }
   else
     return 1;  /* unrecognized option */
   return 0;
