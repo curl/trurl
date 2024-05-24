@@ -2583,7 +2583,7 @@
        },
        "expected": {
            "returncode": 0,
-           "stderr": "trurl note: ignoring 'query', provide a separate 'params' array.\n",
+           "stderr": "trurl note: ignoring 'query', provide a separate 'params' array.\ntrurl note: Required key \"parts\" not found in json object.\n",
            "stdout": "ftp://scream@url.com/?query=pair&singlequery#a-fragment\nhttp://example.org/\n"
        }
   },
@@ -2599,7 +2599,7 @@
       },
       "expected": {
            "returncode": 0,
-           "stderr": "trurl note: ignoring 'query', provide a separate 'params' array.\n",
+           "stderr": "trurl note: ignoring 'query', provide a separate 'params' array.\ntrurl note: Required key \"parts\" not found in json object.\n",
            "stdout": "ftp://person@url.com/?query=pair&singlequery#a-fragment\nhttp://person@example.org/\n"
        }
   }

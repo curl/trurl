@@ -24,5 +24,8 @@
       "host": "example.org",
       "path": "/"
     }
+  },
+  {
+    "url": "example.com"
   }
 ]

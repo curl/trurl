@@ -1697,6 +1697,11 @@ static void single_url_from_json(json_object *wholeurl, struct option *o)
   /* Get all other parts of the url info. */
   json_object *parts = NULL;
   json_object_object_get_ex(wholeurl, "parts", &parts);
+  if(parts == NULL) {
+    trurl_warnf(o, "Required key \"parts\" not found in json object.");
+    curl_url_cleanup(uh);
+    return;
+  }
   json_object_object_foreach(parts, key, field) {
     if(!strcmp(key, "query")) {
       trurl_warnf(o, "ignoring 'query', provide a separate 'params' array.");
@@ -1771,7 +1776,7 @@ static void from_json(FILE *file, struct option *o)
     if(current == '{' && !in_json_string) {
       num_brackets++;
     }
-    if(current == '"') {
+    if(current == '"' && in_array && num_brackets) {
       if(in_json_string && previous != '\\')
         in_json_string = false;
       else in_json_string = true;
