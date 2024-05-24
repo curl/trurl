@@ -2569,7 +2569,7 @@
        },
        "expected": {
            "returncode": 13 ,
-           "stderr": "trurl error: Cannot parse JSON.\ntrurl error: Try trurl -h for help\n",
+           "stderr": "trurl error: Cannot parse JSON, expected an array of objects.\ntrurl error: Try trurl -h for help\n",
            "stdout": ""
        }
   },
@@ -2585,6 +2585,22 @@
            "returncode": 0,
            "stderr": "trurl note: ignoring 'query', provide a separate 'params' array.\n",
            "stdout": "ftp://scream@url.com/?query=pair&singlequery#a-fragment\nhttp://example.org/\n"
+       }
+  },
+  {
+      "required": ["json-input"],
+      "input": {
+          "arguments": [
+              "-j",
+              "testfiles/test0004.txt",
+              "--set",
+              "user=person"
+          ]
+      },
+      "expected": {
+           "returncode": 0,
+           "stderr": "trurl note: ignoring 'query', provide a separate 'params' array.\n",
+           "stdout": "ftp://person@url.com/?query=pair&singlequery#a-fragment\nhttp://person@example.org/\n"
        }
   }
 ]

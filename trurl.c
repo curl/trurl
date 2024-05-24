@@ -1641,124 +1641,190 @@ static void singleurl(struct option *o,
 }
 
 #ifdef TRURL_JSON_IN
+#define JSON_INIT_SIZE 1024
+static void single_url_from_json(json_object *wholeurl, struct option *o)
+{
+  CURLU *uh = curl_url();
+  /* extract all key / value pairs from params array and generate a
+   * new query=... string from the values. We are doing this instead of
+   * using a function like appendquery or addpqairs because those do it
+   * for all urls, and we only want it associated w/ the current url.*/
+  char *this_query = NULL;
+  size_t this_q_size = 0;
+  json_object *params = NULL;
+  bool scheme_set = false;
+  if(json_object_object_get_ex(wholeurl, "params", &params)) {
+    size_t params_length = json_object_array_length(params);
+    for(size_t j = 0; j < params_length; j++) {
+      json_object *param = json_object_array_get_idx(params, (int)j);
+      json_object *param_k_obj = NULL;
+      json_object *param_v_obj = NULL;
+      const char *param_k = NULL;
+      const char *param_v = NULL;
+      if(json_object_object_get_ex(param, "key", &param_k_obj))
+        param_k = json_object_get_string(param_k_obj);
+      if(json_object_object_get_ex(param, "value", &param_v_obj))
+        param_v = json_object_get_string(param_v_obj);
+      size_t value_length = param_v ? strlen(param_v) : 0;
+      size_t key_length = param_k ? strlen(param_k) : 0;
+      int set = value_length > 0 ? 1:0;
+      size_t qpair_len = key_length + value_length + set + 1;
+      char *qpair = calloc(qpair_len, sizeof(char));
+      if(!qpair)
+        errorf(o, ERROR_MEM, "Out of memory");
+      memcpy(qpair, param_k, key_length);
+      if(value_length) {
+        qpair[key_length] = '=';
+        memcpy(qpair + key_length + 1, param_v, value_length);
+      }
+      this_query = realloc(this_query, this_q_size + qpair_len);
+      memcpy(this_query + this_q_size, qpair, qpair_len);
+      this_q_size += qpair_len;
+      this_query[this_q_size - 1] = '&';
+      free(qpair);
+    }
+  }
+  if(this_q_size) {
+    this_query[this_q_size - 1] = '\0';
+    const char *qss = "query:="; /* do not encode the url */
+    char *query_set_str = malloc(sizeof(char) * (this_q_size + strlen(qss)));
+    memcpy(query_set_str, qss, strlen(qss));
+    memcpy(query_set_str + strlen(qss), this_query, this_q_size);
+    setone(uh, query_set_str, o);
+    free(query_set_str);
+    free(this_query);
+  }
+  /* Get all other parts of the url info. */
+  json_object *parts = NULL;
+  json_object_object_get_ex(wholeurl, "parts", &parts);
+  json_object_object_foreach(parts, key, field) {
+    if(!strcmp(key, "query")) {
+      trurl_warnf(o, "ignoring 'query', provide a separate 'params' array.");
+      continue;
+    }
+    /* Scheme is required to be set, so we need to ensure its set */
+    if(scheme_set != true && !strcmp(key, "scheme"))
+      scheme_set = true;
+    const char *val_str = json_object_get_string(field);
+    size_t key_len = strlen(key);
+    size_t val_len = strlen(val_str);
+    /* +2, one char for '=' and one for null terminator. */
+    char *set_str = malloc(val_len + key_len + 2);
+    memset(set_str, 0, val_len + key_len + 2);
+    memcpy(set_str, key, key_len);
+    memcpy(set_str + key_len + 1, val_str, val_len);
+    set_str[key_len] = '=';
+    setone(uh, set_str, o);
+    free(set_str);
+  }
+  if(!scheme_set) {
+    setone(uh, "scheme=http", o);
+  }
+  struct iterinfo iinfo;
+  memset(&iinfo, 0, sizeof(iinfo));
+  iinfo.uh = uh;
+  singleurl(o, NULL, &iinfo, o->iter_list);
+  curl_url_cleanup(uh);
+}
 /* fd is a file which holds the json string. */
+/* Expects the file to contain a json array of objects. it will
+ * return urls as it finds them, treating the file as a stream.
+ * from_json only allocates as much space as required to parse
+ * the longest object in the array. */
 static void from_json(FILE *file, struct option *o)
 {
-  size_t json_buf_size = 1024;
-  size_t latest = 0;
+  char reading_buff[JSON_INIT_SIZE];
+  size_t last_write = 0;
+  size_t json_buf_size = JSON_INIT_SIZE;
   char *json_string = calloc(sizeof(char), json_buf_size);
+  memset(reading_buff, 0, sizeof(char) * JSON_INIT_SIZE);
   if(!json_string) {
+    free(json_string);
     errorf(o, ERROR_MEM, "Error allocating memory for file operations");
   }
-  size_t n = 0;
-  /* read the entire file in */
-  while((n = fread(json_string + latest, sizeof(char), json_buf_size, file))) {
-    latest += n;
-    json_buf_size *= 2;
-    char *new_json_string = realloc(json_string, json_buf_size);
-    if(!new_json_string) {
-      free(json_string);
-      errorf(o, ERROR_MEM, "Error allocating memory for file operations");
-    }
-    json_string = new_json_string;
-    json_string[latest] = 0;
-  }
-  json_object *jobj = json_tokener_parse(json_string);
-  free(json_string);
-  if(!jobj) {
-    errorf(o, ERROR_JSON, "Cannot parse JSON.");
-  }
-  if(json_object_get_type(jobj) != json_type_array) {
-    json_object_put(jobj);
-    errorf(o, ERROR_JSON, "JSON must be an array.");
-  }
-  bool scheme_set = false;
-  size_t array_len = json_object_array_length(jobj);
-  /* loop through array of url objects */
-  for(size_t i = 0; i < array_len; i++) {
-    CURLU *uh = curl_url();
-    json_object *wholeurl = json_object_array_get_idx(jobj, (int)i);
-    /* extract all key / value pairs from params array and generate a
-     * new query=... string from the values. We are doing this instead of
-     * using a function like appendquery or addpqairs because those do it
-     * for all urls, and we only want it associated w/ the current url.*/
-    char *this_query = NULL;
-    size_t this_q_size = 0;
-    json_object *params = NULL;
-    if(json_object_object_get_ex(wholeurl, "params", &params)) {
-      size_t params_length = json_object_array_length(params);
-      for(size_t j = 0; j < params_length; j++) {
-        json_object *param = json_object_array_get_idx(params, (int)j);
-        json_object *param_k_obj = NULL;
-        json_object *param_v_obj = NULL;
-        const char *param_k = NULL;
-        const char *param_v = NULL;
-        if(json_object_object_get_ex(param, "key", &param_k_obj))
-          param_k = json_object_get_string(param_k_obj);
-        if(json_object_object_get_ex(param, "value", &param_v_obj))
-          param_v = json_object_get_string(param_v_obj);
-        size_t value_length = param_v ? strlen(param_v) : 0;
-        size_t key_length = param_k ? strlen(param_k) : 0;
-        int set = value_length > 0 ? 1:0;
-        size_t qpair_len = key_length + value_length + set + 1;
-        char *qpair = calloc(qpair_len, sizeof(char));
-        if(!qpair)
-          errorf(o, ERROR_MEM, "Out of memory");
-        memcpy(qpair, param_k, key_length);
-        if(value_length) {
-          qpair[key_length] = '=';
-          memcpy(qpair + key_length + 1, param_v, value_length);
-        }
-        this_query = realloc(this_query, this_q_size + qpair_len);
-        memcpy(this_query + this_q_size, qpair, qpair_len);
-        this_q_size += qpair_len;
-        this_query[this_q_size - 1] = '&';
-        free(qpair);
-      }
-    }
-    if(this_q_size) {
-      this_query[this_q_size - 1] = '\0';
-      const char *qss = "query:="; /* do not encode the url */
-      char *query_set_str = malloc(sizeof(char) * (this_q_size + strlen(qss)));
-      memcpy(query_set_str, qss, strlen(qss));
-      memcpy(query_set_str + strlen(qss), this_query, this_q_size);
-      setone(uh, query_set_str, o);
-      free(query_set_str);
-      free(this_query);
-    }
-    /* Get all other parts of the url info. */
-    json_object *parts = NULL;
-    json_object_object_get_ex(wholeurl, "parts", &parts);
-    json_object_object_foreach(parts, key, field) {
-      if(!strcmp(key, "query")) {
-        trurl_warnf(o, "ignoring 'query', provide a separate 'params' array.");
+  size_t i = 0;
+  int num_brackets = 0, prev_num_brackets = 0;
+  bool in_json_string = false;
+  bool in_array = false;
+  char current, previous;
+  int reading = 0;
+  /* reads in the file one character at a time and do some simple parsing
+   * to find a json object in an array. it then parses these objects with
+   * libjson-c and passes them to single_url_from_json */
+  while((reading = getc(file)) != EOF) {
+    current = (char)reading;
+    if((current == ' ' || current == '\t'|| current == '\r'
+       || current == '\n') && !in_json_string && !num_brackets)
         continue;
+    /* detect top level json array */
+    if(current == '[' && !in_json_string && !num_brackets) {
+      in_array = true;
+    }
+    /* trurl expects an array of objects - if we aren't in an object and we see
+    * non array characters then we error out. */
+    if(!num_brackets && !in_json_string && !in_array && current != ','
+       && current != ']') {
+     free(json_string);
+     errorf(o, ERROR_JSON,
+            "Cannot parse JSON, expected an array of objects.");
+    }
+    if(current == '{' && !in_json_string) {
+      num_brackets++;
+    }
+    if(current == '"') {
+      if(in_json_string && previous != '\\')
+        in_json_string = false;
+      else in_json_string = true;
+    }
+    /* only want to add to reading buff if we're in an object */
+    if(num_brackets) {
+      reading_buff[i++] = current;
+    }
+    if(current == '}' && !in_json_string) {
+      num_brackets--;
+    }
+    /* when we've filled up the working buffer, copy it to heap */
+    if(i == JSON_INIT_SIZE) {
+      /* we are reusing the json_string buffer for every url, so we
+       * only need to allocate more memory if the current url json
+       * string takes up more memory than any of the previous urls. */
+      if(last_write + JSON_INIT_SIZE >= json_buf_size) {
+        json_buf_size += JSON_INIT_SIZE;
+        json_string = realloc(json_string, json_buf_size);
+        if(!json_string) {
+          errorf(o, ERROR_MEM,
+                     "Unable to allocate memory for JSON string.");
+        }
       }
-      /* Scheme is required to be set, so we need to ensure its set */
-      if(scheme_set != true && !strcmp(key, "scheme"))
-        scheme_set = true;
-      const char *val_str = json_object_get_string(field);
-      size_t key_len = strlen(key);
-      size_t val_len = strlen(val_str);
-      /* +2, one char for '=' and one for null terminator. */
-      char *set_str = malloc(val_len + key_len + 2);
-      memset(set_str, 0, val_len + key_len + 2);
-      memcpy(set_str, key, key_len);
-      memcpy(set_str + key_len + 1, val_str, val_len);
-      set_str[key_len] = '=';
-      setone(uh, set_str, o);
-      free(set_str);
+      memcpy(json_string + last_write, reading_buff, JSON_INIT_SIZE);
+      last_write += JSON_INIT_SIZE;
+      memset(reading_buff, 0, sizeof(char) * JSON_INIT_SIZE);
+      i = 0;
     }
-    if(!scheme_set) {
-      setone(uh, "scheme=http", o);
+    /* when the number of bracket pairs has gone back down to
+     * zero, we know we have ready a whole json object, this string
+     * is passed to json-c to parse it, then that parsed object
+     * handed to single_url_from_json to convert print out a url */
+    if(!num_brackets && prev_num_brackets == 1) {
+      /* anything that hasn't been copied over to json_string must
+       * be copied now */
+      memcpy(json_string + last_write, reading_buff, JSON_INIT_SIZE);
+      json_object *jobj = json_tokener_parse(json_string);
+      if(!jobj) {
+        free(json_string);
+        errorf(o, ERROR_JSON, "Cannot parse JSON");
+      }
+      single_url_from_json(jobj, o);
+      json_object_put(jobj);
+      memset(json_string, 0, json_buf_size);
+      memset(reading_buff, 0, sizeof(char) * JSON_INIT_SIZE);
+      i = 0;
+      last_write = 0;
     }
-    struct iterinfo iinfo;
-    memset(&iinfo, 0, sizeof(iinfo));
-    iinfo.uh = uh;
-    singleurl(o, NULL, &iinfo, o->iter_list);
-    curl_url_cleanup(uh);
+    previous = current;
+    prev_num_brackets = num_brackets;
   }
-  json_object_put(jobj);
+  free(json_string);
 }
 #endif
 
