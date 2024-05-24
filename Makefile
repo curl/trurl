@@ -34,8 +34,8 @@ ifndef NDEBUG
 CFLAGS += -g
 endif
 ifdef TRURL_JSON_IN
-CFLAGS += -DTRURL_JSON_IN -Wno-gnu
-LDLIBS += -ljson-c
+CFLAGS += -DTRURL_JSON_IN -Wno-gnu -I /opt/homebrew/include
+LDLIBS += -ljson-c -L /opt/homebrew/lib
 endif
 MANUAL = trurl.1
 

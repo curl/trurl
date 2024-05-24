@@ -1745,7 +1745,7 @@ static void from_json(FILE *file, struct option *o)
   memset(reading_buff, 0, sizeof(char) * JSON_INIT_SIZE);
   if(!json_string) {
     free(json_string);
-    errorf(o, ERROR_MEM, "Error allocating memory for file operations");
+    errorf(o, ERROR_MEM, "out of memory while reading JSON string.");
   }
   size_t i = 0;
   int num_brackets = 0, prev_num_brackets = 0;
@@ -1798,7 +1798,7 @@ static void from_json(FILE *file, struct option *o)
         json_string = realloc(json_string, json_buf_size);
         if(!json_string) {
           errorf(o, ERROR_MEM,
-                     "Unable to allocate memory for JSON string.");
+                  "out of memory while reading JSON string.");
         }
       }
       memcpy(json_string + last_write, reading_buff, JSON_INIT_SIZE);
