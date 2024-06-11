@@ -86,7 +86,7 @@ jobs:
       - name: Install json-c
         run: |
           brew install json-c
-          echo "JSON_C_PATH=$(brew --prefix)"  >> "$GITHUB_ENV"
+          echo "JSON_C_PREFIX=$(brew --prefix)"  >> "$GITHUB_ENV"
 
       - name: make
         run: make
