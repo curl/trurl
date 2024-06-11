@@ -164,7 +164,7 @@ must be enabled at compile time.
    - On Homebrew it is called `json-c`.
 2. Enable JSON input at compile time
    - Ensure `TRURL_JSON_IN` is in you environment
-   - Note if json-c is installed in a path gcc can't find, you may set `JSON_C_PREFIX` in your environment as well to add to the include and linking paths.
+   - In your environment set `JSON_C_PREFIX` to the install path of json-c to include and link json-c from unexpected locations. This step is only required if json-c is installed somewhere gcc can't find.
  
 
 ### Older libcurls
