@@ -2500,6 +2500,20 @@
       }
   },
   {
+      "required": ["json-input"],
+      "input": {
+          "arguments": [
+              "--json-file",
+              "testfiles/test0003.txt"
+          ]
+       },
+       "expected": {
+           "returncode": 0,
+           "stderr": "",
+           "stdout": "http://example.com/\nhttp://example.com/\nhttp://example.com/\nhttp://example.com/\nhttp://example.com/\nhttp://example.com/\nhttp://example.com/\nhttp://example.com/\nhttp://example.com/\nhttp://example.com/\nhttp://example.com/\nhttp://example.com/\nhttp://example.com/\nhttp://example.com/\nhttp://example.com/\nhttp://example.com/\n"
+       }
+  },
+  {
       "input": {
           "arguments": [
               "example.com",
@@ -2544,5 +2558,49 @@
           "stderr": "",
           "returncode": 0
       }
+  },
+  {
+      "required": ["json-input"],
+      "input": {
+          "arguments": [
+              "-j",
+              "testfiles/test0001.txt"
+          ]
+       },
+       "expected": {
+           "returncode": 13 ,
+           "stderr": "trurl error: Cannot parse JSON, expected an array of objects.\ntrurl error: Try trurl -h for help\n",
+           "stdout": ""
+       }
+  },
+  {
+      "required": ["json-input"],
+      "input": {
+          "arguments": [
+              "-j",
+              "testfiles/test0004.txt"
+          ]
+       },
+       "expected": {
+           "returncode": 0,
+           "stderr": "trurl note: ignoring 'query', provide a separate 'params' array.\ntrurl note: Required key \"parts\" not found in json object.\n",
+           "stdout": "ftp://scream@url.com/?query=pair&singlequery#a-fragment\nhttp://example.org/\n"
+       }
+  },
+  {
+      "required": ["json-input"],
+      "input": {
+          "arguments": [
+              "-j",
+              "testfiles/test0004.txt",
+              "--set",
+              "user=person"
+          ]
+      },
+      "expected": {
+           "returncode": 0,
+           "stderr": "trurl note: ignoring 'query', provide a separate 'params' array.\ntrurl note: Required key \"parts\" not found in json object.\n",
+           "stdout": "ftp://person@url.com/?query=pair&singlequery#a-fragment\nhttp://person@example.org/\n"
+       }
   }
 ]

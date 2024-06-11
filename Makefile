@@ -33,6 +33,14 @@ CFLAGS += -Wconversion -Wmissing-prototypes -Wwrite-strings -Wsign-compare -Wno-
 ifndef NDEBUG
 CFLAGS += -g
 endif
+ifdef TRURL_JSON_IN
+CFLAGS += -DTRURL_JSON_IN -Wno-gnu
+LDLIBS += -ljson-c
+ifneq ($(strip $(JSON_C_PREFIX)),)
+CFLAGS += -I$(JSON_C_PREFIX)/include
+LDLIBS += -L$(JSON_C_PREFIX)/lib
+endif
+endif
 MANUAL = trurl.1
 
 PREFIX ?= /usr/local

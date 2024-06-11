@@ -2,6 +2,7 @@
   "name": "trurl",
   "version": "0.x",
   "dependencies": [
-    "curl"
+    "curl",
+    "json-c"
   ]
 }

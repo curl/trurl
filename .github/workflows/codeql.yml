@@ -47,6 +47,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install libcurl4-openssl-dev
 
+      - name: install libjson-c
+        run: |
+          sudo apt-get update
+          sudo apt-get install libjson-c-dev
+
       - name: build
         run: make
 

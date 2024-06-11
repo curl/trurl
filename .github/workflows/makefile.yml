@@ -9,6 +9,9 @@ on:
 jobs:
   ubuntu:
     runs-on: ubuntu-latest
+    
+    env:
+      TRURL_JSON_IN: true
 
     strategy:
       matrix:
@@ -30,7 +33,7 @@ jobs:
       - name: install libcurl
         run: |
           sudo apt-get update
-          sudo apt-get install libcurl4-openssl-dev ${{ matrix.build.install_packages }}
+          sudo apt-get install libcurl4-openssl-dev libjson-c-dev ${{ matrix.build.install_packages }}
 
       - name: code style check
         run: make checksrc
@@ -47,13 +50,16 @@ jobs:
   cygwin:
     runs-on: windows-latest
 
+    env:
+      TRURL_JSON_IN: true
+
     steps:
       - uses: actions/checkout@v4
 
       - name: install cygwin
         uses: cygwin/cygwin-install-action@master
         with:
-          packages: curl, libcurl-devel, libcurl4, make, gcc-core, python39
+          packages: curl, libcurl-devel, libcurl4, make, gcc-core, python39, libjson-c-devel
 
       - name: make
         run: make
@@ -67,8 +73,20 @@ jobs:
   macos:
     runs-on: macos-latest
 
+    env:
+      TRURL_JSON_IN: true
+
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install Homebrew
+        id: install-homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+      
+      - name: Install json-c
+        run: |
+          brew install json-c
+          echo "JSON_C_PREFIX=$(brew --prefix)"  >> "$GITHUB_ENV"
 
       - name: make
         run: make
