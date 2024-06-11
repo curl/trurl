@@ -84,10 +84,12 @@ jobs:
         uses: Homebrew/actions/setup-homebrew@master
       
       - name: Install json-c
-        run: brew install json-c
+        run: |
+          brew install json-c
+          echo "JSON_C_PATH=$(brew --prefix)"  >> "$GITHUB_ENV"
 
       - name: make
-        run: make JSON_C_PATH=$(brew --prefix)
+        run: make
 
       - name: sanity test
         run: ./trurl -v
