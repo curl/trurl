@@ -36,10 +36,9 @@ endif
 ifdef TRURL_JSON_IN
 CFLAGS += -DTRURL_JSON_IN -Wno-gnu
 LDLIBS += -ljson-c
-prefix := $(shell brew --prefix)
-ifneq ($(strip $(prefix)),)
-CFLAGS += -I$(prefix)/include
-LDLIBS += -L$(prefix)/lib
+ifneq ($(strip $(JSON_C_PREFIX)),)
+CFLAGS += -I$(JSON_C_PREFIX)/include
+LDLIBS += -L$(JSON_C_PREFIX)/lib
 endif
 endif
 MANUAL = trurl.1

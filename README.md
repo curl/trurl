@@ -155,6 +155,18 @@ trurl also uses `CURLUPART_ZONEID` added in libcurl 7.81.0 and
 It would certainly be possible to make trurl work with older libcurl versions
 if someone wanted to.
 
+## Building with JSON input
+To allow trurl to accept JSON input you must install libjson-c. Json input is disabled by default, so it
+must be enabled at compile time.
+1. Install json-c
+   - On Ubuntu and Debian linux it is called `libjson-c-dev`.
+   - On Cygwin it is called `libjson-c-devel`.
+   - On Homebrew it is called `json-c`.
+2. Enable JSON input at compile time
+   - Ensure `TRURL_JSON_IN` is in you environment
+   - Note if json-c is installed in a path gcc can't find, you may set `JSON_C_PREFIX` in your environment as well to add to the include and linking paths.
+ 
+
 ### Older libcurls
 
 trurl builds with libcurl older than 7.81.0 but will then not work as

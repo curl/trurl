@@ -87,7 +87,7 @@ jobs:
         run: brew install json-c
 
       - name: make
-        run: make
+        run: make JSON_C_PATH=$(brew --prefix)
 
       - name: sanity test
         run: ./trurl -v
