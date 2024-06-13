@@ -72,6 +72,11 @@ typedef enum {
 #if CURL_AT_LEAST_VERSION(7,30,0)
 #define SUPPORTS_IMAP_OPTIONS
 #endif
+#if CURL_AT_LEAST_VERSION(8,9,0)
+#define SUPPORTS_NO_GUESS_SCHEME
+#else
+#define CURLU_NO_GUESS_SCHEME 0
+#endif
 
 #define OUTPUT_URL      0  /* default */
 #define OUTPUT_SCHEME   1
@@ -276,29 +281,32 @@ static void show_version(void)
   fprintf(stdout, "%s version %s libcurl/%s [built-with %s]\n",
           PROGNAME, TRURL_VERSION_TXT, data->version, LIBCURL_VERSION);
   fprintf(stdout, "features:");
+#ifdef SUPPORTS_IMAP_OPTIONS
+  if(supports_imap)
+    fprintf(stdout, " imap-options");
+#endif
+#ifdef SUPPORTS_NO_GUESS_SCHEME
+  fprintf(stdout, "no-guess-scheme");
+#endif
+#ifdef SUPPORTS_NORM_IPV4
+  fprintf(stdout, " normalize-ipv4");
+#endif
 #ifdef SUPPORTS_PUNYCODE
   if(supports_puny)
     fprintf(stdout, " punycode");
+#endif
+#ifdef SUPPORTS_PUNY2IDN
+  if(supports_puny)
+    fprintf(stdout, " punycode2idn");
+#endif
+#ifdef SUPPORTS_URL_STRERROR
+  fprintf(stdout, " url-strerror");
 #endif
 #ifdef SUPPORTS_ALLOW_SPACE
   fprintf(stdout, " white-space");
 #endif
 #ifdef SUPPORTS_ZONEID
   fprintf(stdout, " zone-id");
-#endif
-#ifdef SUPPORTS_URL_STRERROR
-  fprintf(stdout, " url-strerror");
-#endif
-#ifdef SUPPORTS_NORM_IPV4
-  fprintf(stdout, " normalize-ipv4");
-#endif
-#ifdef SUPPORTS_IMAP_OPTIONS
-  if(supports_imap)
-    fprintf(stdout, " imap-options");
-#endif
-#ifdef SUPPORTS_PUNY2IDN
-  if(supports_puny)
-    fprintf(stdout, " punycode2idn");
 #endif
 
   fprintf(stdout, "\n");
@@ -982,7 +990,7 @@ static const struct var *setone(CURLU *uh, const char *setline,
 
       if(conditional) {
         char *piece;
-        rc = curl_url_get(uh, v->part, &piece, 0);
+        rc = curl_url_get(uh, v->part, &piece, CURLU_NO_GUESS_SCHEME);
         if(!rc) {
           skip = true;
           curl_free(piece);
