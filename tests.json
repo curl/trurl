@@ -2572,5 +2572,34 @@
           "returncode": 10,
           "stdout": ""
       }
+  },
+  {
+      "required": ["no-guess-scheme"],
+      "input": {
+          "arguments": [
+              "example.com",
+              "--set",
+              "scheme?=https"
+          ]
+      },
+      "expected": {
+          "stdout": "https://example.com/\n",
+          "stderr": "",
+          "returncode": 0
+      }
+  },
+  {
+      "input": {
+          "arguments": [
+              "ftp://example.com",
+              "--set",
+              "scheme?=https"
+          ]
+      },
+      "expected": {
+          "stdout": "ftp://example.com/\n",
+          "stderr": "",
+          "returncode": 0
+      }
   }
 ]
