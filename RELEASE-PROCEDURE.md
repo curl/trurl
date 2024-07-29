@@ -6,7 +6,7 @@ in the source code repo
 
 - edit `RELEASE-NOTES` to be accurate
 
-- edit `version.h` to contain the correct version
+- run `./mkrelease [version]`
 
 - make sure all relevant changes are committed on the master branch
 
