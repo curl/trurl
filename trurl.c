@@ -198,7 +198,6 @@ static int casecompare(const char *first, const char *second, size_t max)
 
   return raw_toupper(*first) - raw_toupper(*second);
 }
-#define strncasecmp(x,y,z) casecompare(x,y,z)
 
 static void message_low(const char *prefix, const char *suffix,
                         const char *fmt, va_list ap)
@@ -1184,10 +1183,8 @@ static void trim(struct option *o)
         else
           qlen = strlen(q);
 
-        if((pattern && (inslen <= qlen) &&
-            !strncasecmp(q, ptr, inslen)) ||
-           (!pattern && (inslen == qlen) &&
-            !strncasecmp(q, ptr, inslen))) {
+        if((pattern && (inslen <= qlen) && !casecompare(q, ptr, inslen)) ||
+           (!pattern && (inslen == qlen) && !casecompare(q, ptr, inslen))) {
           /* this qpair should be stripped out */
           free(qpairs[i].str);
           free(qpairsdec[i].str);
