@@ -2,7 +2,7 @@
 
 ## What's Changed
 
-- remove a suprious trailing newline from a warning
+- remove a spurious trailing newline from a warning
 - trurl.1: document the exit codes
 - add "strict:" as prefix to a get component
 - casecompare: a strncasemp replacement
