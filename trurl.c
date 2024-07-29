@@ -286,7 +286,7 @@ static void show_version(void)
     fprintf(stdout, " imap-options");
 #endif
 #ifdef SUPPORTS_NO_GUESS_SCHEME
-  fprintf(stdout, "no-guess-scheme");
+  fprintf(stdout, " no-guess-scheme");
 #endif
 #ifdef SUPPORTS_NORM_IPV4
   fprintf(stdout, " normalize-ipv4");
