@@ -1101,7 +1101,7 @@ static void json(struct option *o, CURLU *uh)
   jsonString(stdout, url, strlen(url), false);
   curl_free(url);
   fputs(",\n    \"parts\": {\n", stdout);
-  // special error handling required to not print params array.
+  /* special error handling required to not print params array. */
   bool params_errors = false;
   for(i = 0; variables[i].name; i++) {
     char *part;
