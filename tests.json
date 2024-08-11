@@ -2088,7 +2088,8 @@
         "input" : {
             "arguments": [
                 "http://example.com/?q=mr%00smith",
-                "--json"
+                "--json",
+                "--urlencode"
             ]
         },
         "expected": {
@@ -2100,7 +2101,8 @@
                     "parts": {
                         "scheme": "http",
                         "host": "example.com",
-                        "path": "/"
+                        "path": "/",
+                        "query": "q=mr%00smith"
                     },
                     "params": [
                         {
@@ -2116,7 +2118,8 @@
         "input" : {
             "arguments": [
                 "http://example.com/?q=mr%00sm%00ith",
-                "--json"
+                "--json",
+                "--urlencode"
             ]
         },
         "expected": {
@@ -2128,7 +2131,8 @@
                     "parts": {
                         "scheme": "http",
                         "host": "example.com",
-                        "path": "/"
+                        "path": "/",
+                        "query": "q=mr%00sm%00ith"
                     },
                     "params": [
                         {
@@ -2144,7 +2148,8 @@
         "input" : {
             "arguments": [
                 "http://example.com/?q=mr%00%00%00smith",
-                "--json"
+                "--json",
+                "--urlencode"
             ]
         },
         "expected": {
@@ -2156,7 +2161,8 @@
                     "parts": {
                         "scheme": "http",
                         "host": "example.com",
-                        "path": "/"
+                        "path": "/",
+                        "query": "q=mr%00%00%00smith"
                     },
                     "params": [
                         {
@@ -2354,7 +2360,8 @@
                 "example.org/?quest=best",
                 "--replace",
                 "quest=%00",
-                "--json"
+                "--json",
+                "--urlencode"
             ]
         },
         "expected": {
@@ -2363,7 +2370,8 @@
 				"parts": {
 					"scheme": "http",
 					"host": "example.org",
-					"path": "/"
+					"path": "/",
+                    "query": "quest=%00"
 				},
 				"params": [
 					{
@@ -2419,7 +2427,8 @@
       "input": {
           "arguments": [
               "--json",
-              "0?0%000000000000000000000000000000000"
+              "0?0%000000000000000000000000000000000",
+              "--urlencode"
           ]
       },
       "expected": {
@@ -2431,7 +2440,8 @@
                   "parts": {
                       "scheme": "http",
                       "host": "0.0.0.0",
-                      "path": "/"
+                      "path": "/",
+                      "query": "0%000000000000000000000000000000000"
                   },
                   "params": [
                       {
@@ -2447,7 +2457,8 @@
       "input": {
           "arguments": [
               "--json",
-              "0?0%000000000000000000000000000000000=000%0000000000"
+              "0?0%000000000000000000000000000000000=000%0000000000",
+              "--urlencode"
           ]
       },
       "expected": {
@@ -2459,7 +2470,8 @@
                   "parts": {
                       "scheme": "http",
                       "host": "0.0.0.0",
-                      "path": "/"
+                      "path": "/",
+                      "query": "0%000000000000000000000000000000000=000%0000000000"
                   },
                   "params": [
                       {
@@ -2601,5 +2613,26 @@
           "stderr": "",
           "returncode": 0
       }
+  },
+  {
+    "input": {
+        "arguments": [
+            "http://example.org/%18",
+            "--json"
+        ]
+    },
+    "expected": {
+        "stdout":[
+            {
+                "url": "http://example.org/%18",
+                "parts": {
+                  "scheme": "http",
+                  "host": "example.org"
+                }
+              }
+        ],
+        "stderr": "trurl note: URL decode error, most likely because of rubbish in the input (path)\n",
+        "returncode": 0
+    }
   }
 ]

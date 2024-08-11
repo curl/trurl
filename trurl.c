@@ -764,6 +764,29 @@ static CURLUcode geturlpart(struct option *o, int modifiers, CURLU *uh,
     return rc;
 }
 
+static bool is_valid_trurl_error(CURLUcode rc)
+{
+  switch(rc) {
+    case CURLUE_OK:
+    case CURLUE_NO_SCHEME:
+    case CURLUE_NO_USER:
+    case CURLUE_NO_PASSWORD:
+    case CURLUE_NO_OPTIONS:
+    case CURLUE_NO_HOST:
+    case CURLUE_NO_PORT:
+    case CURLUE_NO_QUERY:
+    case CURLUE_NO_FRAGMENT:
+#ifdef SUPPORTS_ZONEID
+    case CURLUE_NO_ZONEID:
+#endif
+    /* silently ignore */
+      return false;
+    default:
+      return true;
+    }
+  return true;
+}
+
 static void showurl(FILE *stream, struct option *o, int modifiers,
                     CURLU *uh)
 {
@@ -883,29 +906,15 @@ static void get(struct option *o, CURLU *uh)
           if(v) {
             char *nurl;
             CURLUcode rc = geturlpart(o, mods, uh, v->part, &nurl);
-            switch(rc) {
-            case CURLUE_OK:
+            if(rc == CURLUE_OK) {
               fputs(nurl, stream);
               curl_free(nurl);
-            case CURLUE_NO_SCHEME:
-            case CURLUE_NO_USER:
-            case CURLUE_NO_PASSWORD:
-            case CURLUE_NO_OPTIONS:
-            case CURLUE_NO_HOST:
-            case CURLUE_NO_PORT:
-            case CURLUE_NO_QUERY:
-            case CURLUE_NO_FRAGMENT:
-#ifdef SUPPORTS_ZONEID
-            case CURLUE_NO_ZONEID:
-#endif
-              /* silently ignore */
-              break;
-            default:
+            }
+            else if(is_valid_trurl_error(rc)) {
               if((rc == CURLUE_URLDECODE) && strict)
                 errorf(o, ERROR_GET, "problems URL decoding %s", v->name);
               else
                 trurl_warnf(o, "%s (%s)", curl_url_strerror(rc), v->name);
-              break;
             }
           }
           else
@@ -1092,6 +1101,8 @@ static void json(struct option *o, CURLU *uh)
   jsonString(stdout, url, strlen(url), false);
   curl_free(url);
   fputs(",\n    \"parts\": {\n", stdout);
+  /* special error handling required to not print params array. */
+  bool params_errors = false;
   for(i = 0; variables[i].name; i++) {
     char *part;
     rc = geturlpart(o, 0, uh, variables[i].part, &part);
@@ -1103,10 +1114,14 @@ static void json(struct option *o, CURLU *uh)
       jsonString(stdout, part, strlen(part), false);
       curl_free(part);
     }
+    else if(is_valid_trurl_error(rc)) {
+        trurl_warnf(o, "%s (%s)", curl_url_strerror(rc), variables[i].name);
+        params_errors = true;
+    }
   }
   fputs("\n    }", stdout);
   first = true;
-  if(nqpairs) {
+  if(nqpairs && !params_errors) {
     int j;
     fputs(",\n    \"params\": [\n", stdout);
     for(j = 0 ; j < nqpairs; j++) {
@@ -1440,6 +1455,7 @@ static void replace(struct option *o)
     query_is_modified = true;
   }
 }
+
 static CURLUcode seturl(struct option *o, CURLU *uh, const char *url)
 {
   return curl_url_set(uh, CURLUPART_URL, url,
