@@ -1,3 +1,6 @@
+
+# [![trurl logo](https://curl.se/trurl/trurl-logo.svg)](https://curl.se/trurl)
+
 # trurl
 
 Command line tool for URL parsing and manipulation
