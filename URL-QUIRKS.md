@@ -1,6 +1,6 @@
 # URL Quirks
 
-This is a collection peculiarities to may find in trurl due to bugs or
+This is a collection of peculiarities you may find in trurl due to bugs or
 changes/improvements in libcurl's URL handling.
 
 ## The URL API
