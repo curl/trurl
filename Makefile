@@ -28,10 +28,10 @@ ifndef TRURL_IGNORE_CURL_CONFIG
 LDLIBS += $$(curl-config --libs)
 CFLAGS += $$(curl-config --cflags)
 endif
-CFLAGS += -W -Wall -Wshadow -Werror -pedantic
+CFLAGS += -W -Wall -Wshadow -pedantic
 CFLAGS += -Wconversion -Wmissing-prototypes -Wwrite-strings -Wsign-compare -Wno-sign-conversion
 ifndef NDEBUG
-CFLAGS += -g
+CFLAGS += -Werror -g
 endif
 MANUAL = trurl.1
 
@@ -43,7 +43,7 @@ INSTALL ?= install
 PYTHON3 ?= python3
 
 $(TARGET): $(OBJS)
-	$(CC) $(OBJS) -o $(TARGET) $(LDFLAGS) $(LDLIBS)
+	$(CC) $(LDFLAGS) $(OBJS) -o $(TARGET) $(LDLIBS)
 
 trurl.o: trurl.c version.h
 
