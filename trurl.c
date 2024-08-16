@@ -399,6 +399,14 @@ static void errorf(struct option *o, int exit_code, const char *fmt, ...)
   exit(exit_code);
 }
 
+static char *xstrdup(struct option *o, const char *ptr)
+{
+  char *temp = strdup(ptr);
+  if(!temp)
+    errorf(o, ERROR_MEM, "out of memory");
+  return temp;
+}
+
 static void verify(struct option *o, int exit_code, const char *fmt, ...)
 {
   va_list ap;
@@ -1176,9 +1184,7 @@ static bool trim(struct option *o)
           if(!pattern) {
             /* the two final letters are \*, but the backslash needs to be
                removed. Get a copy and edit that accordingly. */
-            temp = strdup(ptr);
-            if(!temp)
-              return query_is_modified; /* out of memory, bail out */
+            temp = xstrdup(o, ptr);
             temp[inslen - 2] = '*';
             temp[inslen - 1] = '\0';
             ptr = temp;
@@ -1203,9 +1209,9 @@ static bool trim(struct option *o)
           /* this qpair should be stripped out */
           free(qpairs[i].str);
           free(qpairsdec[i].str);
-          qpairs[i].str = strdup(""); /* marked as deleted */
+          qpairs[i].str = xstrdup(o, ""); /* marked as deleted */
           qpairs[i].len = 0;
-          qpairsdec[i].str = strdup(""); /* marked as deleted */
+          qpairsdec[i].str = xstrdup(o, ""); /* marked as deleted */
           qpairsdec[i].len = 0;
           query_is_modified = true;
         }
@@ -1429,9 +1435,9 @@ static bool replace(struct option *o)
       /* this is a duplicate remove it. */
       if(replaced) {
         qpairs[i].len = 0;
-        qpairs[i].str = strdup("");
+        qpairs[i].str = xstrdup(o, "");
         qpairsdec[i].len = 0;
-        qpairsdec[i].str = strdup("");
+        qpairsdec[i].str = xstrdup(o, "");
         continue;
       }
       struct string *pdec =
