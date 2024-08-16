@@ -368,7 +368,6 @@ static void trurl_warnf(struct option *o, const char *fmt, ...)
 struct string qpairs[MAX_QPAIRS]; /* encoded */
 struct string qpairsdec[MAX_QPAIRS]; /* decoded */
 int nqpairs; /* how many is stored */
-bool query_is_modified = false;
 
 static void trurl_cleanup_options(struct option *o)
 {
@@ -1134,8 +1133,9 @@ static void json(struct option *o, CURLU *uh)
 }
 
 /* --trim query="utm_*" */
-static void trim(struct option *o)
+static bool trim(struct option *o)
 {
+  bool query_is_modified = false;
   struct curl_slist *node;
   for(node = o->trim_list; node; node = node->next) {
     char *ptr;
@@ -1163,7 +1163,7 @@ static void trim(struct option *o)
                removed. Get a copy and edit that accordingly. */
             temp = strdup(ptr);
             if(!temp)
-              return; /* out of memory, bail out */
+              return query_is_modified; /* out of memory, bail out */
             temp[inslen - 2] = '*';
             temp[inslen - 1] = '\0';
             ptr = temp;
@@ -1192,12 +1192,13 @@ static void trim(struct option *o)
           qpairs[i].len = 0;
           qpairsdec[i].str = strdup(""); /* marked as deleted */
           qpairsdec[i].len = 0;
+          query_is_modified = true;
         }
       }
       free(temp);
     }
-    query_is_modified = true;
   }
+  return query_is_modified;
 }
 
 /* memdup the amount and add a trailing zero */
@@ -1338,24 +1339,21 @@ static void extractqpairs(CURLU *uh, struct option *o)
 
 static void qpair2query(CURLU *uh, struct option *o)
 {
-  if(query_is_modified) {
-    int i;
-    char *nq = NULL;
-    for(i = 0; i<nqpairs; i++) {
-      char *oldnq = nq;
-      nq = curl_maprintf("%s%s%s", nq?nq:"",
-                         (nq && *nq && *(qpairs[i].str))? o->qsep: "",
-                         qpairs[i].str);
-      curl_free(oldnq);
-    }
-    if(nq) {
-      int rc = curl_url_set(uh, CURLUPART_QUERY, nq, 0);
-      if(rc)
-        trurl_warnf(o,
-                    "internal problem: failed to store updated query in URL");
-    }
-    curl_free(nq);
+  int i;
+  char *nq = NULL;
+  for(i = 0; i<nqpairs; i++) {
+    char *oldnq = nq;
+    nq = curl_maprintf("%s%s%s", nq ? nq : "",
+                       (nq && *nq && *(qpairs[i].str)) ? o->qsep : "",
+                       qpairs[i].str);
+    curl_free(oldnq);
   }
+  if(nq) {
+    int rc = curl_url_set(uh, CURLUPART_QUERY, nq, 0);
+    if(rc)
+      trurl_warnf(o, "internal problem: failed to store updated query in URL");
+  }
+  curl_free(nq);
 }
 
 /* sort case insensitively */
@@ -1375,18 +1373,20 @@ static int cmpfunc(const void *p1, const void *p2)
   return 0;
 }
 
-static void sortquery(struct option *o)
+static bool sortquery(struct option *o)
 {
   if(o->sort_query) {
     /* not these two lists may no longer be the same order after the sort */
     qsort(&qpairs[0], nqpairs, sizeof(struct string), cmpfunc);
     qsort(&qpairsdec[0], nqpairs, sizeof(struct string), cmpfunc);
-    query_is_modified = true;
+    return true;
   }
+  return false;
 }
 
-static void replace(struct option *o)
+static bool replace(struct option *o)
 {
+  bool query_is_modified = false;
   struct curl_slist *node;
   for(node = o->replace_list; node; node = node->next) {
     struct string key;
@@ -1428,7 +1428,7 @@ static void replace(struct option *o)
       qpairsdec[i].str = pdec->str;
       free(pdec);
       free(p);
-      replaced = true;
+      query_is_modified = replaced = true;
     }
 
     if(!replaced && o->force_replace) {
@@ -1436,9 +1436,10 @@ static void replace(struct option *o)
                   (int) (key.len),
                   key.str);
       addqpair(key.str, strlen(key.str), o->jsonout);
+      query_is_modified = true;
     }
-    query_is_modified = true;
   }
+  return query_is_modified;
 }
 static CURLUcode seturl(struct option *o, CURLU *uh, const char *url)
 {
@@ -1483,6 +1484,7 @@ static void singleurl(struct option *o,
   do {
     struct curl_slist *p;
     bool url_is_invalid = false;
+    bool query_is_modified = false;
     unsigned setmask = 0;
 
     /* set everything */
@@ -1593,10 +1595,10 @@ static void singleurl(struct option *o,
     extractqpairs(uh, o);
 
     /* trim parts */
-    trim(o);
+    query_is_modified |= trim(o);
 
     /* replace parts */
-    replace(o);
+    query_is_modified |= replace(o);
 
     if(first_lap) {
       /* append query segments */
@@ -1606,10 +1608,12 @@ static void singleurl(struct option *o,
       }
     }
 
-    sortquery(o);
+    /* sort query */
+    query_is_modified |= sortquery(o);
 
     /* put the query back */
-    qpair2query(uh, o);
+    if(query_is_modified)
+      qpair2query(uh, o);
 
     /* make sure the URL is still valid */
     if(!url || o->redirect || o->set_list || o->append_path) {
