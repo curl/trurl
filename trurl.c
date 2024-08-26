@@ -1229,20 +1229,110 @@ static bool trim(struct option *o)
   return query_is_modified;
 }
 
-/* memdup the amount and add a trailing zero */
-static struct string *memdupzero(char *source, size_t len)
+static char *decodequery(char *str, size_t len, int *olen)
 {
-  struct string *ret = malloc(sizeof(struct string));
+  /* handle '+' to ' ' outside of the libcurl call */
+  char *p = str;
+  size_t plen = len;
+  do {
+    char *n = memchr(p, '+', plen);
+    if(n) {
+      *n = ' ';
+      ++n;
+      plen -= (n - p);
+    }
+    p = n;
+  } while(p);
+  return curl_easy_unescape(NULL, str, (int)len, olen);
+}
+
+/* the unusual thing here is that we let '*' remain as-is */
+#define ISURLPUNTCS(x) (((x) == '-') || ((x) == '.') || ((x) == '_') || \
+                        ((x) == '~') || ((x) == '*'))
+#define ISUPPER(x)  (((x) >= 'A') && ((x) <= 'Z'))
+#define ISLOWER(x)  (((x) >= 'a') && ((x) <= 'z'))
+#define ISDIGIT(x)  (((x) >= '0') && ((x) <= '9'))
+#define ISALNUM(x)  (ISDIGIT(x) || ISLOWER(x) || ISUPPER(x))
+#define ISUNRESERVED(x) (ISALNUM(x) || ISURLPUNTCS(x))
+
+static char *encodequery(char *str, size_t len)
+{
+  /* to handle ' ' to '+' escaping we cannot use libcurl's URL encode
+     function */
+  char *dupe = malloc(len * 3 + 1); /* worst case */
+  char *p = dupe;
+  if(!p)
+    return NULL;
+
+  while(len--) {
+    /* treat the characters unsigned */
+    unsigned char in = (unsigned char)*str++;
+
+    if(in == ' ')
+      *dupe++ = '+';
+    else if(ISUNRESERVED(in))
+      *dupe++ = in;
+    else {
+      /* encode it */
+      const char hex[] = "0123456789ABCDEF";
+      dupe[0]='%';
+      dupe[1] = hex[in>>4];
+      dupe[2] = hex[in & 0xf];
+      dupe += 3;
+    }
+  }
+  *dupe = 0;
+  return p;
+}
+
+/* URL decode, then URL encode it back to normalize. But don't touch
+   the first '=' if there is one */
+static struct string *memdupzero(char *source, size_t len, bool *modified)
+{
+  struct string *ret = calloc(1, sizeof(struct string));
   if(!ret)
     return NULL;
-  ret->str = malloc(len + 1);
-  if(!ret->str) {
-    free(ret);
-    return NULL;
+
+  if(len) {
+    char *sep = memchr(source, '=', len);
+    char *encode = NULL;
+    int olen;
+    if(!sep) { /* no '=' */
+      char *decode = decodequery(source, (int)len, &olen);
+      if(decode)
+        encode = encodequery(decode, olen);
+      curl_free(decode);
+    }
+    else {
+      int llen;
+      int rlen;
+      /* decode both sides */
+      char *left = decodequery(source, (int)(sep - source), &llen);
+      char *right = decodequery(sep + 1,
+                                (int)len - (int)(sep - source) - 1, &rlen);
+      /* encode both sides again */
+      char *el;
+      char *er;
+      if(!left || !right)
+        return NULL;
+      el = encodequery(left, llen);
+      er = encodequery(right, rlen);
+      if(!el || !er)
+        return NULL;
+
+      encode = curl_maprintf("%s=%s", el, er);
+      curl_free(left);
+      curl_free(right);
+      free(el);
+      free(er);
+    }
+    olen = (int)strlen(encode);
+
+    if(((size_t)olen != len) || strcmp(encode, source))
+      *modified |= true;
+    ret->str = encode;
+    ret->len = olen;
   }
-  memcpy(ret->str, source, len);
-  ret->str[len] = 0;
-  ret->len = len;
   return ret;
 }
 
@@ -1309,14 +1399,14 @@ static void freeqpairs(void)
   nqpairs = 0;
 }
 
-/* store the pair both encoded and decoded */
-static char *addqpair(char *pair, size_t len, bool json)
+/* store the pair both encoded and decoded, return if modified */
+static bool addqpair(char *pair, size_t len, bool json)
 {
   struct string *p = NULL;
   struct string *pdec = NULL;
-  char *ret = NULL;
+  bool modified = false;
   if(nqpairs < MAX_QPAIRS) {
-    p = memdupzero(pair, len);
+    p = memdupzero(pair, len, &modified);
     pdec = memdupdec(pair, len, json);
     if(p && pdec) {
       qpairs[nqpairs].str = p->str;
@@ -1329,19 +1419,18 @@ static char *addqpair(char *pair, size_t len, bool json)
   else
     warnf("too many query pairs");
 
-  if(p)
-    ret = p->str;
   if(pdec)
     free(pdec);
   if(p)
     free(p);
-  return ret;
+  return modified;
 }
 
 /* convert the query string into an array of name=data pair */
-static void extractqpairs(CURLU *uh, struct option *o)
+static bool extractqpairs(CURLU *uh, struct option *o)
 {
   char *q = NULL;
+  bool modified = false;
   memset(qpairs, 0, sizeof(qpairs));
   nqpairs = 0;
   /* extract the query */
@@ -1355,7 +1444,7 @@ static void extractqpairs(CURLU *uh, struct option *o)
         len = strlen(p);
       else
         len = amp - p;
-      addqpair(p, len, o->jsonout);
+      modified |= addqpair(p, len, o->jsonout);
       if(amp)
         p = amp + 1;
       else
@@ -1363,6 +1452,7 @@ static void extractqpairs(CURLU *uh, struct option *o)
     }
   }
   curl_free(q);
+  return modified;
 }
 
 static void qpair2query(CURLU *uh, struct option *o)
@@ -1449,7 +1539,9 @@ static bool replace(struct option *o)
       }
       struct string *pdec =
         memdupdec(key.str, key.len + value.len + 1, o->jsonout);
-      struct string *p = memdupzero(key.str, key.len + value.len + 1);
+      struct string *p = memdupzero(key.str, key.len + value.len +
+                                    (value.str ? 1 : 0),
+                                    &query_is_modified);
       qpairs[i].len = p->len;
       qpairs[i].str = p->str;
       qpairsdec[i].len = pdec->len;
@@ -1621,7 +1713,7 @@ static void singleurl(struct option *o,
       }
     }
 
-    extractqpairs(uh, o);
+    query_is_modified |= extractqpairs(uh, o);
 
     /* trim parts */
     query_is_modified |= trim(o);

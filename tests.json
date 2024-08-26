@@ -981,7 +981,7 @@
             ]
         },
         "expected": {
-            "stdout": "tra%20cker\n",
+            "stdout": "tra+cker\n",
             "stderr": "",
             "returncode": 0
         }
@@ -1132,7 +1132,7 @@
             ]
         },
         "expected": {
-            "stdout": "https://example.com/?address%20=home:here=now:thisthen:utm=tra%20cker\n",
+            "stdout": "https://example.com/?address+=home:here=now:thisthen:utm=tra+cker\n",
             "stderr": "",
             "returncode": 0
         }
@@ -1344,7 +1344,7 @@
             "returncode": 0,
             "stdout": [
                 {
-                    "url": "https://example.com/?utm=tra%20cker&address%20=home&here=now&thisthen",
+                    "url": "https://example.com/?utm=tra+cker&address+=home&here=now&thisthen",
                     "parts": {
                         "scheme": "https",
                         "host": "example.com",
