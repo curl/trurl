@@ -2366,17 +2366,17 @@
         },
         "expected": {
 			"stdout": [{
-				"url": "http://example.org/?quest=%00",
+				"url": "http://example.org/?quest=%2500",
 				"parts": {
 					"scheme": "http",
 					"host": "example.org",
 					"path": "/",
-                    "query": "quest=%00"
+                    "query": "quest=%2500"
 				},
 				"params": [
 					{
 						"key": "quest",
-						"value": "\u0000"
+						"value": "%00"
 					}
 				]
 			}],

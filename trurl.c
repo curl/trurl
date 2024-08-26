@@ -472,9 +472,8 @@ static void pathadd(struct option *o, const char *path)
   }
 }
 
-static void queryadd(struct option *o, const char *query)
+static char *encodeassign(const char *query)
 {
-  struct curl_slist *n;
   char *p = strchr(query, '=');
   char *urle;
   if(p) {
@@ -487,11 +486,16 @@ static void queryadd(struct option *o, const char *query)
   }
   else
     urle = curl_easy_escape(NULL, query, 0);
+  return urle;
+}
+
+static void queryadd(struct option *o, const char *query)
+{
+  char *urle = encodeassign(query);
   if(urle) {
-    n = curl_slist_append(o->append_query, urle);
-    if(n) {
+    struct curl_slist *n = curl_slist_append(o->append_query, urle);
+    if(n)
       o->append_query = n;
-    }
     curl_free(urle);
   }
 }
@@ -537,14 +541,17 @@ static void trimadd(struct option *o,
 static void replaceadd(struct option *o,
                        const char *replace_list) /* [component]=[data] */
 {
-  struct curl_slist *n = NULL;
-  if(replace_list)
-    n = curl_slist_append(o->replace_list, replace_list);
+  if(replace_list) {
+    char *urle = encodeassign(replace_list);
+    if(urle) {
+      struct curl_slist *n = curl_slist_append(o->replace_list, urle);
+      if(n)
+        o->replace_list = n;
+      curl_free(urle);
+    }
+  }
   else
     errorf(o, ERROR_REPL, "No data passed to replace component");
-
-  if(n)
-    o->replace_list = n;
 }
 
 static bool longarg(const char *flag, const char *check)
