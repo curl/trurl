@@ -211,6 +211,9 @@ Replaces a URL query.
 data can either take the form of a single value, or as a key/value pair in the
 shape \fIfoo=bar\fP. If replace is called on an item that isn't in the list of
 queries trurl ignores that item.
+
+trurl URL encodes both sides of the '=' character in the given input data
+argument.
 .IP "--force-replace [data]"
 Works the same as \fI--replace\fP, but trurl appends a missing query string if
 it is not in the query list already.
