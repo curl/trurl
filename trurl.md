@@ -114,30 +114,32 @@ component prefixed with `url:` like `{url:path}`, it gets output URL encoded.
 As a shortcut, `url:` also works written as a single colon: `{:path}`.
 
 URL decoding a component may cause problems to display it. Such problems make
-a warning get displayed unless **--quiet** is used. URL decode problems can
-optionally be turned into errors by prefixing the component name with
-`strict:`, as in `{strict:path}`. In this stricter mode, a URL decode problem
-makes trurl stop what it is doing and return with exit code 10.
+a warning get displayed unless **--quiet** is used.
 
-You may also prefix components with **default:** and/or **puny:** or
-**idn:**, in any order.
+If **strict:** is specified, like `{strict:path}`, URL decode problems are
+turned into errors. In this stricter mode, a URL decode problem makes trurl
+stop what it is doing and return with exit code 10.
 
-If **default:** is specified, like `{default:url}` or
-`{default:port}`, and the port is not explicitly specified in the URL,
-the scheme's default port is output if it is known.
+If **must:** is specified, like `{must:query}`, it makes trurl return an error
+if the requested component does not exist in the URL. By default a missing
+component will just be shown blank.
+
+If **default:** is specified, like `{default:url}` or `{default:port}`, and
+the port is not explicitly specified in the URL, the scheme's default port is
+output if it is known.
 
 If **puny:** is specified, like `{puny:url}` or `{puny:host}`, the punycoded
 version of the host name is used in the output. This option is mutually
 exclusive with **idn:**.
 
 If **idn:** is specified like `{idn:url}` or `{idn:host}`, the International
-Domain Name version of the host name is used in the output if it is provided as
-a correctly encoded punycode version. This option is mutually exclusive with **puny:**.
+Domain Name version of the host name is used in the output if it is provided
+as a correctly encoded punycode version. This option is mutually exclusive
+with **puny:**.
 
-If *--default-port* is specified, all formats are expanded as if
-they used *default:*; and if *--punycode* is used, all formats
-are expanded as if they used *puny:*. Also note that `{url}` is
-affected by the *--keep-port* option.
+If *--default-port* is specified, all formats are expanded as if they used
+*default:*; and if *--punycode* is used, all formats are expanded as if they
+used *puny:*. Also note that `{url}` is affected by the *--keep-port* option.
 
 Hosts provided as IPv6 numerical addresses are provided within square
 brackets. Like `[fe80::20c:29ff:fe9c:409b]`.
