@@ -348,8 +348,8 @@ The options. Note that only a few URL schemes support the "options"
 component.
 
 ## parts.host
-The and normalized hostname. It might be a UTF-8 name if an IDN name was used.
-It can also be a normalized IPv4 or IPv6 address. An IPv6 address always starts
+The normalized hostname. It might be a UTF-8 name if an IDN name was used. It
+can also be a normalized IPv4 or IPv6 address. An IPv6 address always starts
 with a bracket (**[**) - and no other hostnames can contain such a symbol. If
 *--punycode* is used, the punycode version of the host is outputted instead.
 
