@@ -70,6 +70,16 @@ encode such occurrences accordingly.
 According to RFC 3986, a space cannot legally be part of a URL. This option
 provides a best-effort to convert the provided string into a valid URL.
 
+## --as-idn
+
+Converts a punycode ASCII host name to its original International Domain Name
+in Unicode. If the host name is not using punycode then the original host name
+is used.
+
+## --curl
+
+Only accept URL schemes supported by libcurl.
+
 ## --default-port
 
 When set, trurl uses the scheme's default port number for URLs with a known
@@ -211,12 +221,6 @@ Uses the punycode version of the host name, which is how International Domain
 Names are converted into plain ASCII. If the host name is not using IDN, the
 regular ASCII name is used.
 
-## --as-idn
-
-Converts a punycode ASCII host name to its original International Domain Name
-in Unicode. If the host name is not using punycode then the original host name
-is used.
-
 ## --query-separator [what]
 
 Specify the single letter used for separating query pairs. The default is `&`
@@ -224,6 +228,10 @@ but at least in the past sometimes semicolons `;` or even colons `:` have been
 used for this purpose. If your URL uses something other than the default
 letter, setting the right one makes sure trurl can do its query operations
 properly.
+
+## --quiet
+
+Suppress (some) notes and warnings.
 
 ## --redirect [URL]
 
@@ -272,6 +280,17 @@ The "variable=content" tuplets in the query component are sorted in a case
 insensitive alphabetical order. This helps making URLs identical that
 otherwise only had their query pairs in different orders.
 
+## --trim [component]=[what]
+
+Trims data off a component. Currently this can only trim a query component.
+
+*what* is specified as a full word or as a word prefix (using a single
+trailing asterisk (`*`)) which makes trurl remove the tuples from the query
+string that match the instruction.
+
+To match a literal trailing asterisk instead of using a wildcard, escape it with
+a backslash in front of it. Like `\*`.
+
 ## --url [URL]
 
 Set the input URL to work with. The URL may be provided without a scheme,
@@ -289,17 +308,6 @@ the next provided URL - unless *--verify* is used.
 Outputs URL encoded version of components by default when using *--get* or
 *--json*.
 
-## --trim [component]=[what]
-
-Trims data off a component. Currently this can only trim a query component.
-
-*what* is specified as a full word or as a word prefix (using a single
-trailing asterisk (`*`)) which makes trurl remove the tuples from the query
-string that match the instruction.
-
-To match a literal trailing asterisk instead of using a wildcard, escape it with
-a backslash in front of it. Like `\*`.
-
 ## -v, --version
 
 Show version information and exit.
@@ -308,10 +316,6 @@ Show version information and exit.
 
 When a URL is provided, return error immediately if it does not parse as a
 valid URL. In normal cases, trurl can forgive a bad URL input.
-
-## --quiet
-
-Suppress (some) notes and warnings.
 
 # JSON output format
 
