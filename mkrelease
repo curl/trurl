@@ -34,8 +34,5 @@ if [ -z "$version" ]; then
   exit
 fi
 
-ndate=`git log -n1 HEAD --date=format:'%B %d, %Y' --pretty=format:'%ad'`
-
-sed -ie "s/^\.TH.*/.TH trurl 1 \"$ndate\" \"trurl $version\" \"trurl manual\"/" trurl.1
-
+sed -ie "s/^Title: trurl \([0-9.]*\)/Title: trurl $version/" trurl.md
 sed -ie "s/\"[\.0-9]*\"/\"$version\"/" version.h
