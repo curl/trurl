@@ -77,6 +77,11 @@ typedef enum {
 #else
 #define CURLU_NO_GUESS_SCHEME 0
 #endif
+#if CURL_AT_LEAST_VERSION(8,8,0)
+#define SUPPORTS_GET_EMPTY
+#else
+#define CURLU_GET_EMPTY 0
+#endif
 
 #define OUTPUT_URL      0  /* default */
 #define OUTPUT_SCHEME   1
@@ -101,6 +106,7 @@ enum {
   VARMODIFIER_DEFAULT    = 1 << 2,
   VARMODIFIER_PUNY       = 1 << 3,
   VARMODIFIER_PUNY2IDN   = 1 << 4,
+  VARMODIFIER_EMPTY      = 1 << 8,
 };
 
 struct var {
@@ -280,6 +286,9 @@ static void show_version(void)
   fprintf(stdout, "%s version %s libcurl/%s [built-with %s]\n",
           PROGNAME, TRURL_VERSION_TXT, data->version, LIBCURL_VERSION);
   fprintf(stdout, "features:");
+#ifdef SUPPORTS_GET_EMPTY
+  fprintf(stdout, " get-empty");
+#endif
 #ifdef SUPPORTS_IMAP_OPTIONS
   if(supports_imap)
     fprintf(stdout, " imap-options");
@@ -744,39 +753,43 @@ static const struct var *comp2var(const char *name, size_t vlen)
 static CURLUcode geturlpart(struct option *o, int modifiers, CURLU *uh,
                             CURLUPart part, char **out)
 {
-  CURLUcode rc = curl_url_get(uh, part, out,
-                      (((modifiers & VARMODIFIER_DEFAULT) ||
-                        o->default_port) ?
-                       CURLU_DEFAULT_PORT :
-                       ((part != CURLUPART_URL || o->keep_port) ?
-                        0 : CURLU_NO_DEFAULT_PORT))|
+  CURLUcode rc =
+    curl_url_get(uh, part, out,
+                 (((modifiers & VARMODIFIER_DEFAULT) ||
+                   o->default_port) ?
+                  CURLU_DEFAULT_PORT :
+                  ((part != CURLUPART_URL || o->keep_port) ?
+                   0 : CURLU_NO_DEFAULT_PORT))|
 #ifdef SUPPORTS_PUNYCODE
-                      (((modifiers & VARMODIFIER_PUNY) || o->punycode) ?
-                       CURLU_PUNYCODE : 0)|
+                 (((modifiers & VARMODIFIER_PUNY) || o->punycode) ?
+                  CURLU_PUNYCODE : 0)|
 #endif
 #ifdef SUPPORTS_PUNY2IDN
-                       (((modifiers & VARMODIFIER_PUNY2IDN) || o->puny2idn) ?
-                        CURLU_PUNY2IDN : 0) |
+                 (((modifiers & VARMODIFIER_PUNY2IDN) || o->puny2idn) ?
+                  CURLU_PUNY2IDN : 0) |
 #endif
-                      (o->curl ? 0 : CURLU_NON_SUPPORT_SCHEME)|
-                      (((modifiers & VARMODIFIER_URLENCODED) ||
-                        o->urlencode) ?
-                       0 :CURLU_URLDECODE));
+#ifdef SUPPORTS_GET_EMPTY
+                 ((modifiers & VARMODIFIER_EMPTY) ? CURLU_GET_EMPTY : 0) |
+#endif
+                 (o->curl ? 0 : CURLU_NON_SUPPORT_SCHEME)|
+                 (((modifiers & VARMODIFIER_URLENCODED) ||
+                   o->urlencode) ?
+                  0 :CURLU_URLDECODE));
 
 #ifdef SUPPORTS_PUNY2IDN
-    /* retry get w/ out puny2idn to handle invalid punycode conversions */
-    if(rc == CURLUE_BAD_HOSTNAME &&
-            (o->puny2idn || (modifiers & VARMODIFIER_PUNY2IDN))) {
-        curl_free(*out);
-        modifiers &= ~VARMODIFIER_PUNY2IDN;
-        o->puny2idn = false;
-        trurl_warnf(o,
+  /* retry get w/ out puny2idn to handle invalid punycode conversions */
+  if(rc == CURLUE_BAD_HOSTNAME &&
+     (o->puny2idn || (modifiers & VARMODIFIER_PUNY2IDN))) {
+    curl_free(*out);
+    modifiers &= ~VARMODIFIER_PUNY2IDN;
+    o->puny2idn = false;
+    trurl_warnf(o,
                 "Error converting url to IDN [%s]",
                 curl_url_strerror(rc));
-        return geturlpart(o, modifiers, uh, part, out);
-    }
+    return geturlpart(o, modifiers, uh, part, out);
+  }
 #endif
-    return rc;
+  return rc;
 }
 
 static bool is_valid_trurl_error(CURLUcode rc)
@@ -847,6 +860,7 @@ static void get(struct option *o, CURLU *uh)
         bool isquery = false;
         bool queryall = false;
         bool strict = false; /* strict mode, fail on URL decode problems */
+        bool must = false; /* must mode, fail on missing component */
         int mods = 0;
         end = strchr(ptr, endbyte);
         ptr++; /* pass the { */
@@ -886,6 +900,10 @@ static void get(struct option *o, CURLU *uh)
           }
           else if(!strncmp(ptr, "strict:", wordlen))
             strict = true;
+          else if(!strncmp(ptr, "must:", wordlen)) {
+            must = true;
+            mods |= VARMODIFIER_EMPTY;
+          }
           else if(!strncmp(ptr, "url:", wordlen))
             mods |= VARMODIFIER_URLENCODED;
           else {
@@ -925,7 +943,9 @@ static void get(struct option *o, CURLU *uh)
               fputs(nurl, stream);
               curl_free(nurl);
             }
-            else if(is_valid_trurl_error(rc)) {
+            else if(!is_valid_trurl_error(rc) && must)
+              errorf(o, ERROR_GET, "missing must:%s", v->name);
+            else if(is_valid_trurl_error(rc) || strict) {
               if((rc == CURLUE_URLDECODE) && strict)
                 errorf(o, ERROR_GET, "problems URL decoding %s", v->name);
               else

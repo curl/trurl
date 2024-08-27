@@ -2726,5 +2726,48 @@
           "stderr": "",
           "returncode": 0
       }
+  },
+  {
+      "input": {
+          "arguments": [
+              "https://example.com/",
+              "--get",
+              "{must:query}"
+          ]
+      },
+      "expected": {
+          "stdout": "",
+          "stderr": "trurl error: missing must:query\ntrurl error: Try trurl -h for help\n",
+          "returncode": 10
+      }
+  },
+  {
+      "input": {
+          "arguments": [
+              "https://example.com/?",
+              "--get",
+              "{must:query}"
+          ]
+      },
+      "required": ["get-empty"],
+      "expected": {
+          "stdout": "\n",
+          "stderr": "",
+          "returncode": 0
+      }
+  },
+  {
+      "input": {
+          "arguments": [
+              "https://example.com/",
+              "--get",
+              "{must:fragment}"
+          ]
+      },
+      "expected": {
+          "stdout": "",
+          "stderr": "trurl error: missing must:fragment\ntrurl error: Try trurl -h for help\n",
+          "returncode": 10
+      }
   }
 ]
