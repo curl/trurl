@@ -117,8 +117,9 @@ a warning get displayed unless **--quiet** is used.
 trurl supports a range of different qualifiers, or prefixes, to the component
 that changes how it handles it:
 
-If **url:** is specified, `{url:path}`, the component gets output URL encoded.
-As a shortcut, `url:` also works written as a single colon: `{:path}`.
+If **url:** is specified, like `{url:path}`, the component gets output URL
+encoded. As a shortcut, `url:` also works written as a single colon:
+`{:path}`.
 
 If **strict:** is specified, like `{strict:path}`, URL decode problems are
 turned into errors. In this stricter mode, a URL decode problem makes trurl
