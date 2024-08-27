@@ -1573,6 +1573,59 @@ static CURLUcode seturl(struct option *o, CURLU *uh, const char *url)
                       CURLU_URLENCODE);
 }
 
+static char *canonical_path(const char *path)
+{
+  /* split the path per slash, URL decode + encode, then put together again */
+  size_t len = strlen(path);
+  char *sl;
+  char *dupe = NULL;
+
+  do {
+    char *opath;
+    char *npath;
+    char *ndupe;
+    int olen;
+    sl = memchr(path, '/', len);
+    size_t partlen = sl ? (size_t)(sl - path) : len;
+
+    if(partlen) {
+      /* First URL decode the part */
+      opath = curl_easy_unescape(NULL, path, (int)partlen, &olen);
+      if(!opath)
+        return NULL;
+
+      /* Then URL encode it again */
+      npath = curl_easy_escape(NULL, opath, olen);
+      if(!npath)
+        return NULL;
+
+      curl_free(opath);
+      ndupe = curl_maprintf("%s%s%s", dupe ? dupe : "", npath, sl ? "/": "");
+      curl_free(npath);
+    }
+    else if(sl) {
+      /* zero length part but a slash */
+      ndupe = curl_maprintf("%s/", dupe ? dupe : "");
+    }
+    else {
+      /* no part, no slash */
+      break;
+    }
+    curl_free(dupe);
+    if(!ndupe)
+      return NULL;
+
+    dupe = ndupe;
+    if(sl) {
+      path = sl + 1;
+      len -= partlen + 1;
+    }
+
+  } while(sl);
+
+  return dupe;
+}
+
 static void singleurl(struct option *o,
                       const char *url, /* might be NULL */
                       struct iterinfo *iinfo,
@@ -1687,6 +1740,7 @@ static void singleurl(struct option *o,
     if(first_lap) {
       /* extract the current path */
       char *opath;
+      char *cpath;
       bool path_is_modified = false;
       if(curl_url_get(uh, CURLUPART_PATH, &opath, 0))
         errorf(o, ERROR_ITER, "out of memory");
@@ -1709,6 +1763,18 @@ static void singleurl(struct option *o,
         opath = npath;
         path_is_modified = true;
       }
+      cpath = canonical_path(opath);
+      if(!cpath)
+        errorf(o, ERROR_MEM, "out of memory");
+
+      if(strcmp(cpath, opath)) {
+        /* updated */
+        path_is_modified = true;
+        curl_free(opath);
+        opath = cpath;
+      }
+      else
+        curl_free(cpath);
       if(path_is_modified) {
         /* set the new path */
         if(curl_url_set(uh, CURLUPART_PATH, opath, 0))
