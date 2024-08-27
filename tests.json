@@ -2690,5 +2690,17 @@
           "stderr": "",
           "returncode": 0
       }
+  },
+  {
+      "input": {
+          "arguments": [
+              "https://ex%61mple.com/h%61s/?wh%61t"
+          ]
+      },
+      "expected": {
+          "stdout": "https://example.com/has/?what\n",
+          "stderr": "",
+          "returncode": 0
+      }
   }
 ]
