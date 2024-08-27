@@ -1,13 +1,24 @@
-# trurl 0.14
+# trurl 0.15
 
-## What's Changed
+## What changed
 
-- remove a spurious trailing newline from a warning
-- trurl.1: document the exit codes
-- add "strict:" as prefix to a get component
-- casecompare: a strncasemp replacement
-- support conditionally set scheme
+ - Makefile: fix LDFLAGS order; and don't force -Werror
+ - README: add the logo
+ - README: add trurl / libcurl compatibilty to readme. link to URL quirks
+ - singleurl: fix query_is_modified
+ - trurl.md: provide the manpage in markdown
+ - trurl: "normalize" query pairs
+ - trurl: accept "control codes" in get output
+ - trurl: allow "control bytes" in JSON output
+ - trurl: canonicalize the path
+ - trurl: fix silent error in json json function
+ - trurl: make --replace URL encode the provided data argument
+ - trurl: make must: prefix for gets return error for missing part
+ - trurl: on strdup() failures, exit immediately
+ - trurl: optimize the path append loop
+ - trurl: rename --force-replace to --replace-append
+ - trurl: use casecompare instead of a strncasecmp define
 
 Contributors to this release:
 
- Daniel Stenberg
+ Daniel Stenberg, Emanuele Torre, Jacob Mealey
