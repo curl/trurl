@@ -2560,6 +2560,22 @@
   {
       "input": {
           "arguments": [
+              "example.com",
+              "--append",
+              "path=add",
+              "--append",
+              "path=two"
+          ]
+      },
+      "expected": {
+          "stdout": "http://example.com/add/two\n",
+          "stderr": "",
+          "returncode": 0
+      }
+  },
+  {
+      "input": {
+          "arguments": [
               "https://curl.se?name=mr%00smith",
               "--get",
               "{query}"

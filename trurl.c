@@ -1685,15 +1685,17 @@ static void singleurl(struct option *o,
     }
 
     if(first_lap) {
+      /* extract the current path */
+      char *opath;
+      bool path_is_modified = false;
+      if(curl_url_get(uh, CURLUPART_PATH, &opath, 0))
+        errorf(o, ERROR_ITER, "out of memory");
+
       /* append path segments */
       for(p = o->append_path; p; p = p->next) {
         char *apath = p->data;
-        char *opath;
         char *npath;
         size_t olen;
-        /* extract the current path */
-        if(curl_url_get(uh, CURLUPART_PATH, &opath, 0))
-          errorf(o, ERROR_ITER, "out of memory");
 
         /* does the existing path end with a slash, then don't
            add one in between */
@@ -1703,14 +1705,16 @@ static void singleurl(struct option *o,
         npath = curl_maprintf("%s%s%s", opath,
                               opath[olen-1] == '/' ? "" : "/",
                               apath);
-        if(npath) {
-          /* set the new path */
-          if(curl_url_set(uh, CURLUPART_PATH, npath, 0))
-            errorf(o, ERROR_ITER, "out of memory");
-        }
-        curl_free(npath);
         curl_free(opath);
+        opath = npath;
+        path_is_modified = true;
       }
+      if(path_is_modified) {
+        /* set the new path */
+        if(curl_url_set(uh, CURLUPART_PATH, opath, 0))
+          errorf(o, ERROR_ITER, "out of memory");
+      }
+      curl_free(opath);
     }
 
     query_is_modified |= extractqpairs(uh, o);
