@@ -2644,27 +2644,51 @@
           "returncode": 0
       }
   },
-  {
-    "input": {
-        "arguments": [
-            "http://example.org/%18",
-            "--json"
-        ]
-    },
-    "expected": {
-        "stdout":[
-            {
-                "url": "http://example.org/%18",
-                "parts": {
-                  "scheme": "http",
-                  "host": "example.org"
+    {
+        "input": {
+            "arguments": [
+                "http://example.org/%18",
+                "--json"
+            ]
+        },
+        "expected": {
+            "stdout":[
+                {
+                    "url": "http://example.org/%18",
+                    "parts": {
+                        "scheme": "http",
+                        "host": "example.org",
+                        "path": "/\u0018"
+                    }
                 }
-              }
-        ],
-        "stderr": "trurl note: URL decode error, most likely because of rubbish in the input (path)\n",
-        "returncode": 0
-    }
-  },
+            ],
+            "stderr": "",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "http://example.org/%18",
+                "--json",
+                "--urlencode"
+            ]
+        },
+        "expected": {
+            "stdout":[
+                {
+                    "url": "http://example.org/%18",
+                    "parts": {
+                        "scheme": "http",
+                        "host": "example.org",
+                        "path": "/%18"
+                    }
+                }
+            ],
+            "stderr": "",
+            "returncode": 0
+        }
+    },
   {
       "input": {
           "arguments": [
