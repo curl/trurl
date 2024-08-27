@@ -109,12 +109,17 @@ user, password, options, host, port, path, query, fragment and zoneid.
 **{component}** expands to nothing if the given component does not have a
 value.
 
-Components are shown URL decoded by default. If you instead write the
-component prefixed with `url:` like `{url:path}`, it gets output URL encoded.
-As a shortcut, `url:` also works written as a single colon: `{:path}`.
+Components are shown URL decoded by default.
 
 URL decoding a component may cause problems to display it. Such problems make
 a warning get displayed unless **--quiet** is used.
+
+trurl supports a range of different qualifiers, or prefixes, to the component
+that changes how it handles it:
+
+If **url:** is specified, like `{url:path}`, the component gets output URL
+encoded. As a shortcut, `url:` also works written as a single colon:
+`{:path}`.
 
 If **strict:** is specified, like `{strict:path}`, URL decode problems are
 turned into errors. In this stricter mode, a URL decode problem makes trurl
