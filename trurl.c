@@ -1319,41 +1319,48 @@ static char *encodequery(char *str, size_t len)
 static struct string *memdupzero(char *source, size_t len, bool *modified)
 {
   struct string *ret = calloc(1, sizeof(struct string));
+  char *left = NULL;
+  char *right = NULL;
+  char *el = NULL;
+  char *er = NULL;
+  char *encode = NULL;
   if(!ret)
     return NULL;
 
   if(len) {
     char *sep = memchr(source, '=', len);
-    char *encode = NULL;
     int olen;
     if(!sep) { /* no '=' */
       char *decode = decodequery(source, (int)len, &olen);
       if(decode)
         encode = encodequery(decode, olen);
+      else
+        goto error;
       curl_free(decode);
     }
     else {
       int llen;
       int rlen;
+
       /* decode both sides */
-      char *left = decodequery(source, (int)(sep - source), &llen);
-      char *right = decodequery(sep + 1,
-                                (int)len - (int)(sep - source) - 1, &rlen);
+      left = decodequery(source, (int)(sep - source), &llen);
+      if(!left)
+        goto error;
+      right = decodequery(sep + 1,
+                          (int)len - (int)(sep - source) - 1, &rlen);
+      if(!right)
+        goto error;
       /* encode both sides again */
-      char *el;
-      char *er;
-      if(!left || !right)
-        return NULL;
       el = encodequery(left, llen);
+      if(!el)
+        goto error;
       er = encodequery(right, rlen);
-      if(!el || !er)
-        return NULL;
+      if(!er)
+        goto error;
 
       encode = curl_maprintf("%s=%s", el, er);
-      curl_free(left);
-      curl_free(right);
-      free(el);
-      free(er);
+      if(!encode)
+        goto error;
     }
     olen = (int)strlen(encode);
 
@@ -1362,7 +1369,19 @@ static struct string *memdupzero(char *source, size_t len, bool *modified)
     ret->str = encode;
     ret->len = olen;
   }
+  curl_free(left);
+  curl_free(right);
+  free(el);
+  free(er);
   return ret;
+error:
+  curl_free(left);
+  curl_free(right);
+  free(el);
+  free(er);
+  free(encode);
+  free(ret);
+  return NULL;
 }
 
 /* URL decode the pair and return it in an allocated chunk */
@@ -1625,10 +1644,10 @@ static char *canonical_path(const char *path)
 
       /* Then URL encode it again */
       npath = curl_easy_escape(NULL, opath, olen);
+      curl_free(opath);
       if(!npath)
         return NULL;
 
-      curl_free(opath);
       ndupe = curl_maprintf("%s%s%s", dupe ? dupe : "", npath, sl ? "/": "");
       curl_free(npath);
     }
