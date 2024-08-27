@@ -2650,5 +2650,31 @@
         "stderr": "trurl note: URL decode error, most likely because of rubbish in the input (path)\n",
         "returncode": 0
     }
+  },
+  {
+      "input": {
+          "arguments": [
+              "https://example.com/one/t%61o/%2F%42/"
+          ]
+      },
+      "expected": {
+          "stdout": "https://example.com/one/tao/%2fB/\n",
+          "stderr": "",
+          "returncode": 0
+      }
+  },
+  {
+      "input": {
+          "arguments": [
+              "https://example.com/one/t%61o/%2F%42/",
+              "--append",
+              "path=%61"
+          ]
+      },
+      "expected": {
+          "stdout": "https://example.com/one/tao/%2fB/%2561\n",
+          "stderr": "",
+          "returncode": 0
+      }
   }
 ]
