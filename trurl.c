@@ -1120,14 +1120,42 @@ static void json(struct option *o, CURLU *uh)
   bool params_errors = false;
   for(i = 0; variables[i].name; i++) {
     char *part;
-    rc = geturlpart(o, 0, uh, variables[i].part, &part);
+    /* ask for the URL encoded version so that weird control characters do not
+       cause problems. URL decode it when push to json. */
+    rc = geturlpart(o, VARMODIFIER_URLENCODED, uh, variables[i].part, &part);
     if(!rc) {
+      int olen;
+      char *dec = NULL;
+
+      if(!o->urlencode) {
+        if(variables[i].part == CURLUPART_QUERY) {
+          /* query parts have '+' for space */
+          char *n;
+          char *p = part;
+          do {
+            n = strchr(p, '+');
+            if(n) {
+              *n = ' ';
+              p = n + 1;
+            }
+          } while(n);
+        }
+
+        dec = curl_easy_unescape(NULL, part, 0, &olen);
+        if(!dec)
+          errorf(o, ERROR_MEM, "out of memory");
+      }
+
       if(!first)
         fputs(",\n", stdout);
       first = false;
       printf("      \"%s\": ", variables[i].name);
-      jsonString(stdout, part, strlen(part), false);
+      if(dec)
+        jsonString(stdout, dec, (size_t)olen, false);
+      else
+        jsonString(stdout, part, strlen(part), false);
       curl_free(part);
+      curl_free(dec);
     }
     else if(is_valid_trurl_error(rc)) {
         trurl_warnf(o, "%s (%s)", curl_url_strerror(rc), variables[i].name);
