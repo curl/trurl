@@ -227,6 +227,7 @@ static void help(void)
     "Usage: " PROGNAME " [options] [URL]\n"
     "  -a, --append [component]=[data]  - append data to component\n"
     "      --accept-space               - give in to this URL abuse\n"
+    "      --as-idn                     - encode hostnames in idn\n"
     "      --curl                       - only schemes supported by libcurl\n"
     "      --default-port               - add known default ports\n"
     "  -f, --url-file [file/-]          - read URLs from file or stdin\n"
@@ -237,11 +238,11 @@ static void help(void)
     "      --keep-port                  - keep known default ports\n"
     "      --no-guess-scheme            - require scheme in URLs\n"
     "      --punycode                   - encode hostnames in punycode\n"
-    "      --as-idn                     - encode hostnames in idn\n"
     "      --query-separator [letter]   - if something else than '&'\n"
+    "      --quiet                      - Suppress (some) notes and comments\n"
     "      --redirect [URL]             - redirect to this\n"
     "      --replace [data]             - replaces a query [data]\n"
-    "      --force-replace [data]       - appends a new query if not found\n"
+    "      --replace-append [data]      - appends a new query if not found\n"
     "  -s, --set [component]=[data]     - set component content\n"
     "      --sort-query                 - alpha-sort the query pairs\n"
     "      --trim [component]=[what]    - trim component\n"
@@ -249,7 +250,6 @@ static void help(void)
     "      --urlencode                  - URL encode components by default\n"
     "  -v, --version                    - show version\n"
     "      --verify                     - return error on (first) bad URL\n"
-    "      --quiet                      - Suppress (some) notes and comments\n"
     " URL COMPONENTS:\n"
     "  ", stdout);
   fputs("url, ", stdout);
@@ -699,7 +699,8 @@ static int getarg(struct option *o,
     replaceadd(o, arg);
     *usedarg = gap;
   }
-  else if(!strcmp("--force-replace", flag)) {
+  else if(!strcmp("--replace-append", flag) ||
+          !strcmp("--force-replace", flag)) { /* the initial name */
     replaceadd(o, arg);
     o->force_replace = true;
     *usedarg = gap;
