@@ -298,7 +298,7 @@ trailing asterisk (`*`)) which makes trurl remove the tuples from the query
 string that match the instruction.
 
 To match a literal trailing asterisk instead of using a wildcard, escape it with
-a backslash in front of it. Like `\\*`.
+a backslash in front of it. Like `\*`.
 
 ## -v, --version
 
