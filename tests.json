@@ -2425,225 +2425,225 @@
             "returncode": 0
         }
     },
-  {
-      "input": {
-          "arguments": [
-              "0?00%000000000000000000000=0000000000"
-          ]
-      },
-      "expected": {
-          "stdout": "http://0.0.0.0/?00%000000000000000000000=0000000000\n",
-          "stderr": "",
-          "returncode": 0
-      }
-  },
-  {
-      "input": {
-          "arguments": [
-              "--json",
-              "0?0%000000000000000000000000000000000",
-              "--urlencode"
-          ]
-      },
-      "expected": {
-          "returncode": 0,
-          "stderr": "",
-          "stdout": [
-              {
-                  "url": "http://0.0.0.0/?0%000000000000000000000000000000000",
-                  "parts": {
-                      "scheme": "http",
-                      "host": "0.0.0.0",
-                      "path": "/",
-                      "query": "0%000000000000000000000000000000000"
-                  },
-                  "params": [
-                      {
-                          "key": "0\u00000000000000000000000000000000000",
-                          "value": ""
-                      }
-                  ]
-              }
-          ]
-      }
-  },
-  {
-      "input": {
-          "arguments": [
-              "--json",
-              "0?0%000000000000000000000000000000000=000%0000000000",
-              "--urlencode"
-          ]
-      },
-      "expected": {
-          "returncode": 0,
-          "stderr": "",
-          "stdout": [
-              {
-                  "url": "http://0.0.0.0/?0%000000000000000000000000000000000=000%0000000000",
-                  "parts": {
-                      "scheme": "http",
-                      "host": "0.0.0.0",
-                      "path": "/",
-                      "query": "0%000000000000000000000000000000000=000%0000000000"
-                  },
-                  "params": [
-                      {
-                          "key": "0\u00000000000000000000000000000000000",
-                          "value": "000\u000000000000"
-                      }
-                  ]
-              }
-          ]
-      }
-  },
-  {
-      "input": {
-          "arguments": [
-              "example.com",
-              "--set",
-              "host=[::1]"
-          ]
-      },
-      "expected": {
-          "stdout": "http://[::1]/\n",
-          "stderr": "",
-          "returncode": 0
-      }
-  },
-  {
-      "input": {
-          "arguments": [
-              "example.com:88",
-              "--set",
-              "port?=99"
-          ]
-      },
-      "expected": {
-          "stdout": "http://example.com:88/\n",
-          "stderr": "",
-          "returncode": 0
-      }
-  },
-  {
-      "input": {
-          "arguments": [
-              "example.com",
-              "--set",
-              "port?=99"
-          ]
-      },
-      "expected": {
-          "stdout": "http://example.com:99/\n",
-          "stderr": "",
-          "returncode": 0
-      }
-  },
-  {
-      "input": {
-          "arguments": [
-              "example.com",
-              "--append",
-              "query=add",
-              "--iterate",
-              "scheme=http ftp"
-          ]
-      },
-      "expected": {
-          "stdout": "http://example.com/?add\nftp://example.com/?add\n",
-          "stderr": "",
-          "returncode": 0
-      }
-  },
-  {
-      "input": {
-          "arguments": [
-              "example.com",
-              "--append",
-              "path=add",
-              "--iterate",
-              "scheme=http ftp"
-          ]
-      },
-      "expected": {
-          "stdout": "http://example.com/add\nftp://example.com/add\n",
-          "stderr": "",
-          "returncode": 0
-      }
-  },
-  {
-      "input": {
-          "arguments": [
-              "example.com",
-              "--append",
-              "path=add",
-              "--append",
-              "path=two"
-          ]
-      },
-      "expected": {
-          "stdout": "http://example.com/add/two\n",
-          "stderr": "",
-          "returncode": 0
-      }
-  },
-  {
-      "input": {
-          "arguments": [
-              "https://curl.se?name=mr%00smith",
-              "--get",
-              "{query}"
-          ]
-      },
-      "expected": {
-          "stderr": "trurl note: URL decode error, most likely because of rubbish in the input (query)\n",
-          "returncode": 0,
-          "stdout": "\n"
-      }
-  },
-  {
-      "input": {
-          "arguments": [
-              "https://curl.se?name=mr%00smith",
-              "--get",
-              "{strict:query}"
-          ]
-      },
-      "expected": {
-          "stderr": "trurl error: problems URL decoding query\ntrurl error: Try trurl -h for help\n",
-          "returncode": 10,
-          "stdout": ""
-      }
-  },
-  {
-      "required": ["no-guess-scheme"],
-      "input": {
-          "arguments": [
-              "example.com",
-              "--set",
-              "scheme?=https"
-          ]
-      },
-      "expected": {
-          "stdout": "https://example.com/\n",
-          "stderr": "",
-          "returncode": 0
-      }
-  },
-  {
-      "input": {
-          "arguments": [
-              "ftp://example.com",
-              "--set",
-              "scheme?=https"
-          ]
-      },
-      "expected": {
-          "stdout": "ftp://example.com/\n",
-          "stderr": "",
-          "returncode": 0
-      }
-  },
+    {
+        "input": {
+            "arguments": [
+                "0?00%000000000000000000000=0000000000"
+            ]
+        },
+        "expected": {
+            "stdout": "http://0.0.0.0/?00%000000000000000000000=0000000000\n",
+            "stderr": "",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--json",
+                "0?0%000000000000000000000000000000000",
+                "--urlencode"
+            ]
+        },
+        "expected": {
+            "returncode": 0,
+            "stderr": "",
+            "stdout": [
+                {
+                    "url": "http://0.0.0.0/?0%000000000000000000000000000000000",
+                    "parts": {
+                        "scheme": "http",
+                        "host": "0.0.0.0",
+                        "path": "/",
+                        "query": "0%000000000000000000000000000000000"
+                    },
+                    "params": [
+                        {
+                            "key": "0\u00000000000000000000000000000000000",
+                            "value": ""
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--json",
+                "0?0%000000000000000000000000000000000=000%0000000000",
+                "--urlencode"
+            ]
+        },
+        "expected": {
+            "returncode": 0,
+            "stderr": "",
+            "stdout": [
+                {
+                    "url": "http://0.0.0.0/?0%000000000000000000000000000000000=000%0000000000",
+                    "parts": {
+                        "scheme": "http",
+                        "host": "0.0.0.0",
+                        "path": "/",
+                        "query": "0%000000000000000000000000000000000=000%0000000000"
+                    },
+                    "params": [
+                        {
+                            "key": "0\u00000000000000000000000000000000000",
+                            "value": "000\u000000000000"
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "example.com",
+                "--set",
+                "host=[::1]"
+            ]
+        },
+        "expected": {
+            "stdout": "http://[::1]/\n",
+            "stderr": "",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "example.com:88",
+                "--set",
+                "port?=99"
+            ]
+        },
+        "expected": {
+            "stdout": "http://example.com:88/\n",
+            "stderr": "",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "example.com",
+                "--set",
+                "port?=99"
+            ]
+        },
+        "expected": {
+            "stdout": "http://example.com:99/\n",
+            "stderr": "",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "example.com",
+                "--append",
+                "query=add",
+                "--iterate",
+                "scheme=http ftp"
+            ]
+        },
+        "expected": {
+            "stdout": "http://example.com/?add\nftp://example.com/?add\n",
+            "stderr": "",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "example.com",
+                "--append",
+                "path=add",
+                "--iterate",
+                "scheme=http ftp"
+            ]
+        },
+        "expected": {
+            "stdout": "http://example.com/add\nftp://example.com/add\n",
+            "stderr": "",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "example.com",
+                "--append",
+                "path=add",
+                "--append",
+                "path=two"
+            ]
+        },
+        "expected": {
+            "stdout": "http://example.com/add/two\n",
+            "stderr": "",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "https://curl.se?name=mr%00smith",
+                "--get",
+                "{query}"
+            ]
+        },
+        "expected": {
+            "stderr": "trurl note: URL decode error, most likely because of rubbish in the input (query)\n",
+            "returncode": 0,
+            "stdout": "\n"
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "https://curl.se?name=mr%00smith",
+                "--get",
+                "{strict:query}"
+            ]
+        },
+        "expected": {
+            "stderr": "trurl error: problems URL decoding query\ntrurl error: Try trurl -h for help\n",
+            "returncode": 10,
+            "stdout": ""
+        }
+    },
+    {
+        "required": ["no-guess-scheme"],
+        "input": {
+            "arguments": [
+                "example.com",
+                "--set",
+                "scheme?=https"
+            ]
+        },
+        "expected": {
+            "stdout": "https://example.com/\n",
+            "stderr": "",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "ftp://example.com",
+                "--set",
+                "scheme?=https"
+            ]
+        },
+        "expected": {
+            "stdout": "ftp://example.com/\n",
+            "stderr": "",
+            "returncode": 0
+        }
+    },
     {
         "input": {
             "arguments": [
@@ -2689,85 +2689,99 @@
             "returncode": 0
         }
     },
-  {
-      "input": {
-          "arguments": [
-              "https://example.com/one/t%61o/%2F%42/"
-          ]
-      },
-      "expected": {
-          "stdout": "https://example.com/one/tao/%2fB/\n",
-          "stderr": "",
-          "returncode": 0
-      }
-  },
-  {
-      "input": {
-          "arguments": [
-              "https://example.com/one/t%61o/%2F%42/",
-              "--append",
-              "path=%61"
-          ]
-      },
-      "expected": {
-          "stdout": "https://example.com/one/tao/%2fB/%2561\n",
-          "stderr": "",
-          "returncode": 0
-      }
-  },
-  {
-      "input": {
-          "arguments": [
-              "https://ex%61mple.com/h%61s/?wh%61t"
-          ]
-      },
-      "expected": {
-          "stdout": "https://example.com/has/?what\n",
-          "stderr": "",
-          "returncode": 0
-      }
-  },
-  {
-      "input": {
-          "arguments": [
-              "https://example.com/",
-              "--get",
-              "{must:query}"
-          ]
-      },
-      "expected": {
-          "stdout": "",
-          "stderr": "trurl error: missing must:query\ntrurl error: Try trurl -h for help\n",
-          "returncode": 10
-      }
-  },
-  {
-      "input": {
-          "arguments": [
-              "https://example.com/?",
-              "--get",
-              "{must:query}"
-          ]
-      },
-      "required": ["get-empty"],
-      "expected": {
-          "stdout": "\n",
-          "stderr": "",
-          "returncode": 0
-      }
-  },
-  {
-      "input": {
-          "arguments": [
-              "https://example.com/",
-              "--get",
-              "{must:fragment}"
-          ]
-      },
-      "expected": {
-          "stdout": "",
-          "stderr": "trurl error: missing must:fragment\ntrurl error: Try trurl -h for help\n",
-          "returncode": 10
-      }
-  }
+    {
+        "input": {
+            "arguments": [
+                "https://example.com/one/t%61o/%2F%42/"
+            ]
+        },
+        "expected": {
+            "stdout": "https://example.com/one/tao/%2fB/\n",
+            "stderr": "",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "https://example.com/one/t%61o/%2F%42/",
+                "--append",
+                "path=%61"
+            ]
+        },
+        "expected": {
+            "stdout": "https://example.com/one/tao/%2fB/%2561\n",
+            "stderr": "",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "https://ex%61mple.com/h%61s/?wh%61t"
+            ]
+        },
+        "expected": {
+            "stdout": "https://example.com/has/?what\n",
+            "stderr": "",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "https://example.com/",
+                "--get",
+                "{must:query}"
+            ]
+        },
+        "expected": {
+            "stdout": "",
+            "stderr": "trurl error: missing must:query\ntrurl error: Try trurl -h for help\n",
+            "returncode": 10
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "https://example.com/?",
+                "--get",
+                "{must:query}"
+            ]
+        },
+        "required": ["get-empty"],
+        "expected": {
+            "stdout": "\n",
+            "stderr": "",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "https://example.com/",
+                "--get",
+                "{must:fragment}"
+            ]
+        },
+        "expected": {
+            "stdout": "",
+            "stderr": "trurl error: missing must:fragment\ntrurl error: Try trurl -h for help\n",
+            "returncode": 10
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "http://example.org/%18",
+                "--get",
+                "{path}"
+            ]
+        },
+        "expected": {
+            "stdout": "/\u0018\n",
+            "stderr": "",
+            "returncode": 0
+        }
+    }
 ]

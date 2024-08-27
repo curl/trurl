@@ -938,7 +938,24 @@ static void get(struct option *o, CURLU *uh)
           const struct var *v = comp2var(ptr, vlen);
           if(v) {
             char *nurl;
-            CURLUcode rc = geturlpart(o, mods, uh, v->part, &nurl);
+            /* ask for it URL encode always, to avoid libcurl warning on
+               content */
+            CURLUcode rc = geturlpart(o, mods | VARMODIFIER_URLENCODED,
+                                      uh, v->part, &nurl);
+            if(!rc && !(mods & VARMODIFIER_URLENCODED) && !o->urlencode) {
+              /* it should not be encoded in the output */
+              int olen;
+              char *dec = curl_easy_unescape(NULL, nurl, 0, &olen);
+              curl_free(nurl);
+              if(memchr(dec, '\0', (size_t)olen)) {
+                /* a binary zero cannot be shown */
+                rc = CURLUE_URLDECODE;
+                curl_free(dec);
+                dec = NULL;
+              }
+              nurl = dec;
+            }
+
             if(rc == CURLUE_OK) {
               fputs(nurl, stream);
               curl_free(nurl);
