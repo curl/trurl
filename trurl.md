@@ -72,8 +72,8 @@ provides a best-effort to convert the provided string into a valid URL.
 
 ## --as-idn
 
-Converts a punycode ASCII host name to its original International Domain Name
-in Unicode. If the host name is not using punycode then the original host name
+Converts a punycode ASCII hostname to its original International Domain Name
+in Unicode. If the hostname is not using punycode then the original hostname
 is used.
 
 ## --curl
@@ -92,9 +92,9 @@ Since, by default, trurl removes default port numbers from URLs with a known
 scheme, this option is pretty much ignored unless one of *--get*, *--json*,
 and *--keep-port* is not also specified.
 
-## -f, --url-file [file name]
+## -f, --url-file [filename]
 
-Read URLs to work on from the given file. Use the file name `-` (a single
+Read URLs to work on from the given file. Use the filename `-` (a single
 minus) to tell trurl to read the URLs from stdin.
 
 Each line needs to be a single valid URL. trurl removes one carriage return
@@ -144,11 +144,11 @@ the port is not explicitly specified in the URL, the scheme's default port is
 output if it is known.
 
 If **puny:** is specified, like `{puny:url}` or `{puny:host}`, the punycoded
-version of the host name is used in the output. This option is mutually
+version of the hostname is used in the output. This option is mutually
 exclusive with **idn:**.
 
 If **idn:** is specified like `{idn:url}` or `{idn:host}`, the International
-Domain Name version of the host name is used in the output if it is provided
+Domain Name version of the hostname is used in the output if it is provided
 as a correctly encoded punycode version. This option is mutually exclusive
 with **puny:**.
 
@@ -217,8 +217,8 @@ are treated as invalid URLs.
 
 ## --punycode
 
-Uses the punycode version of the host name, which is how International Domain
-Names are converted into plain ASCII. If the host name is not using IDN, the
+Uses the punycode version of the hostname, which is how International Domain
+Names are converted into plain ASCII. If the hostname is not using IDN, the
 regular ASCII name is used.
 
 ## --query-separator [what]
@@ -243,7 +243,7 @@ base URL, so, if no base URL is specified, no redirection is performed.
 Replaces a URL query.
 
 data can either take the form of a single value, or as a key/value pair in the
-shape *foo=bar*. If replace is called on an item that isn't in the list of
+shape *foo=bar*. If replace is called on an item that is not in the list of
 queries trurl ignores that item.
 
 trurl URL encodes both sides of the `=` character in the given input data
@@ -338,7 +338,7 @@ present in the URL. The parts are URL decoded unless *--urlencode* is used.
 The URL scheme.
 
 ## parts.user
-The user name.
+The username.
 
 ## parts.password
 The password.
@@ -348,9 +348,9 @@ The options. Note that only a few URL schemes support the "options"
 component.
 
 ## parts.host
-The and normalized host name. It might be a UTF-8 name if an IDN name was used.
-It can also be a normalized IPv4 or IPv6 address. An IPv6 address always starts
-with a bracket (**[**) - and no other host names can contain such a symbol. If
+The normalized hostname. It might be a UTF-8 name if an IDN name was used. It
+can also be a normalized IPv4 or IPv6 address. An IPv6 address always starts
+with a bracket (**[**) - and no other hostnames can contain such a symbol. If
 *--punycode* is used, the punycode version of the host is outputted instead.
 
 ## parts.port
@@ -386,7 +386,7 @@ It is only present if the URL has a query.
 
 # EXAMPLES
 
-## Replace the host name of a URL
+## Replace the hostname of a URL
 
 ~~~
 $ trurl --url https://curl.se --set host=example.com
