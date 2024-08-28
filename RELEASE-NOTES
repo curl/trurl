@@ -4,7 +4,7 @@
 
  - Makefile: fix LDFLAGS order; and don't force -Werror
  - README: add the logo
- - README: add trurl / libcurl compatibilty to readme. link to URL quirks
+ - README: add trurl / libcurl compatibility to readme. link to URL quirks
  - singleurl: fix query_is_modified
  - trurl.md: provide the manpage in markdown
  - trurl: "normalize" query pairs
