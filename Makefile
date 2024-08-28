@@ -33,7 +33,7 @@ CFLAGS += -Wconversion -Wmissing-prototypes -Wwrite-strings -Wsign-compare -Wno-
 ifndef NDEBUG
 CFLAGS += -Werror -g
 endif
-MANUAL = trurl.1
+MANUAL = trurl.md
 
 PREFIX ?= /usr/local
 BINDIR ?= $(PREFIX)/bin
@@ -48,9 +48,15 @@ $(TARGET): $(OBJS)
 trurl.o: trurl.c version.h
 
 .PHONY: install
-install:
+install: install-bin install-man
+
+.PHONY: install-bin
+install-bin:
 	$(INSTALL) -d $(DESTDIR)$(BINDIR)
 	$(INSTALL) -m 0755 $(TARGET) $(DESTDIR)$(BINDIR)
+
+.PHONY: install-man
+install-man:
 	$(INSTALL) -d $(DESTDIR)$(MANDIR)
 	$(INSTALL) -m 0644 $(MANUAL) $(DESTDIR)$(MANDIR)
 
