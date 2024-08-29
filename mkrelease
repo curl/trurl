@@ -40,7 +40,7 @@ rel="trurl-$version"
 mkdir $rel
 
 # update title in markdown manpage
-sed -ie "s/^Title: trurl \([0-9.]*\)/Title: trurl $version/" trurl.md
+sed -ie "s/^Source: trurl \([0-9.]*\)/Source: trurl $version/" trurl.md
 
 # update version number in header file
 sed -ie "s/\"[\.0-9]*\"/\"$version\"/" version.h
