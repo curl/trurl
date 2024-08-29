@@ -1,9 +1,9 @@
 ---
 c: Copyright (C) Daniel Stenberg, <daniel.se>, et al.
 SPDX-License-Identifier: curl
-Title: trurl 0.15
+Title: trurl
 Section: 1
-Source: trurl
+Source: trurl 0.15
 See-also:
   - curl (1)
   - wcurl (1)
@@ -289,7 +289,7 @@ trailing asterisk (`*`)) which makes trurl remove the tuples from the query
 string that match the instruction.
 
 To match a literal trailing asterisk instead of using a wildcard, escape it with
-a backslash in front of it. Like `\*`.
+a backslash in front of it. Like `\\*`.
 
 ## --url [URL]
 
