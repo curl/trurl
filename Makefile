@@ -52,7 +52,9 @@ install:
 	$(INSTALL) -d $(DESTDIR)$(BINDIR)
 	$(INSTALL) -m 0755 $(TARGET) $(DESTDIR)$(BINDIR)
 	$(INSTALL) -d $(DESTDIR)$(MANDIR)
-	$(INSTALL) -m 0644 $(MANUAL) $(DESTDIR)$(MANDIR)
+	(if test -f $(MANUAL); then \
+	$(INSTALL) -m 0644 $(MANUAL) $(DESTDIR)$(MANDIR); \
+	fi)
 
 .PHONY: clean
 clean:
