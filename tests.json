@@ -2783,5 +2783,78 @@
             "stderr": "",
             "returncode": 0
         }
+    },
+    {
+        "input": {
+            "arguments": [
+                "http://example.org/?a=&b=1"
+            ]
+        },
+        "expected": {
+            "stdout": "http://example.org/?a=&b=1\n",
+            "stderr": "",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "http://example.org/?a=1&b="
+            ]
+        },
+        "expected": {
+            "stdout": "http://example.org/?a=1&b=\n",
+            "stderr": "",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "http://example.org/?a=1&b=&c=2"
+            ]
+        },
+        "expected": {
+            "stdout": "http://example.org/?a=1&b=&c=2\n",
+            "stderr": "",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "http://example.org/?a=1&b=&c=2",
+                "--json"
+            ]
+        },
+        "expected": {
+            "stdout":[
+                {
+                    "url": "http://example.org/?a=1&b=&c=2",
+                    "parts": {
+                        "scheme": "http",
+                        "host": "example.org",
+                        "path": "/",
+                        "query": "a=1&b=&c=2"
+                    },
+                    "params": [
+                        {
+                            "key": "a",
+                            "value": "1"
+                        },
+                        {
+                            "key": "b",
+                            "value": ""
+                        },
+                        {
+                            "key": "c",
+                            "value": "2"
+                        }
+                    ]
+                }
+            ],
+            "stderr": "",
+            "returncode": 0
+        }
     }
 ]
