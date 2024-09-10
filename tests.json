@@ -2856,5 +2856,17 @@
             "stderr": "",
             "returncode": 0
         }
+    },
+    {
+        "input": {
+            "arguments": [
+                "http://example.org/?=1&b=2&c=&=3"
+            ]
+        },
+        "expected": {
+            "stdout": "http://example.org/?=1&b=2&c=&=3\n",
+            "stderr": "",
+            "returncode": 0
+        }
     }
 ]

@@ -1378,12 +1378,20 @@ static struct string *memdupzero(char *source, size_t len, bool *modified)
     else {
       int llen;
       int rlen;
+      int leftside;
       int rightside;
 
       /* decode both sides */
-      left = decodequery(source, (int)(sep - source), &llen);
-      if(!left)
-        goto error;
+      leftside = (int)(sep - source);
+      if(leftside) {
+        left = decodequery(source, leftside, &llen);
+        if(!left)
+          goto error;
+      }
+      else {
+        left = NULL;
+        llen = 0;
+      }
 
       /* length on the right side of '=': */
       rightside = (int)len - (int)(sep - source) - 1;
@@ -1400,16 +1408,18 @@ static struct string *memdupzero(char *source, size_t len, bool *modified)
       }
 
       /* encode both sides again */
-      el = encodequery(left, llen);
-      if(!el)
-        goto error;
+      if(left) {
+        el = encodequery(left, llen);
+        if(!el)
+          goto error;
+      }
       if(right) {
         er = encodequery(right, rlen);
         if(!er)
           goto error;
       }
 
-      encode = curl_maprintf("%s=%s", el, er ? er : "");
+      encode = curl_maprintf("%s=%s", el ? el : "", er ? er : "");
       if(!encode)
         goto error;
     }
