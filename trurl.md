@@ -7,7 +7,6 @@ Source: trurl 0.15
 See-also:
   - curl (1)
   - wcurl (1)
-Added-in: 7.1
 ---
 
 # NAME
