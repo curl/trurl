@@ -1661,9 +1661,6 @@ static bool replace(struct option *o)
     }
 
     if(!replaced && o->force_replace) {
-      trurl_warnf(o, "key '%.*s' not in url, appending to query",
-                  (int) (key.len),
-                  key.str);
       addqpair(key.str, strlen(key.str), o->jsonout);
       query_is_modified = true;
     }
