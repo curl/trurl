@@ -1,24 +1,14 @@
-# trurl 0.15
+# trurl 0.15.1
 
 ## What changed
 
- - Makefile: fix LDFLAGS order; and don't force -Werror
- - README: add the logo
- - README: add trurl / libcurl compatibility to readme. link to URL quirks
- - singleurl: fix query_is_modified
- - trurl.md: provide the manpage in markdown
- - trurl: "normalize" query pairs
- - trurl: accept "control codes" in get output
- - trurl: allow "control bytes" in JSON output
- - trurl: canonicalize the path
- - trurl: fix silent error in json json function
- - trurl: make --replace URL encode the provided data argument
- - trurl: make must: prefix for gets return error for missing part
- - trurl: on strdup() failures, exit immediately
- - trurl: optimize the path append loop
- - trurl: rename --force-replace to --replace-append
- - trurl: use casecompare instead of a strncasecmp define
+ - mkrelease: update the source, not title
+ - trurl: escape backslash with a backslash
+ - Makefile: check for trurl.1 before installing
+ - trurl: fix misbehavior on empty query param
+ - trurl: fix handling of query pair with blank left side
+ - trurl.md: remove 'added-in:'
 
 Contributors to this release:
 
- Daniel Stenberg, Emanuele Torre, Jacob Mealey
+ Daniel Stenberg
