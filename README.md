@@ -1,5 +1,5 @@
 
-# [![trurl logo](https://curl.se/trurl/trurl-logo.svg)](https://curl.se/trurl)
+# [![trurl logo](https://curl.se/logo/trurl-logo.svg)](https://curl.se/trurl)
 
 # trurl
 
