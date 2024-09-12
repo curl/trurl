@@ -395,6 +395,81 @@
         "input": {
             "arguments": [
                 "--url",
+                "https://curl.se/we/are.html",
+                "--get",
+                "{:scheme}"
+            ]
+        },
+        "expected": {
+            "stdout": "https\n",
+            "stderr": "",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--url",
+                "https://curl.se:55/we/are.html",
+                "--get",
+                "{url:port}"
+            ]
+        },
+        "expected": {
+            "stdout": "55\n",
+            "stderr": "",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--url",
+                "https://curl.se/%2e%61%13",
+                "--get",
+                "{:path}"
+            ]
+        },
+        "expected": {
+            "stdout": "/.a%13\n",
+            "stderr": "",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--url",
+                "https://curl.se?%2e%61%13",
+                "--get",
+                "{:query}"
+            ]
+        },
+        "expected": {
+            "stdout": ".a%13\n",
+            "stderr": "",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--url",
+                "https://curl.se/#%2e%61%13",
+                "--get",
+                "{:fragment}"
+            ]
+        },
+        "expected": {
+            "stdout": "%2e%61%13\n",
+            "stderr": "",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--url",
                 "https://hello@curl.se/we/are.html",
                 "--get",
                 "{user}"
