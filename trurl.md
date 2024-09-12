@@ -33,6 +33,17 @@ trurl knows URLs and every URL consists of up to ten separate and independent
 trurl and they are referred to by their respective names: scheme, user,
 password, options, host, port, path, query, fragment and zoneid.
 
+# NORMALIZATION
+
+When provided a URL to work with, trurl "normalizes" it. It means that
+individual URL components are URL decoded then URL encoded back again and set
+in the URL.
+
+Example:
+
+    $ trurl 'http://ex%61mple:80/%62ath/a/../b?%2e%FF#tes%74'
+    http://example/bath/b?.%ff#test
+
 # OPTIONS
 
 Options start with one or two dashes. Many of the options require an
@@ -287,8 +298,8 @@ Trims data off a component. Currently this can only trim a query component.
 trailing asterisk (`*`)) which makes trurl remove the tuples from the query
 string that match the instruction.
 
-To match a literal trailing asterisk instead of using a wildcard, escape it with
-a backslash in front of it. Like `\\*`.
+To match a literal trailing asterisk instead of using a wildcard, escape it
+with a backslash in front of it. Like `\\*`.
 
 ## --url [URL]
 
@@ -315,6 +326,188 @@ Show version information and exit.
 
 When a URL is provided, return error immediately if it does not parse as a
 valid URL. In normal cases, trurl can forgive a bad URL input.
+
+# URL COMPONENTS
+
+## scheme
+
+This is the leading character sequence of a URL, excluding the "://"
+separator. It cannot be specified URL encoded.
+
+A URL cannot exist without a scheme, but unless **--no-guess-scheme** is used
+trurl guesses what scheme that was intended if none was provided.
+
+## user
+
+After the scheme separator, there can be a username provided. If it ends with
+a colon (`:`), there is a password provided. If it ends with an at character
+(`@`) there is no password provided in the URL.
+
+## password
+
+If the password ends with a semicolon (`;`) there is an options field
+following. This field is only accepted by trurl for URLs using the IMAP
+scheme.
+
+## options
+
+This field can only end with an at character (`@`) that separates the options
+from the hostname.
+
+## host
+
+The host component is the hostname or a numerical IP address. If a hostname is
+provided, it can be an International Domain Name non-ASCII characters. A
+hostname can be provided URL encoded.
+
+trurl provides options for working with the IDN hostnames either as IDN or in
+its punycode version.
+
+Example, convert an IDN name to punycode in the output:
+
+    $ trurl http://åäö/ --punycode
+    http://xn--4cab6c/
+
+Or the reverse, convert a punycode hostname into its IDN version:
+
+    $ trurl http://xn--4cab6c/ --as-idn
+    http://åäö/
+
+If the URL's hostname starts with an open bracket (`[`) it is a numerical IPv6
+address that also must end with a closing bracket (`]`).
+
+A numerical IPV4 address can be specified using one, two, three or four
+numbers separated with dots and they can use decimal, octal and hexadecimal.
+
+## zoneid
+
+If the provided host is an IPv6 address, it might contain a specific zoneid. A
+number or a network interface name normally.
+
+## port
+
+If the host ends with a colon (`:`) then a port number follows. It is a 16 bit
+decimal number that may not be URL encoded.
+
+trurl knows the default port number for many URL schemes so it can show port
+numbers for a URL even if none was explicitly used in the URL. With
+**--default-port** it can add the default port to a URL even when not provide.
+
+Example:
+
+    $ trurl http:/a --default-port
+    http://a:80/
+    
+Similarly, trurl normally hides the port number if the given number is the
+default.
+
+Example:
+
+    $ trurl http:/a:80
+    http://a/
+
+But a user can make trurl keep the port even if it is the default, with
+**--keep-port**.
+
+Example:
+
+    $ trurl http:/a:80 --keep-port
+    http://a:80/
+
+## path
+
+A URL path is assumed to always start with and contain at least a slash (`/`),
+even if none is actually provided in the URL.
+
+Example:
+
+    $ trurl http://xn--4cab6c -g '[path]'
+    /
+
+When setting the path, trurl will inject a leading slash if none is provided:
+
+    $ trurl http://hello -s path="pony"
+    http://hello/pony
+
+    $ trurl http://hello -s path="/pony"
+    http://hello/pony
+
+If the input path contains dotdot or dot-slash sequences, they are normalized
+away.
+
+Example:
+
+    $ trurl http://hej/one/../two/../three/./four
+    http://hej/three/four
+
+You can append a new segment to an existing path with **--append** like this:
+
+    $ trurl http://twelve/three --append path=four
+    http://twelve/three/four
+
+## query
+
+The query part does not include the leading question mark (`?`) separator when
+extracted with trurl.
+
+Example:
+
+    $ trurl http://horse?elephant -g '{query}'
+    elephant
+
+Example, if you set the query with a leading question mark:
+
+    $ trurl http://horse?elephant -s "query=?elephant"
+    http://horse/?%3felephant
+
+Query parts are often made up of a series of name=value pairs separated with
+ampersands (`&`), and trurl offers several ways to work with such.
+
+Append a new name value pair to a URL with **--append**:
+
+    $ trurl http://host?name=hello --append query=search=life
+    http://host/?name=hello&search=life
+
+You cam **--replace** the value of a specific existing name among the pairs:
+
+    $ trurl 'http://alpha?one=real&two=fake' --replace two=alsoreal
+    http://alpha/?one=real&two=alsoreal
+
+If the specific name you want to replace perhaps does not exist in the URL,
+you can opt to replace *or* append the pair:
+
+    $ trurl 'http://alpha?one=real&two=fake' --replace-append three=alsoreal
+    http://alpha/?one=real&two=fake&three=alsoreal
+
+In order to perhaps compare two URLs using query name value pairs, sorting
+them first at least increases the chances of it working:
+
+    $ trurl "http://alpha/?one=real&two=fake&three=alsoreal" --sort-query
+    http://alpha/?one=real&three=alsoreal&two=fake
+
+## fragment
+
+The fragment part does not include the leading hash sign (`#`) separator when
+extracted with trurl.
+
+Example:
+
+    $ trurl http://horse#elephant -g '{fragment}'
+    elephant
+
+Example, if you set the fragment with a leading hash sign:
+
+    $ trurl "http://horse#elephant" -s "fragment=?zebra"
+    http://horse/#%3fzebra
+
+The fragment part of a URL is for local purposes only. The data in there is
+never actually sent over the network when a URL is used for transfers.
+
+## url
+
+trurl supports **url** as a named component for **--get** to allow for more
+powerful outputs, but of course it is not actually a "component"; it is the
+full URL.
 
 # JSON output format
 
@@ -353,8 +546,8 @@ with a bracket (**[**) - and no other hostnames can contain such a symbol. If
 *--punycode* is used, the punycode version of the host is outputted instead.
 
 ## parts.port
-The provided port number as a string. If the port number was not provided in the
-URL, but the scheme is a known one, and *--default-port* is in use, the
+The provided port number as a string. If the port number was not provided in
+the URL, but the scheme is a known one, and *--default-port* is in use, the
 default port for that scheme is provided here.
 
 ## parts.path
