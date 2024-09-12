@@ -9,7 +9,7 @@ Command line tool for URL parsing and manipulation
 
 ## Examples
 
-**Replace the host name of a URL:**
+**Replace the hostname of a URL:**
 
 ```text
 $ trurl --url https://curl.se --set host=example.com
@@ -129,7 +129,7 @@ https://curl.se/this%20has%20space/index.html
 
 ### Linux
 
-It's quite easy to compile the C source with GCC:
+it is quite easy to compile the C source with GCC:
 
 ```text
 $ make
