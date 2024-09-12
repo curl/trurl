@@ -1890,6 +1890,37 @@ static void singleurl(struct option *o,
           errorf(o, ERROR_ITER, "out of memory");
       }
       curl_free(opath);
+
+      {
+        char *frag;
+        size_t fraglen = 0;
+        (void)curl_url_get(uh, CURLUPART_FRAGMENT, &frag, 0);
+
+        if(frag)
+          fraglen = strlen(frag);
+
+        if(fraglen) {
+          int olen;
+          char *ufrag;
+          /* First URL decode the fragment */
+          char *rawfrag = curl_easy_unescape(NULL, frag, (int)fraglen, &olen);
+          if(!rawfrag)
+            errorf(o, ERROR_ITER, "out of memory");
+
+          /* Then URL encode it again */
+          ufrag = curl_easy_escape(NULL, rawfrag, olen);
+          curl_free(rawfrag);
+          if(!ufrag)
+            errorf(o, ERROR_ITER, "out of memory");
+
+          if(strcmp(frag, ufrag)) {
+            /* changed, store the new one */
+            (void)curl_url_set(uh, CURLUPART_FRAGMENT, ufrag, 0);
+          }
+          curl_free(ufrag);
+        }
+        curl_free(frag);
+      }
     }
 
     query_is_modified |= extractqpairs(uh, o);

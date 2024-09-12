@@ -461,7 +461,20 @@
             ]
         },
         "expected": {
-            "stdout": "%2e%61%13\n",
+            "stdout": ".a%13\n",
+            "stderr": "",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--url",
+                "https://example.com/#%2e%61%13%Fa"
+            ]
+        },
+        "expected": {
+            "stdout": "https://example.com/#.a%13%fa\n",
             "stderr": "",
             "returncode": 0
         }
