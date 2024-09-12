@@ -1340,7 +1340,7 @@ static char *encodequery(char *str, size_t len)
       *dupe++ = in;
     else {
       /* encode it */
-      const char hex[] = "0123456789ABCDEF";
+      const char hex[] = "0123456789abcdef";
       dupe[0]='%';
       dupe[1] = hex[in>>4];
       dupe[2] = hex[in & 0xf];

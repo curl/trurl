@@ -2956,5 +2956,29 @@
             "stderr": "",
             "returncode": 0
         }
+    },
+    {
+        "input": {
+            "arguments": [
+                "http://example.com/?a=%5D"
+            ]
+        },
+        "expected": {
+            "stdout": "http://example.com/?a=%5d\n",
+            "stderr": "",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "http://example.com/?a=%5D&b=%5D"
+            ]
+        },
+        "expected": {
+            "stdout": "http://example.com/?a=%5d&b=%5d\n",
+            "stderr": "",
+            "returncode": 0
+        }
     }
 ]
