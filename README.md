@@ -93,7 +93,7 @@ $ trurl "https://fake.host/hello#frag" --set user=::moo:: --json
 **Remove tracking tuples from query:**
 
 ```text
-$ trurl "https://curl.se?search=hey&utm_source=tracker" --trim query="utm_*"
+$ trurl "https://curl.se?search=hey&utm_source=tracker" --qtrim "utm_*"
 https://curl.se/?search=hey
 ```
 
@@ -114,7 +114,7 @@ https://example.com?a=c&b=a&c=b
 **Work with a query that uses a semicolon separator:**
 
 ```text
-$ trurl "https://curl.se?search=fool;page=5" --trim query="search" --query-separator ";"
+$ trurl "https://curl.se?search=fool;page=5" --qtrim "search" --query-separator ";"
 https://curl.se?page=5
 ```
 

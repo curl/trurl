@@ -144,7 +144,7 @@ static const struct var variables[] = {
 #define ERROR_SET    5 /* a --set problem */
 #define ERROR_MEM    6 /* out of memory */
 #define ERROR_URL    7 /* could not get a URL out of the set components */
-#define ERROR_TRIM   8 /* a --trim problem */
+#define ERROR_TRIM   8 /* a --qtrim problem */
 #define ERROR_BADURL 9 /* if --verify is set and the URL cannot parse */
 #define ERROR_GET   10 /* bad --get syntax */
 #define ERROR_ITER  11 /* bad --iterate syntax */
@@ -244,6 +244,7 @@ static void help(void)
     "      --keep-port                  - keep known default ports\n"
     "      --no-guess-scheme            - require scheme in URLs\n"
     "      --punycode                   - encode hostnames in punycode\n"
+    "      --qtrim [what]               - trim the query\n"
     "      --query-separator [letter]   - if something else than '&'\n"
     "      --quiet                      - Suppress (some) notes and comments\n"
     "      --redirect [URL]             - redirect to this\n"
@@ -251,7 +252,6 @@ static void help(void)
     "      --replace-append [data]      - appends a new query if not found\n"
     "  -s, --set [component]=[data]     - set component content\n"
     "      --sort-query                 - alpha-sort the query pairs\n"
-    "      --trim [component]=[what]    - trim component\n"
     "      --url [URL]                  - URL to work with\n"
     "      --urlencode                  - URL encode components by default\n"
     "  -v, --version                    - show version\n"
@@ -652,6 +652,13 @@ static int getarg(struct option *o,
     *usedarg = gap;
   }
   else if(checkoptarg(o, "--trim", flag, arg)) {
+    if(strncmp(arg, "query=", 6))
+      errorf(o, ERROR_TRIM, "Unsupported trim component: %s", arg);
+
+    trimadd(o, &arg[6]);
+    *usedarg = gap;
+  }
+  else if(checkoptarg(o, "--qtrim", flag, arg)) {
     trimadd(o, arg);
     *usedarg = gap;
   }
@@ -1234,13 +1241,8 @@ static bool trim(struct option *o)
   bool query_is_modified = false;
   struct curl_slist *node;
   for(node = o->trim_list; node; node = node->next) {
-    char *ptr;
-    char *instr = node->data;
-    if(strncmp(instr, "query", 5))
-      /* for now we can only trim query components */
-      errorf(o, ERROR_TRIM, "Unsupported trim component: %s", instr);
-    ptr = strchr(instr, '=');
-    if(ptr && (ptr > instr)) {
+    char *ptr = node->data;
+    if(ptr) {
       /* 'ptr' should be a fixed string or a pattern ending with an
          asterisk */
       size_t inslen;
@@ -1248,7 +1250,6 @@ static bool trim(struct option *o)
       int i;
       char *temp = NULL;
 
-      ptr++; /* pass the = */
       inslen = strlen(ptr);
       if(inslen) {
         pattern = ptr[inslen - 1] == '*';

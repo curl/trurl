@@ -231,6 +231,17 @@ Uses the punycode version of the hostname, which is how International Domain
 Names are converted into plain ASCII. If the hostname is not using IDN, the
 regular ASCII name is used.
 
+## --qtrim [what]
+
+Trims data off a query.
+
+*what* is specified as a full name of a name/value pair, or as a word prefix
+(using a single trailing asterisk (`*`)) which makes trurl remove the tuples
+from the query string that match the instruction.
+
+To match a literal trailing asterisk instead of using a wildcard, escape it
+with a backslash in front of it. Like `\\*`.
+
 ## --query-separator [what]
 
 Specify the single letter used for separating query pairs. The default is `&`
@@ -291,6 +302,8 @@ insensitive alphabetical order. This helps making URLs identical that
 otherwise only had their query pairs in different orders.
 
 ## --trim [component]=[what]
+
+Deprecated: use **--qtrim**.
 
 Trims data off a component. Currently this can only trim a query component.
 
@@ -546,9 +559,9 @@ them first at least increases the chances of it working:
     http://alpha/?one=real&three=alsoreal&two=fake
 
 Remove name/value pairs from the URL by specifying exact name or wildcard
-pattern with **--trim**:
+pattern with **--qtrim**:
 
-    $ trurl 'https://example.com?a12=hej&a23=moo&b12=foo' --trim 'query=a*'
+    $ trurl 'https://example.com?a12=hej&a23=moo&b12=foo' --qtrim a*'
     https://example.com/?b12=foo
 
 ## fragment
@@ -746,7 +759,7 @@ $ trurl "https://fake.host/search?q=answers&user=me#frag" --json
 ## Remove tracking tuples from query
 
 ~~~
-$ trurl "https://curl.se?search=hey&utm_source=tracker" --trim query="utm_*"
+$ trurl "https://curl.se?search=hey&utm_source=tracker" --qtrim "utm_*"
 https://curl.se/?search=hey
 ~~~
 
@@ -767,7 +780,7 @@ https://example.com?a=c&b=a&c=b
 ## Work with a query that uses a semicolon separator
 
 ~~~
-$ trurl "https://curl.se?search=fool;page=5" --trim query="search" --query-separator ";"
+$ trurl "https://curl.se?search=fool;page=5" --qtrim "search" --query-separator ";"
 https://curl.se?page=5
 ~~~
 
@@ -821,7 +834,7 @@ Could not output a valid URL
 
 ## 8
 
-A problem with --trim
+A problem with --qtrim
 
 ## 9
 

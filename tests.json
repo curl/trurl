@@ -830,6 +830,20 @@
     {
         "input": {
             "arguments": [
+                "https://example.com?search=hello&utm_source=tracker",
+                "--qtrim",
+                "utm_*"
+            ]
+        },
+        "expected": {
+            "stdout": "https://example.com/?search=hello\n",
+            "stderr": "",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
                 "https://example.com?search=hello&utm_source=tracker&more=data",
                 "--trim",
                 "query=utm_*"
@@ -844,9 +858,23 @@
     {
         "input": {
             "arguments": [
+                "https://example.com?search=hello&utm_source=tracker&more=data",
+                "--qtrim",
+                "utm_*"
+            ]
+        },
+        "expected": {
+            "stdout": "https://example.com/?search=hello&more=data\n",
+            "stderr": "",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
                 "https://example.com?search=hello&more=data",
-                "--trim",
-                "query=utm_*"
+                "--qtrim",
+                "utm_*"
             ]
         },
         "expected": {
@@ -873,8 +901,8 @@
         "input": {
             "arguments": [
                 "https://example.com?search=hello&utm_source=tracker&more=data",
-                "--trim",
-                "query=utm_source"
+                "--qtrim",
+                "utm_source"
             ]
         },
         "expected": {
@@ -887,12 +915,12 @@
         "input": {
             "arguments": [
                 "https://example.com?search=hello&utm_source=tracker&more=data",
-                "--trim",
-                "query=utm_source",
-                "--trim",
-                "query=more",
-                "--trim",
-                "query=search"
+                "--qtrim",
+                "utm_source",
+                "--qtrim",
+                "more",
+                "--qtrim",
+                "search"
             ]
         },
         "expected": {
@@ -951,8 +979,8 @@
         "input": {
             "arguments": [
                 "https://example.com?moo&search=hello",
-                "--trim",
-                "query=search"
+                "--qtrim",
+                "search"
             ]
         },
         "expected": {
@@ -965,8 +993,8 @@
         "input": {
             "arguments": [
                 "https://example.com?search=hello&moo",
-                "--trim",
-                "query=search"
+                "--qtrim",
+                "search"
             ]
         },
         "expected": {
@@ -979,8 +1007,8 @@
         "input": {
             "arguments": [
                 "https://example.com?search=hello",
-                "--trim",
-                "query=search",
+                "--qtrim",
+                "search",
                 "--append",
                 "query=moo"
             ]
@@ -2157,8 +2185,8 @@
     {
         "input": {
             "arguments": [
-                "--trim",
-                "query=a",
+                "--qtrim",
+                "a",
                 "-a",
                 "query=a=ciao",
                 "-a",
@@ -2267,8 +2295,8 @@
             "arguments": [
                 "--url",
                 "https://curl.se/we/are.html?*=moo&user=many#more",
-                "--trim",
-                "query=\\*"
+                "--qtrim",
+                "\\*"
             ]
         },
         "expected": {
