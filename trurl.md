@@ -337,11 +337,27 @@ separator. It cannot be specified URL encoded.
 A URL cannot exist without a scheme, but unless **--no-guess-scheme** is used
 trurl guesses what scheme that was intended if none was provided.
 
+Examples:
+
+    $ trurl https://odd/ -g '{scheme}'
+    https
+
+    $ trurl odd -g '{scheme}'
+    http
+
+    $ trurl odd -g '{scheme}' --no-guess-scheme
+    trurl note: Bad scheme [odd]
+
 ## user
 
 After the scheme separator, there can be a username provided. If it ends with
 a colon (`:`), there is a password provided. If it ends with an at character
 (`@`) there is no password provided in the URL.
+
+Example:
+
+    $ trurl https://user%3a%40:secret@odd/ -g '{user}'
+    user:@
 
 ## password
 
@@ -349,10 +365,27 @@ If the password ends with a semicolon (`;`) there is an options field
 following. This field is only accepted by trurl for URLs using the IMAP
 scheme.
 
+Example:
+
+    $ trurl https://user:secr%65t@odd/ -g '{password}'
+    secret
+
 ## options
 
 This field can only end with an at character (`@`) that separates the options
 from the hostname.
+
+    $ trurl 'imap://user:pwd;giraffe@odd' -g '{options}'
+    giraffe
+
+If the scheme is not IMAP, the `giraffe` part is instead considered part of
+the password:
+
+    $ trurl 'sftp://user:pwd;giraffe@odd' -g '{password}'
+    pwd;giraffe
+
+We strongly advice users to %-encode `;`, `:` and `@` in URLs of course to
+reduce the risk for confusions.
 
 ## host
 
@@ -374,15 +407,42 @@ Or the reverse, convert a punycode hostname into its IDN version:
     http://åäö/
 
 If the URL's hostname starts with an open bracket (`[`) it is a numerical IPv6
-address that also must end with a closing bracket (`]`).
+address that also must end with a closing bracket (`]`). trurl normalizes IPv6
+addreses.
+
+Example:
+
+    $ trurl 'http://[2001:9b1:0:0:0:0:7b97:364b]/'
+    http://[2001:9b1::7b97:364b]/
 
 A numerical IPV4 address can be specified using one, two, three or four
-numbers separated with dots and they can use decimal, octal and hexadecimal.
+numbers separated with dots and they can use decimal, octal or hexadecimal.
+trurl normalizes provided addresses and uses four dotted decimal numbers in
+its output.
+
+Examples:
+
+    $ trurl http://646464646/
+    http://38.136.68.134/
+
+    $ trurl http://246.646/
+    http://246.0.2.134/
+
+    $ trurl http://246.46.646/
+    http://246.46.2.134/
+
+    $ trurl http://0x14.0xb3022/
+    http://20.11.48.34/
 
 ## zoneid
 
 If the provided host is an IPv6 address, it might contain a specific zoneid. A
 number or a network interface name normally.
+
+Example:
+
+    $ trurl 'http://[2001:9b1::f358:1ba4:7b97:364b%enp3s0]/' -g '{zoneid}'
+    enp3s0
 
 ## port
 
@@ -442,8 +502,8 @@ Example:
 
 You can append a new segment to an existing path with **--append** like this:
 
-    $ trurl http://twelve/three --append path=four
-    http://twelve/three/four
+    $ trurl http://twelve/three?hello --append path=four
+    http://twelve/three/four?hello
 
 ## query
 
@@ -485,6 +545,12 @@ them first at least increases the chances of it working:
     $ trurl "http://alpha/?one=real&two=fake&three=alsoreal" --sort-query
     http://alpha/?one=real&three=alsoreal&two=fake
 
+Remove name/value pairs from the URL by specifying exact name or wildcard
+pattern with **--trim**:
+
+    $ trurl 'https://example.com?a12=hej&a23=moo&b12=foo' --trim 'query=a*'
+    https://example.com/?b12=foo
+
 ## fragment
 
 The fragment part does not include the leading hash sign (`#`) separator when
@@ -497,8 +563,8 @@ Example:
 
 Example, if you set the fragment with a leading hash sign:
 
-    $ trurl "http://horse#elephant" -s "fragment=?zebra"
-    http://horse/#%3fzebra
+    $ trurl "http://horse#elephant" -s "fragment=#zebra"
+    http://horse/#%23zebra
 
 The fragment part of a URL is for local purposes only. The data in there is
 never actually sent over the network when a URL is used for transfers.
@@ -508,6 +574,11 @@ never actually sent over the network when a URL is used for transfers.
 trurl supports **url** as a named component for **--get** to allow for more
 powerful outputs, but of course it is not actually a "component"; it is the
 full URL.
+
+Example:
+
+    $ trurl ftps://example.com:2021/p%61th -g '{url}'
+    ftps://example.com:2021/path
 
 # JSON output format
 
