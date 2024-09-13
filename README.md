@@ -129,7 +129,7 @@ https://curl.se/this%20has%20space/index.html
 
 ### Linux
 
-it is quite easy to compile the C source with GCC:
+It is quite easy to compile the C source with GCC:
 
 ```text
 $ make
