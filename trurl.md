@@ -457,7 +457,7 @@ Example:
 
     $ trurl http:/a --default-port
     http://a:80/
-    
+
 Similarly, trurl normally hides the port number if the given number is the
 default.
 
