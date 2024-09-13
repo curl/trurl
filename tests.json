@@ -2980,5 +2980,29 @@
             "stderr": "",
             "returncode": 0
         }
+    },
+    {
+        "input": {
+            "arguments": [
+                "sftp://us%65r:pwd;giraffe@odd"
+            ]
+        },
+        "expected": {
+            "stdout": "sftp://user:pwd%3bgiraffe@odd/\n",
+            "stderr": "",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "imap://us%65r:pwd;gir%41ffe@odd"
+            ]
+        },
+        "expected": {
+            "stdout": "imap://user:pwd;girAffe@odd/\n",
+            "stderr": "",
+            "returncode": 0
+        }
     }
 ]

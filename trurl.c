@@ -1732,6 +1732,38 @@ static char *canonical_path(const char *path)
   return dupe;
 }
 
+static void normalize_part(struct option *o, CURLU *uh, CURLUPart part)
+{
+  char *ptr;
+  size_t ptrlen = 0;
+  (void)curl_url_get(uh, part, &ptr, 0);
+
+  if(ptr)
+    ptrlen = strlen(ptr);
+
+  if(ptrlen) {
+    int olen;
+    char *uptr;
+    /* First URL decode the component */
+    char *rawptr = curl_easy_unescape(NULL, ptr, (int)ptrlen, &olen);
+    if(!rawptr)
+      errorf(o, ERROR_ITER, "out of memory");
+
+    /* Then URL encode it again */
+    uptr = curl_easy_escape(NULL, rawptr, olen);
+    curl_free(rawptr);
+    if(!uptr)
+      errorf(o, ERROR_ITER, "out of memory");
+
+    if(strcmp(ptr, uptr))
+      /* changed, store the updated one */
+      (void)curl_url_set(uh, part, uptr, 0);
+    curl_free(uptr);
+  }
+  curl_free(ptr);
+}
+
+
 static void singleurl(struct option *o,
                       const char *url, /* might be NULL */
                       struct iterinfo *iinfo,
@@ -1888,36 +1920,10 @@ static void singleurl(struct option *o,
       }
       curl_free(opath);
 
-      {
-        char *frag;
-        size_t fraglen = 0;
-        (void)curl_url_get(uh, CURLUPART_FRAGMENT, &frag, 0);
-
-        if(frag)
-          fraglen = strlen(frag);
-
-        if(fraglen) {
-          int olen;
-          char *ufrag;
-          /* First URL decode the fragment */
-          char *rawfrag = curl_easy_unescape(NULL, frag, (int)fraglen, &olen);
-          if(!rawfrag)
-            errorf(o, ERROR_ITER, "out of memory");
-
-          /* Then URL encode it again */
-          ufrag = curl_easy_escape(NULL, rawfrag, olen);
-          curl_free(rawfrag);
-          if(!ufrag)
-            errorf(o, ERROR_ITER, "out of memory");
-
-          if(strcmp(frag, ufrag)) {
-            /* changed, store the new one */
-            (void)curl_url_set(uh, CURLUPART_FRAGMENT, ufrag, 0);
-          }
-          curl_free(ufrag);
-        }
-        curl_free(frag);
-      }
+      normalize_part(o, uh, CURLUPART_FRAGMENT);
+      normalize_part(o, uh, CURLUPART_USER);
+      normalize_part(o, uh, CURLUPART_PASSWORD);
+      normalize_part(o, uh, CURLUPART_OPTIONS);
     }
 
     query_is_modified |= extractqpairs(uh, o);
