@@ -208,11 +208,21 @@ iteration. Several combined iterations are allowed to generate combinations,
 but only one *--iterate* option per component. The listed items to iterate
 over should be separated by single spaces.
 
+Example:
+
+    $ trurl example.com --iterate=scheme="ftp https" --iterate=port="22 80"
+    ftp://example.com:22/
+    ftp://example.com:80/
+    https://example.com:22/
+    https://example.com:80/
+
 ## --json
 
 Outputs all set components of the URLs as JSON objects. All components of the
 URL that have data get populated in the parts object using their component
 names. See below for details on the format.
+
+The URL components are provided URL decoded. Change that with **--urlencode**.
 
 ## --keep-port
 
@@ -220,16 +230,31 @@ By default, trurl removes default port numbers from URLs with a known scheme
 even if they are explicitly specified in the input URL. This options, makes
 trurl not remove them.
 
+Example:
+
+    $ trurl https://example.com:443/ --keep-port
+    https://example.com:443/
+
 ## --no-guess-scheme
 
 Disables libcurl's scheme guessing feature. URLs that do not contain a scheme
 are treated as invalid URLs.
+
+Example:
+
+    $ trurl example.com --no-guess-scheme
+    trurl note: Bad scheme [example.com]
 
 ## --punycode
 
 Uses the punycode version of the hostname, which is how International Domain
 Names are converted into plain ASCII. If the hostname is not using IDN, the
 regular ASCII name is used.
+
+Example:
+
+    $ trurl http://åäö/ --punycode
+    http://xn--4cab6c/
 
 ## --qtrim [what]
 
@@ -250,6 +275,11 @@ used for this purpose. If your URL uses something other than the default
 letter, setting the right one makes sure trurl can do its query operations
 properly.
 
+Example:
+
+    $ trurl "https://curl.se?b=name:a=age" --sort-query --query-separator ":"
+    https://curl.se/?a=age:b=name
+
 ## --quiet
 
 Suppress (some) notes and warnings.
@@ -258,6 +288,11 @@ Suppress (some) notes and warnings.
 
 Redirect the URL to this new location. The redirection is performed on the
 base URL, so, if no base URL is specified, no redirection is performed.
+
+Example:
+
+    $ trurl --url https://curl.se/we/are.html --redirect ../here.html
+    https://curl.se/here.html
 
 ## --replace [data]
 
