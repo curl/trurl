@@ -1748,13 +1748,13 @@ static void normalize_part(struct option *o, CURLU *uh, CURLUPart part)
     /* First URL decode the component */
     char *rawptr = curl_easy_unescape(NULL, ptr, (int)ptrlen, &olen);
     if(!rawptr)
-      errorf(o, ERROR_ITER, "out of memory");
+      errorf(o, ERROR_MEM, "out of memory");
 
     /* Then URL encode it again */
     uptr = curl_easy_escape(NULL, rawptr, olen);
     curl_free(rawptr);
     if(!uptr)
-      errorf(o, ERROR_ITER, "out of memory");
+      errorf(o, ERROR_MEM, "out of memory");
 
     if(strcmp(ptr, uptr))
       /* changed, store the updated one */
@@ -1882,7 +1882,7 @@ static void singleurl(struct option *o,
       char *cpath;
       bool path_is_modified = false;
       if(curl_url_get(uh, CURLUPART_PATH, &opath, 0))
-        errorf(o, ERROR_ITER, "out of memory");
+        errorf(o, ERROR_MEM, "out of memory");
 
       /* append path segments */
       for(p = o->append_path; p; p = p->next) {
@@ -1917,7 +1917,7 @@ static void singleurl(struct option *o,
       if(path_is_modified) {
         /* set the new path */
         if(curl_url_set(uh, CURLUPART_PATH, opath, 0))
-          errorf(o, ERROR_ITER, "out of memory");
+          errorf(o, ERROR_MEM, "out of memory");
       }
       curl_free(opath);
 
