@@ -253,7 +253,7 @@ static void help(void)
     "  -s, --set [component]=[data]     - set component content\n"
     "      --sort-query                 - alpha-sort the query pairs\n"
     "      --url [URL]                  - URL to work with\n"
-    "      --urlencode                  - URL encode components by default\n"
+    "      --urlencode                  - show components URL encoded\n"
     "  -v, --version                    - show version\n"
     "      --verify                     - return error on (first) bad URL\n"
     " URL COMPONENTS:\n"
