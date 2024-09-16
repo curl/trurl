@@ -3060,5 +3060,189 @@
             "stderr": "",
             "returncode": 0
         }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--url",
+                "http://åäö/",
+                "--punycode",
+                "-s",
+                "port=21"
+            ]
+        },
+        "required": ["punycode"],
+        "encoding": "UTF-8",
+        "expected": {
+            "stdout": "http://xn--4cab6c:21/\n",
+            "stderr": "",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "sftp://odd",
+                "--set",
+                "port=144",
+                "--set",
+                "port=145"
+            ]
+        },
+        "expected": {
+            "stdout": "",
+            "stderr": "trurl error: duplicate --set for component port\ntrurl error: Try trurl -h for help\n",
+            "returncode": 5
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "sftp://odd",
+                "--get",
+                "[port]",
+                "--get",
+                "{port}"
+            ]
+        },
+        "expected": {
+            "stdout": "",
+            "stderr": "trurl error: only one --get is supported\ntrurl error: Try trurl -h for help\n",
+            "returncode": 4
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "url",
+                "-f",
+                "testfiles/test0000.txt",
+                "-f",
+                "testfiles/test0000.txt"
+            ]
+        },
+        "expected": {
+            "stdout": "",
+            "returncode": 4,
+            "stderr": "trurl error: only one --url-file is supported\ntrurl error: Try trurl -h for help\n"
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--url"
+            ]
+        },
+        "expected": {
+            "stdout": "",
+            "stderr": "trurl error: Missing argument for --url\ntrurl error: Try trurl -h for help\n",
+            "returncode": 3
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "url",
+                "--set"
+            ]
+        },
+        "expected": {
+            "stdout": "",
+            "stderr": "trurl error: Missing argument for --set\ntrurl error: Try trurl -h for help\n",
+            "returncode": 3
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "url",
+                "--redirect"
+            ]
+        },
+        "expected": {
+            "stdout": "",
+            "stderr": "trurl error: Missing argument for --redirect\ntrurl error: Try trurl -h for help\n",
+            "returncode": 3
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "url",
+                "--get"
+            ]
+        },
+        "expected": {
+            "stdout": "",
+            "stderr": "trurl error: Missing argument for --get\ntrurl error: Try trurl -h for help\n",
+            "returncode": 3
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "url",
+                "--replace"
+            ]
+        },
+        "expected": {
+            "stdout": "",
+            "stderr": "trurl error: No data passed to replace component\ntrurl error: Try trurl -h for help\n",
+            "returncode": 12
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "url",
+                "--replace-append"
+            ]
+        },
+        "expected": {
+            "stdout": "",
+            "stderr": "trurl error: No data passed to replace component\ntrurl error: Try trurl -h for help\n",
+            "returncode": 12
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "url",
+                "--append"
+            ]
+        },
+        "expected": {
+            "stdout": "",
+            "stderr": "trurl error: Missing argument for --append\ntrurl error: Try trurl -h for help\n",
+            "returncode": 3
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "url",
+                "--query-separator",
+                "''"
+            ]
+        },
+        "expected": {
+            "stdout": "",
+            "stderr": "trurl error: only single-letter query separators are supported\ntrurl error: Try trurl -h for help\n",
+            "returncode": 4
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "url",
+                "--query-separator",
+                "aa"
+            ]
+        },
+        "expected": {
+            "stdout": "",
+            "stderr": "trurl error: only single-letter query separators are supported\ntrurl error: Try trurl -h for help\n",
+            "returncode": 4
+        }
     }
 ]
