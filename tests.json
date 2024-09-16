@@ -3244,5 +3244,35 @@
             "stderr": "trurl error: only single-letter query separators are supported\ntrurl error: Try trurl -h for help\n",
             "returncode": 4
         }
+    },
+    {
+        "input": {
+            "arguments": [
+                "url",
+                "--json",
+                "--get",
+                "{port}"
+            ]
+        },
+        "expected": {
+            "stdout": "",
+            "stderr": "trurl error: --get is mutually exclusive with --json\ntrurl error: Try trurl -h for help\n",
+            "returncode": 4
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "url",
+                "--get",
+                "{port}",
+                "--json"
+            ]
+        },
+        "expected": {
+            "stdout": "",
+            "stderr": "trurl error: --json is mutually exclusive with --get\ntrurl error: Try trurl -h for help\n",
+            "returncode": 4
+        }
     }
 ]
