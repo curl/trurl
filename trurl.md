@@ -3,7 +3,7 @@ c: Copyright (C) Daniel Stenberg, <daniel.se>, et al.
 SPDX-License-Identifier: curl
 Title: trurl
 Section: 1
-Source: trurl 0.15
+Source: trurl 0.16
 See-also:
   - curl (1)
   - wcurl (1)
