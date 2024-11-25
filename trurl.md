@@ -305,7 +305,7 @@ queries trurl ignores that item.
 trurl URL encodes both sides of the `=` character in the given input data
 argument.
 
-## --replace--append [data]
+## --replace-append [data]
 
 Works the same as *--replace*, but trurl appends a missing query string if
 it is not in the query list already.
