@@ -137,7 +137,7 @@ cc  -W -Wall -pedantic -g   -c -o trurl.o trurl.c
 cc   trurl.o  -lcurl -o trurl
 ```
 
-trurl is also available in [some Linux distributions](https://github.com/curl/trurl/discussions/51). You can try searching for it using the package manager of your preferred distribution.
+trurl is also available in [some package managers](https://github.com/curl/trurl/wiki/Get-trurl-for-your-OS). If it is not listed you can try searching for it using the package manager of your preferred distribution.
 
 ### Windows
 
