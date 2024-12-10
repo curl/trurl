@@ -38,6 +38,8 @@ MANUAL = trurl.1
 PREFIX ?= /usr/local
 BINDIR ?= $(PREFIX)/bin
 MANDIR ?= $(PREFIX)/share/man/man1
+ZSH_COMPLETIONSDIR ?= $(PREFIX)/share/zsh/site-functions
+COMPLETION_FILES=completions/_trurl.zsh
 
 INSTALL ?= install
 PYTHON3 ?= python3
@@ -55,10 +57,14 @@ install:
 	(if test -f $(MANUAL); then \
 	$(INSTALL) -m 0644 $(MANUAL) $(DESTDIR)$(MANDIR); \
 	fi)
+	(if test -f $(COMPLETION_FILES); then \
+	$(INSTALL) -d $(DESTDIR)$(ZSH_COMPLETIONSDIR); \
+	$(INSTALL) -m 0755 $(COMPLETION_FILES) $(ZSH_COMPLETIONSDIR)/_trurl; \
+	fi)
 
 .PHONY: clean
 clean:
-	rm -f $(OBJS) $(TARGET)
+	rm -f $(OBJS) $(TARGET) $(COMPLETION_FILES)
 
 .PHONY: test
 test: $(TARGET)
@@ -71,3 +77,7 @@ test-memory: $(TARGET)
 .PHONY: checksrc
 checksrc:
 	./checksrc.pl trurl.c version.h
+
+.PHONY: completions
+completions: trurl.md
+	./completions/generate_completions.sh $^
