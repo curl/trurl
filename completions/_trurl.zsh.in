@@ -1,0 +1,66 @@
+#compdef trurl
+##########################################################################
+#                             _                   _
+#  Project                   | |_ _ __ _   _ _ __| |
+#                            | __| '__| | | | '__| |
+#                            | |_| |  | |_| | |  | |
+#                             \__|_|   \__,_|_|  |_|
+#
+# Copyright (C) Daniel Stenberg, <daniel@haxx.se>, et al.
+#
+# This software is licensed as described in the file COPYING, which
+# you should have received as part of this distribution. The terms
+# are also available at https://curl.se/docs/copyright.html.
+#
+# You may opt to use, copy, modify, merge, publish, distribute and/or sell
+# copies of the Software, and permit persons to whom the Software is
+# furnished to do so, under the terms of the COPYING file.
+#
+# This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
+# KIND, either express or implied.
+#
+# SPDX-License-Identifier: curl
+#
+##########################################################################
+
+
+# This file is generated from trurls generate_completions.sh
+
+# standalone flags - things that have now follow on 
+standalone_flags=(@TRURL_STANDALONE_FLAGS@)
+
+# component options - flags that expected to come after them
+component_options=(@TRURL_COMPONENT_OPTIONS@)
+
+# components that take *something* as a param but we can't
+# be sure what
+random_options=(@TRURL_RANDOM_OPTIONS@)
+
+# Components are specific URL parts that are only completed
+# after a component_options appears
+component_list=( @TRURL_COMPONENT_LIST@)
+
+if (( "${component_options[(Ie)${words[$CURRENT-1]}]}" )); then
+    compadd -S "=" "${component_list[@]}"
+    return 0
+fi
+
+# if we expect another parameter that trurl doesn't define then
+# we should (i.e. a component) then fall back on ZSH _path_file
+if (( "${random_options[(Ie)${words[$CURRENT-1]}]}" )); then
+    _path_files
+    return 0
+fi
+
+# calling compadd directly allows us the let the flags be 
+# repeatable so we can recall --set, --get etc. 
+repeatable=( "${component_options[@]}" "${random_options[@]}" )
+args=( "${repeatable[@]}" )
+# only apply single completions which haven't been used. 
+for sf in "${standalone_flags[@]}"; do
+    if ! (( "${words[(Ie)$sf]}" ));  then
+        args+=("$sf")
+    fi
+done
+
+compadd "${args[@]}"
