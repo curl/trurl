@@ -29,7 +29,7 @@ LDLIBS += $$(curl-config --libs)
 CFLAGS += $$(curl-config --cflags)
 endif
 CFLAGS += -W -Wall -Wshadow -pedantic
-CFLAGS += -Wconversion -Wmissing-prototypes -Wwrite-strings -Wsign-compare -Wno-sign-conversion -fno-lto
+CFLAGS += -Wconversion -Wmissing-prototypes -Wwrite-strings -Wsign-compare -Wno-sign-conversion
 ifndef NDEBUG
 CFLAGS += -Werror -g
 endif
