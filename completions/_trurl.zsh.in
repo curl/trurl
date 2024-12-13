@@ -5,7 +5,7 @@
 # standalone flags - things that have now follow on 
 standalone_flags=(@TRURL_STANDALONE_FLAGS@)
 
-#component options - flags that expected to come after them
+# component options - flags that expected to come after them
 component_options=(@TRURL_COMPONENT_OPTIONS@)
 
 # components that take *something* as a param but we can't

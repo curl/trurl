@@ -47,13 +47,11 @@ for flag in $ALL_FLAGS; do
 done
 
 function generate_zsh() {
-
     sed -e "s/@TRURL_RANDOM_OPTIONS@/${TRURL_RANDOM_OPTIONS}/g" \
-        -e "s/@TRURL_STANDALONE_FLAGS@/${TRURL_STANDALONE_FLAGS}/g" \
+      -e "s/@TRURL_STANDALONE_FLAGS@/${TRURL_STANDALONE_FLAGS}/g" \
       -e "s/@TRURL_COMPONENT_OPTIONS@/${TRURL_COMPONENT_OPTIONS}/g" \
       -e "s/@TRURL_COMPONENT_LIST@/${TRURL_COMPONENT_LIST}/g" \
       ./completions/_trurl.zsh.in  > ./completions/_trurl.zsh
-
 }
 
 generate_zsh "$TRURL_RANDOM_OPTIONS"
