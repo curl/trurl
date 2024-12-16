@@ -25,18 +25,18 @@
 
 
 if [ -z "$1" ]; then
-    echo "expected a trurl.1 file to be passed in..."
+    echo "expected a trurl.md file to be passed in..."
     exit 1
 fi
 
-TRURL_1_FILE=$1
+TRURL_MD_FILE=$1
 
 
 
 ALL_FLAGS="$(sed  -n \
         -e 's/"//g' \
         -e '/\# URL COMPONENTS/q;p' \
-        < "${TRURL_1_FILE}" \
+        < "${TRURL_MD_FILE}" \
     | grep "##" \
     | awk '{printf "%s%s%s%s ", $2, $3, $4, $5}')"
 
@@ -48,7 +48,7 @@ TRURL_COMPONENT_LIST="$(sed -n \
       -e 's/"//g' \
       -e '1,/\# URL COMPONENTS/ d' \
       -e '/\# JSON output format/q;p' \
-      < "${TRURL_1_FILE}" \
+      < "${TRURL_MD_FILE}" \
     | grep "##" \
     | awk '{printf "\"%s\" ", $2}')"
 
