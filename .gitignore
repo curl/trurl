@@ -1,5 +1,7 @@
 # compiled program
 /trurl
+/trurl.1
+_trurl.zsh
 
 # Prerequisites
 *.d
@@ -60,3 +62,6 @@ winbuild/obj/
 
 # Dependencies for msvc from vcpkg
 winbuild/vcpkg_installed/
+
+# vim
+*.sw*
