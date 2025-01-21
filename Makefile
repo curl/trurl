@@ -58,8 +58,8 @@ $(MANUAL): trurl.md
 install:
 	$(INSTALL) -d $(DESTDIR)$(BINDIR)
 	$(INSTALL) -m 0755 $(TARGET) $(DESTDIR)$(BINDIR)
-	$(INSTALL) -d $(DESTDIR)$(MANDIR)
 	(if test -f $(MANUAL); then \
+	$(INSTALL) -d $(DESTDIR)$(MANDIR); \
 	$(INSTALL) -m 0644 $(MANUAL) $(DESTDIR)$(MANDIR); \
 	fi)
 	(if test -f $(COMPLETION_FILES); then \
