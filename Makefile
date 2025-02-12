@@ -44,10 +44,15 @@ COMPLETION_FILES=completions/_trurl.zsh
 INSTALL ?= install
 PYTHON3 ?= python3
 
+all: $(TARGET) $(MANUAL)
+
 $(TARGET): $(OBJS)
 	$(CC) $(LDFLAGS) $(OBJS) -o $(TARGET) $(LDLIBS)
 
 trurl.o: trurl.c version.h
+
+$(MANUAL): trurl.md
+	./scripts/cd2nroff trurl.md > $(MANUAL)
 
 .PHONY: install
 install:
@@ -64,7 +69,7 @@ install:
 
 .PHONY: clean
 clean:
-	rm -f $(OBJS) $(TARGET) $(COMPLETION_FILES)
+	rm -f $(OBJS) $(TARGET) $(COMPLETION_FILES) $(MANUAL)
 
 .PHONY: test
 test: $(TARGET)
