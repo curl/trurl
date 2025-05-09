@@ -3274,5 +3274,49 @@
             "stderr": "trurl error: --json is mutually exclusive with --get\ntrurl error: Try trurl -h for help\n",
             "returncode": 4
         }
+    },
+    {
+        "input": {
+            "arguments": [
+                "e?e&&"
+            ]
+        },
+        "expected": {
+            "stdout": "http://e/?e\n",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "e?e&"
+            ]
+        },
+        "expected": {
+            "stdout": "http://e/?e\n",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "e?e&&&&&&&&&&&&&&&&&&&&&"
+            ]
+        },
+        "expected": {
+            "stdout": "http://e/?e\n",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "e?e&&&&&&&&&&a&&&&&&&&&&&"
+            ]
+        },
+        "expected": {
+            "stdout": "http://e/?e&a\n",
+            "returncode": 0
+        }
     }
 ]
