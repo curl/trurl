@@ -1572,8 +1572,8 @@ static void qpair2query(CURLU *uh, struct option *o)
   for(i = 0; i<nqpairs; i++) {
     char *oldnq = nq;
     nq = curl_maprintf("%s%s%s", nq ? nq : "",
-                       (nq && *nq && *(qpairs[i].str)) ? o->qsep : "",
-                       qpairs[i].str);
+                       (nq && *nq && qpairs[i].len) ? o->qsep : "",
+                       qpairs[i].len ? qpairs[i].str : "");
     curl_free(oldnq);
   }
   if(nq) {
