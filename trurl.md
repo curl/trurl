@@ -456,7 +456,7 @@ Or the reverse, convert a punycode hostname into its IDN version:
 
 If the URL's hostname starts with an open bracket (`[`) it is a numerical IPv6
 address that also must end with a closing bracket (`]`). trurl normalizes IPv6
-addreses.
+addresses.
 
 Example:
 
