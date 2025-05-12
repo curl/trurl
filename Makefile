@@ -64,7 +64,7 @@ install:
 	fi)
 	(if test -f $(COMPLETION_FILES); then \
 	$(INSTALL) -d $(DESTDIR)$(ZSH_COMPLETIONSDIR); \
-	$(INSTALL) -m 0755 $(COMPLETION_FILES) $(ZSH_COMPLETIONSDIR)/_trurl; \
+	$(INSTALL) -m 0755 $(COMPLETION_FILES) $(DESTDIR)$(ZSH_COMPLETIONSDIR)/_trurl; \
 	fi)
 
 .PHONY: clean
