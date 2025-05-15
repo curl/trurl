@@ -1381,6 +1381,7 @@ static struct string *memdupzero(char *source, size_t len, bool *modified)
       int rlen;
       int leftside;
       int rightside;
+      char *temp;
 
       /* decode both sides */
       leftside = (int)(sep - source);
@@ -1420,7 +1421,12 @@ static struct string *memdupzero(char *source, size_t len, bool *modified)
           goto error;
       }
 
-      encode = curl_maprintf("%s=%s", el ? el : "", er ? er : "");
+      temp = curl_maprintf("%s=%s", el ? el : "", er ? er : "");
+      if(!temp)
+        goto error;
+      /* pointers from curl_maprintf() must be curl_free()d so make a copy */
+      encode = strdup(temp);
+      curl_free(temp);
       if(!encode)
         goto error;
     }
