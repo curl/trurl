@@ -702,6 +702,7 @@
                 "user=:hej:"
             ]
         },
+        "excludes": ["uppercase-hex"],
         "expected": {
             "stdout": "https://%3ahej%3a@curl.se/hello\n",
             "stderr": "",
@@ -2030,6 +2031,7 @@
                 "localhost"
             ]
         },
+        "excludes": ["uppercase-hex"],
         "expected": {
             "stdout": "/\\\\\n/%5c%5c\n",
             "returncode": 0,
@@ -2045,6 +2047,7 @@
                 "localhost"
             ]
         },
+        "excludes": ["uppercase-hex"],
         "expected": {
             "stdout": [
                 {
@@ -2071,6 +2074,7 @@
                 "localhost"
             ]
         },
+        "excludes": ["uppercase-hex"],
         "expected": {
             "stdout": "/%5c%5c\n/%5c%5c\n",
             "returncode": 0,
@@ -2089,6 +2093,7 @@
                 "localhost"
             ]
         },
+        "excludes": ["uppercase-hex"],
         "expected": {
             "stdout": [
                 {
@@ -3317,6 +3322,125 @@
         "expected": {
             "stdout": "http://e/?e&a\n",
             "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "-s",
+                "path=\\\\",
+                "--json",
+                "localhost"
+            ]
+        },
+        "required": ["uppercase-hex"],
+        "expected": {
+            "stdout": [
+                {
+                    "url": "http://localhost/%5C%5C",
+                    "parts": {
+                        "scheme": "http",
+                        "host": "localhost",
+                        "path": "/\\\\"
+                    }
+                }
+            ],
+            "returncode": 0,
+            "stderr": ""
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "-s",
+                "path=\\\\",
+                "-g",
+                "{path}\\n{:path}",
+                "--urlencode",
+                "localhost"
+            ]
+        },
+        "required": ["uppercase-hex"],
+        "expected": {
+            "stdout": "/%5C%5C\n/%5C%5C\n",
+            "returncode": 0,
+            "stderr": ""
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "-s",
+                "path=abc\\\\",
+                "-s",
+                "query:=a&b&a%26b",
+                "--urlencode",
+                "--json",
+                "localhost"
+            ]
+        },
+        "required": ["uppercase-hex"],
+        "expected": {
+            "stdout": [
+                {
+                    "url": "http://localhost/abc%5C%5C?a&b&a%26b",
+                    "parts": {
+                        "scheme": "http",
+                        "host": "localhost",
+                        "path": "/abc%5C%5C",
+                        "query": "a&b&a%26b"
+                    },
+                    "params": [
+                        {
+                            "key": "a",
+                            "value": ""
+                        },
+                        {
+                            "key": "b",
+                            "value": ""
+                        },
+                        {
+                            "key": "a&b",
+                            "value": ""
+                        }
+                    ]
+                }
+            ],
+            "returncode": 0,
+            "stderr": ""
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "--url",
+                "https://curl.se/hello",
+                "--set",
+                "user=:hej:"
+            ]
+        },
+        "required": ["uppercase-hex"],
+        "expected": {
+            "stdout": "https://%3Ahej%3A@curl.se/hello\n",
+            "stderr": "",
+            "returncode": 0
+        }
+    },
+    {
+        "input": {
+            "arguments": [
+                "-s",
+                "path=\\\\",
+                "-g",
+                "{path}\\n{:path}",
+                "localhost"
+            ]
+        },
+        "required": ["uppercase-hex"],
+        "expected": {
+            "stdout": "/\\\\\n/%5C%5C\n",
+            "returncode": 0,
+            "stderr": ""
         }
     }
 ]

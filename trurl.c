@@ -316,6 +316,8 @@ static void show_version(void)
 #ifdef SUPPORTS_ZONEID
   fprintf(stdout, " zone-id");
 #endif
+  if(data->version_num >= 0x080f00)
+    fprintf(stdout, " uppercase-hex");
 
   fprintf(stdout, "\n");
   exit(0);
