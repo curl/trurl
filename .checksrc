@@ -1,4 +1,11 @@
 # Copyright (C) Daniel Stenberg, <daniel@haxx.se>, et al.
 #
 # SPDX-License-Identifier: curl
+
 disable FOPENMODE
+
+allowfunc fclose
+allowfunc fopen
+allowfunc fprintf
+allowfunc printf
+allowfunc vfprintf
