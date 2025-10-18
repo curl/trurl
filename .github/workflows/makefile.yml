@@ -25,7 +25,7 @@ jobs:
               LDFLAGS="-fsanitize=address,undefined,signed-integer-overflow -g"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: install libcurl
         run: |
@@ -48,7 +48,7 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: install cygwin
         uses: cygwin/cygwin-install-action@v6
@@ -68,7 +68,7 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: make
         run: make
