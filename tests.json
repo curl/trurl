@@ -2206,7 +2206,7 @@
         }
     },
     {
-        "input" : {
+        "input": {
             "arguments": [
                 "http://example.com/?q=mr%00smith",
                 "--json",
@@ -2236,7 +2236,7 @@
         }
     },
     {
-        "input" : {
+        "input": {
             "arguments": [
                 "http://example.com/?q=mr%00sm%00ith",
                 "--json",
@@ -2266,7 +2266,7 @@
         }
     },
     {
-        "input" : {
+        "input": {
             "arguments": [
                 "http://example.com/?q=mr%00%00%00smith",
                 "--json",
@@ -2486,21 +2486,23 @@
             ]
         },
         "expected": {
-            "stdout": [{
-                "url": "http://example.org/?quest=%2500",
-                "parts": {
-                    "scheme": "http",
-                    "host": "example.org",
-                    "path": "/",
-                    "query": "quest=%2500"
-                },
-                "params": [
-                    {
-                        "key": "quest",
-                        "value": "%00"
-                    }
-                ]
-            }],
+            "stdout": [
+                {
+                    "url": "http://example.org/?quest=%2500",
+                    "parts": {
+                        "scheme": "http",
+                        "host": "example.org",
+                        "path": "/",
+                        "query": "quest=%2500"
+                    },
+                    "params": [
+                        {
+                            "key": "quest",
+                            "value": "%00"
+                        }
+                    ]
+                }
+            ],
             "stderr": "",
             "returncode": 0
         }
@@ -2514,12 +2516,12 @@
         },
         "expected": {
             "stderr": "trurl error: No data passed to replace component\ntrurl error: Try trurl -h for help\n",
-            "stdout":"",
+            "stdout": "",
             "returncode": 12
         }
     },
     {
-    "input": {
+        "input": {
             "arguments": [
                 "http://test.org/?that=thing",
                 "--force-replace",
@@ -2533,7 +2535,7 @@
         }
     },
     {
-    "input": {
+        "input": {
             "arguments": [
                 "http://test.org/?that=thing",
                 "--replace-append",
@@ -2773,7 +2775,7 @@
             ]
         },
         "expected": {
-            "stdout":[
+            "stdout": [
                 {
                     "url": "http://example.org/%18",
                     "parts": {
@@ -2796,7 +2798,7 @@
             ]
         },
         "expected": {
-            "stdout":[
+            "stdout": [
                 {
                     "url": "http://example.org/%18",
                     "parts": {
@@ -2949,7 +2951,7 @@
             ]
         },
         "expected": {
-            "stdout":[
+            "stdout": [
                 {
                     "url": "http://example.org/?a=1&b=&c=2",
                     "parts": {
