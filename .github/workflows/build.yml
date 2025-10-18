@@ -80,7 +80,11 @@ jobs:
           persist-credentials: false
 
       - name: 'make'
-        run: make
+        run: |
+          uname -a
+          cc --version
+          which cc
+          make
 
       - name: 'sanity test'
         run: ./trurl -v
