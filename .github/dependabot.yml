@@ -5,6 +5,17 @@
 
 version: 2
 updates:
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'monthly'
+    cooldown:
+      default-days: 30
+    groups:
+      actions-deps:
+        patterns:
+          - '*'
+
   - package-ecosystem: 'pip'
     directories:
       - '.github/workflows'
