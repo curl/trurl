@@ -50,7 +50,7 @@ jobs:
 
       - name: 'make'
         env:
-          CC: '${{ matrix.build.CC }}'
+          CC: '${{ matrix.build.CC || 'cc' }}'
           CFLAGS: '${{ matrix.build.CFLAGS }}'
           LDFLAGS: '${{ matrix.build.LDFLAGS }}'
         run: make
