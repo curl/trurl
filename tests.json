@@ -291,7 +291,9 @@
                 "port=143"
             ]
         },
-        "required": ["imap-options"],
+        "required": [
+            "imap-options"
+        ],
         "expected": {
             "stdout": "imap://curl.se/\n",
             "stderr": "",
@@ -369,7 +371,9 @@
                 "{port}"
             ]
         },
-        "required": ["imap-options"],
+        "required": [
+            "imap-options"
+        ],
         "expected": {
             "stdout": "143\n",
             "stderr": "",
@@ -518,7 +522,9 @@
                 "{options}"
             ]
         },
-        "required": ["imap-options"],
+        "required": [
+            "imap-options"
+        ],
         "expected": {
             "stdout": "crazy\n",
             "stderr": "",
@@ -549,7 +555,9 @@
                 "{host}"
             ]
         },
-        "required": ["normalize-ipv4"],
+        "required": [
+            "normalize-ipv4"
+        ],
         "expected": {
             "stdout": "10.0.0.1\n",
             "stderr": "",
@@ -565,7 +573,9 @@
                 "{host}"
             ]
         },
-        "required": ["zone-id"],
+        "required": [
+            "zone-id"
+        ],
         "expected": {
             "stdout": "[fe80::20c:29ff:fe9c:409b]\n",
             "stderr": "",
@@ -641,7 +651,9 @@
                 "{default:port}"
             ]
         },
-        "required": ["imap-options"],
+        "required": [
+            "imap-options"
+        ],
         "expected": {
             "stdout": "143\n",
             "stderr": "",
@@ -702,7 +714,9 @@
                 "user=:hej:"
             ]
         },
-        "excludes": ["uppercase-hex"],
+        "excludes": [
+            "uppercase-hex"
+        ],
         "expected": {
             "stdout": "https://%3ahej%3a@curl.se/hello\n",
             "stderr": "",
@@ -938,7 +952,9 @@
                 "gopher://localhost/ with space"
             ]
         },
-        "required": ["white-space"],
+        "required": [
+            "white-space"
+        ],
         "expected": {
             "stdout": "gopher://localhost/%20with%20space\n",
             "stderr": "",
@@ -953,7 +969,9 @@
                 "https://localhost/?with space"
             ]
         },
-        "required": ["white-space"],
+        "required": [
+            "white-space"
+        ],
         "expected": {
             "stdout": "https://localhost/?with+space\n",
             "stderr": "",
@@ -1232,7 +1250,9 @@
                 "[2001:0db8:0000:0000:0000:ff00:0042:8329]"
             ]
         },
-        "required": ["zone-id"],
+        "required": [
+            "zone-id"
+        ],
         "expected": {
             "stdout": "http://[2001:db8::ff00:42:8329]/\n",
             "stderr": "",
@@ -1797,7 +1817,9 @@
                 "{default:puny:url}"
             ]
         },
-        "required": ["punycode"],
+        "required": [
+            "punycode"
+        ],
         "encoding": "UTF-8",
         "expected": {
             "stderr": "",
@@ -1813,7 +1835,9 @@
                 "{puny:url}"
             ]
         },
-        "required": ["punycode"],
+        "required": [
+            "punycode"
+        ],
         "encoding": "UTF-8",
         "expected": {
             "stderr": "",
@@ -1829,7 +1853,9 @@
                 "{puny:host}"
             ]
         },
-        "required": ["punycode"],
+        "required": [
+            "punycode"
+        ],
         "encoding": "UTF-8",
         "expected": {
             "stderr": "",
@@ -1844,7 +1870,9 @@
                 "--json"
             ]
         },
-        "required": ["imap-options"],
+        "required": [
+            "imap-options"
+        ],
         "expected": {
             "returncode": 0,
             "stdout": [
@@ -1884,7 +1912,9 @@
                 "port: {port}, default:port: {default:port}"
             ]
         },
-        "required": ["imap-options"],
+        "required": [
+            "imap-options"
+        ],
         "expected": {
             "returncode": 0,
             "stdout": "port: , default:port: 143\n"
@@ -2014,7 +2044,9 @@
                 "localhost"
             ]
         },
-        "required": ["white-space"],
+        "required": [
+            "white-space"
+        ],
         "expected": {
             "stdout": "http://localhost/?x=10&x=2+3\n",
             "returncode": 0,
@@ -2031,7 +2063,9 @@
                 "localhost"
             ]
         },
-        "excludes": ["uppercase-hex"],
+        "excludes": [
+            "uppercase-hex"
+        ],
         "expected": {
             "stdout": "/\\\\\n/%5c%5c\n",
             "returncode": 0,
@@ -2047,7 +2081,9 @@
                 "localhost"
             ]
         },
-        "excludes": ["uppercase-hex"],
+        "excludes": [
+            "uppercase-hex"
+        ],
         "expected": {
             "stdout": [
                 {
@@ -2074,7 +2110,9 @@
                 "localhost"
             ]
         },
-        "excludes": ["uppercase-hex"],
+        "excludes": [
+            "uppercase-hex"
+        ],
         "expected": {
             "stdout": "/%5c%5c\n/%5c%5c\n",
             "returncode": 0,
@@ -2093,7 +2131,9 @@
                 "localhost"
             ]
         },
-        "excludes": ["uppercase-hex"],
+        "excludes": [
+            "uppercase-hex"
+        ],
         "expected": {
             "stdout": [
                 {
@@ -2318,7 +2358,9 @@
                 "--as-idn"
             ]
         },
-        "required": ["punycode2idn"],
+        "required": [
+            "punycode2idn"
+        ],
         "encoding": "UTF-8",
         "expected": {
             "stdout": "http://räksmörgås/\n",
@@ -2335,7 +2377,9 @@
                 "{idn:host}"
             ]
         },
-        "required": ["punycode2idn"],
+        "required": [
+            "punycode2idn"
+        ],
         "encoding": "UTF-8",
         "expected": {
             "stdout": "räksmörgås\n",
@@ -2352,7 +2396,9 @@
                 "--quiet"
             ]
         },
-        "required": ["punycode2idn"],
+        "required": [
+            "punycode2idn"
+        ],
         "encoding": "UTF-8",
         "expected": {
             "stdout": "http://xn-----/\n",
@@ -2368,7 +2414,9 @@
                 "--as-idn"
             ]
         },
-        "required": ["punycode2idn"],
+        "required": [
+            "punycode2idn"
+        ],
         "encoding": "UTF-8",
         "expected": {
             "stdout": "http://xn-----/\n",
@@ -2739,7 +2787,9 @@
         }
     },
     {
-        "required": ["no-guess-scheme"],
+        "required": [
+            "no-guess-scheme"
+        ],
         "input": {
             "arguments": [
                 "example.com",
@@ -2872,7 +2922,9 @@
                 "{must:query}"
             ]
         },
-        "required": ["get-empty"],
+        "required": [
+            "get-empty"
+        ],
         "expected": {
             "stdout": "\n",
             "stderr": "",
@@ -3078,7 +3130,9 @@
                 "port=21"
             ]
         },
-        "required": ["punycode"],
+        "required": [
+            "punycode"
+        ],
         "encoding": "UTF-8",
         "expected": {
             "stdout": "http://xn--4cab6c:21/\n",
@@ -3335,7 +3389,9 @@
                 "localhost"
             ]
         },
-        "required": ["uppercase-hex"],
+        "required": [
+            "uppercase-hex"
+        ],
         "expected": {
             "stdout": [
                 {
@@ -3362,7 +3418,9 @@
                 "localhost"
             ]
         },
-        "required": ["uppercase-hex"],
+        "required": [
+            "uppercase-hex"
+        ],
         "expected": {
             "stdout": "/%5C%5C\n/%5C%5C\n",
             "returncode": 0,
@@ -3381,7 +3439,9 @@
                 "localhost"
             ]
         },
-        "required": ["uppercase-hex"],
+        "required": [
+            "uppercase-hex"
+        ],
         "expected": {
             "stdout": [
                 {
@@ -3421,7 +3481,9 @@
                 "user=:hej:"
             ]
         },
-        "required": ["uppercase-hex"],
+        "required": [
+            "uppercase-hex"
+        ],
         "expected": {
             "stdout": "https://%3Ahej%3A@curl.se/hello\n",
             "stderr": "",
@@ -3438,7 +3500,9 @@
                 "localhost"
             ]
         },
-        "required": ["uppercase-hex"],
+        "required": [
+            "uppercase-hex"
+        ],
         "expected": {
             "stdout": "/\\\\\n/%5C%5C\n",
             "returncode": 0,
