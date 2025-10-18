@@ -13,10 +13,10 @@ SPDX-PackageDownloadLocation = "https://curl.se/"
 
 [[annotations]]
 path = [
-  "tests.json",
-  "testfiles/*",
-  "THANKS",
   "RELEASE-NOTES",
+  "testfiles/*",
+  "tests.json",
+  "THANKS",
   "winbuild/*",
 ]
 SPDX-FileCopyrightText = "Daniel Stenberg, <daniel@haxx.se>, et al."
