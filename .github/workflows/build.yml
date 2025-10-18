@@ -23,6 +23,7 @@ jobs:
           - name: 'default'
             install_packages: valgrind
             test: test-memory
+
           - name: 'clang sanitizers'
             install_packages: clang
             test: test
@@ -31,11 +32,7 @@ jobs:
             LDFLAGS: -fsanitize=address,undefined,signed-integer-overflow -g
 
     steps:
-      - uses: actions/checkout@v5
-        with:
-          persist-credentials: false
-
-      - name: 'install libcurl'
+      - name: 'install prereqs'
         env:
           MATRIX_PACKAGES: ${{ matrix.build.install_packages }}
         run: |
@@ -44,6 +41,10 @@ jobs:
           sudo rm -f /var/lib/man-db/auto-update
           sudo apt-get -o Dpkg::Use-Pty=0 install \
             libcurl4-openssl-dev ${MATRIX_PACKAGES}
+
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
 
       - name: 'checksrc'
         run: make checksrc
@@ -68,8 +69,7 @@ jobs:
     runs-on: windows-2022
 
     steps:
-      - name: 'install cygwin'
-        uses: cygwin/cygwin-install-action@f2009323764960f80959895c7bc3bb30210afe4d # v6
+      - uses: cygwin/cygwin-install-action@f2009323764960f80959895c7bc3bb30210afe4d # v6
         with:
           site: https://mirrors.kernel.org/sourceware/cygwin/
           work-vol: 'D:'
@@ -80,11 +80,7 @@ jobs:
           persist-credentials: false
 
       - name: 'make'
-        run: |
-          uname -a
-          cc --version
-          which cc
-          make
+        run: make
 
       - name: 'sanity test'
         run: ./trurl -v
