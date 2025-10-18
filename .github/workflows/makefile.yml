@@ -51,7 +51,7 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: install cygwin
-        uses: cygwin/cygwin-install-action@v6
+        uses: cygwin/cygwin-install-action@f2009323764960f80959895c7bc3bb30210afe4d # v6
         with:
           packages: curl, libcurl-devel, libcurl4, make, gcc-core, python39
 
