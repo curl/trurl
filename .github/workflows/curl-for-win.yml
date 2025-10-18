@@ -20,6 +20,7 @@ env:
 
 jobs:
   win-llvm:
+    name: 'Windows llvm (ARM64, x64)'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -36,7 +37,7 @@ jobs:
           git clone --depth 1 https://github.com/curl/curl-for-win
           mv curl-for-win/* .
           export CW_CONFIG='-dev-zero-imap-osnotls-osnoidn-nohttp-nocurltool-win'
-          export CW_REVISION='${{ github.sha }}'
+          export CW_REVISION="${GITHUB_SHA}"
           . ./_versions.sh
           sudo podman image trust set --type reject default
           sudo podman image trust set --type accept docker.io/library

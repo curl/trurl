@@ -21,8 +21,9 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: 'install'
+      - name: 'install prereqs'
         run: |
+          HOMEBREW_NO_AUTO_UPDATE=1 /home/linuxbrew/.linuxbrew/bin/brew install shellcheck zizmor
           python3 -m venv ~/venv
           ~/venv/bin/pip --disable-pip-version-check --no-input --no-cache-dir install --progress-bar off --prefer-binary \
             -r .github/workflows/requirements.txt
@@ -31,6 +32,13 @@ jobs:
         run: |
           source ~/venv/bin/activate
           reuse lint
+
+      - name: 'zizmor GHA'
+        env:
+          GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          zizmor --pedantic .github/workflows/*.yml
 
       - name: 'codespell'
         run: |

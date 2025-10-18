@@ -14,6 +14,7 @@ permissions: {}
 
 jobs:
   ubuntu:
+    name: 'Linux'
     runs-on: ubuntu-latest
 
     strategy:
@@ -36,23 +37,30 @@ jobs:
           persist-credentials: false
 
       - name: install libcurl
+        env:
+          MATRIX_PACKAGES: ${{ matrix.build.install_packages }}
         run: |
           sudo apt-get update
-          sudo apt-get install libcurl4-openssl-dev ${{ matrix.build.install_packages }}
+          sudo apt-get install libcurl4-openssl-dev ${MATRIX_PACKAGES}
 
       - name: code style check
         run: make checksrc
 
       - name: make
-        run: make ${{ matrix.build.make_opts }}
+        env:
+          MATRIX_OPTIONS: ${{ matrix.build.make_opts }}
+        run: make ${MATRIX_OPTIONS}
 
       - name: sanity test
         run: ./trurl -v
 
       - name: test
-        run: make ${{matrix.build.test}}
+        env:
+          MATRIX_TEST_TARGET: ${{matrix.build.test}}
+        run: make ${MATRIX_TEST_TARGET}
 
   cygwin:
+    name: 'Cygwin'
     runs-on: windows-latest
 
     steps:
@@ -75,6 +83,7 @@ jobs:
         run: make test
 
   macos:
+    name: 'macOS'
     runs-on: macos-latest
 
     steps:
