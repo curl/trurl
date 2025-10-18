@@ -45,8 +45,7 @@ jobs:
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
           shellcheck --version
           # shellcheck disable=SC2046
-          shellcheck --exclude=1091 \
-            $(grep -l -E '^#!(/usr/bin/env bash|/bin/sh|/bin/bash)' $(git ls-files))
+          shellcheck $(grep -l -E '^#!(/usr/bin/env bash|/bin/sh|/bin/bash)' $(git ls-files))
 
       - name: 'codespell'
         run: |
