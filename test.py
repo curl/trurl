@@ -250,7 +250,7 @@ def main(argc, argv):
                 print(f"Missing feature, skipping test {testIndex + 1}.")
                 numTestsSkipped += 1
                 continue
-            excludes = allTests[testIndex].get("excludes", None) 
+            excludes = allTests[testIndex].get("excludes", None)
             if excludes and set(excludes).issubset(set(features)):
                 print(f"Test not compatible, skipping test {testIndex + 1}")
                 numTestsSkipped += 1
