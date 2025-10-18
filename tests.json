@@ -2486,22 +2486,22 @@
             ]
         },
         "expected": {
-			"stdout": [{
-				"url": "http://example.org/?quest=%2500",
-				"parts": {
-					"scheme": "http",
-					"host": "example.org",
-					"path": "/",
+            "stdout": [{
+                "url": "http://example.org/?quest=%2500",
+                "parts": {
+                    "scheme": "http",
+                    "host": "example.org",
+                    "path": "/",
                     "query": "quest=%2500"
-				},
-				"params": [
-					{
-						"key": "quest",
-						"value": "%00"
-					}
-				]
-			}],
-			"stderr": "",
+                },
+                "params": [
+                    {
+                        "key": "quest",
+                        "value": "%00"
+                    }
+                ]
+            }],
+            "stderr": "",
             "returncode": 0
         }
     },
