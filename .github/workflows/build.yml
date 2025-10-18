@@ -2,13 +2,13 @@
 #
 # SPDX-License-Identifier: curl
 
-name: build
+name: 'Build'
 
 'on':
   push:
-    branches: ["master"]
+    branches: ['master']
   pull_request:
-    branches: ["master"]
+    branches: ['master']
 
 permissions: {}
 
@@ -20,10 +20,10 @@ jobs:
     strategy:
       matrix:
         build:
-          - name: default
+          - name: 'default'
             install_packages: valgrind
             test: test-memory
-          - name: clang sanitizers
+          - name: 'clang sanitizers'
             install_packages: clang
             test: test
             CC: clang
@@ -35,7 +35,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: install libcurl
+      - name: 'install libcurl'
         env:
           MATRIX_PACKAGES: ${{ matrix.build.install_packages }}
         run: |
@@ -45,20 +45,20 @@ jobs:
           sudo apt-get -o Dpkg::Use-Pty=0 install \
             libcurl4-openssl-dev ${MATRIX_PACKAGES}
 
-      - name: code style check
+      - name: 'checksrc'
         run: make checksrc
 
-      - name: make
+      - name: 'make'
         env:
           CC: '${{ matrix.build.CC }}'
           CFLAGS: '${{ matrix.build.CFLAGS }}'
           LDFLAGS: '${{ matrix.build.LDFLAGS }}'
         run: make
 
-      - name: sanity test
+      - name: 'sanity test'
         run: ./trurl -v
 
-      - name: test
+      - name: 'test'
         env:
           MATRIX_TEST_TARGET: ${{matrix.build.test}}
         run: make ${MATRIX_TEST_TARGET}
@@ -72,18 +72,18 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: install cygwin
+      - name: 'install cygwin'
         uses: cygwin/cygwin-install-action@f2009323764960f80959895c7bc3bb30210afe4d # v6
         with:
           packages: curl, libcurl-devel, libcurl4, make, gcc-core, python39
 
-      - name: make
+      - name: 'make'
         run: make
 
-      - name: sanity test
+      - name: 'sanity test'
         run: ./trurl -v
 
-      - name: test
+      - name: 'test'
         run: make test
 
   macos:
@@ -95,11 +95,11 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: make
+      - name: 'make'
         run: make
 
-      - name: sanity test
+      - name: 'sanity test'
         run: ./trurl -v
 
-      - name: test
+      - name: 'test'
         run: make test

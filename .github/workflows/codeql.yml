@@ -2,14 +2,14 @@
 #
 # SPDX-License-Identifier: curl
 
-name: "CodeQL"
+name: 'CodeQL'
 
 'on':
   push:
-    branches: ["master"]
+    branches: ['master']
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: ["master"]
+    branches: ['master']
   schedule:
     - cron: '0 0 * * 4'
 
@@ -42,19 +42,18 @@ jobs:
       security-events: write  # To create/update security events
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
+      - uses: actions/checkout@v5
         with:
           persist-credentials: false
 
-      - name: Initialize CodeQL
+      - name: 'initialize'
         uses: github/codeql-action/init@v4
         with:
           languages: cpp
           build-mode: manual
           trap-caching: false
 
-      - name: install libcurl
+      - name: 'install libcurl'
         run: |
           sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
           sudo apt-get -o Dpkg::Use-Pty=0 update
@@ -62,8 +61,8 @@ jobs:
           sudo apt-get -o Dpkg::Use-Pty=0 install \
             libcurl4-openssl-dev
 
-      - name: build
+      - name: 'build'
         run: make
 
-      - name: Perform CodeQL Analysis
+      - name: 'perform analysis'
         uses: github/codeql-action/analyze@v4
