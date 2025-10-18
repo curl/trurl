@@ -40,8 +40,11 @@ jobs:
         env:
           MATRIX_PACKAGES: ${{ matrix.build.install_packages }}
         run: |
-          sudo apt-get update
-          sudo apt-get install libcurl4-openssl-dev ${MATRIX_PACKAGES}
+          sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
+          sudo apt-get -o Dpkg::Use-Pty=0 update
+          sudo rm -f /var/lib/man-db/auto-update
+          sudo apt-get -o Dpkg::Use-Pty=0 install \
+            libcurl4-openssl-dev ${MATRIX_PACKAGES}
 
       - name: code style check
         run: make checksrc
