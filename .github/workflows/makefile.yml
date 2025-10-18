@@ -28,6 +28,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
 
       - name: install libcurl
         run: |
@@ -51,6 +53,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
 
       - name: install cygwin
         uses: cygwin/cygwin-install-action@f2009323764960f80959895c7bc3bb30210afe4d # v6
@@ -71,6 +75,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
 
       - name: make
         run: make

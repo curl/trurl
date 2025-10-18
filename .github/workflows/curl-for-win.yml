@@ -24,6 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
+          persist-credentials: false
           path: 'trurl'
           fetch-depth: 8
       - name: 'build'
