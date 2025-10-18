@@ -1,5 +1,9 @@
 name: "Codespell"
+
 'on': [push, pull_request]
+
+permissions: {}
+
 jobs:
   codespell:
     runs-on: ubuntu-latest

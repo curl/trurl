@@ -6,6 +6,8 @@ name: build
   pull_request:
     branches: ["master"]
 
+permissions: {}
+
 jobs:
   ubuntu:
     runs-on: ubuntu-latest
