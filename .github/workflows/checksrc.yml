@@ -53,6 +53,9 @@ jobs:
           # shellcheck disable=SC2046
           shellcheck $(grep -l -E '^#!(/usr/bin/env bash|/bin/sh|/bin/bash)' $(git ls-files))
 
+      - name: 'spacecheck'
+        run: scripts/spacecheck.pl
+
       - name: 'codespell'
         run: |
           source ~/venv/bin/activate
