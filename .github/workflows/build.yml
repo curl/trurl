@@ -26,10 +26,9 @@ jobs:
           - name: clang sanitizers
             install_packages: clang
             test: test
-            make_opts: >
-              CC=clang
-              CFLAGS="-fsanitize=address,undefined,signed-integer-overflow -Wformat -Werror=format-security -Werror=array-bounds -g"
-              LDFLAGS="-fsanitize=address,undefined,signed-integer-overflow -g"
+            CC: clang
+            CFLAGS: -fsanitize=address,undefined,signed-integer-overflow -Wformat -Werror=format-security -Werror=array-bounds -g
+            LDFLAGS: -fsanitize=address,undefined,signed-integer-overflow -g
 
     steps:
       - uses: actions/checkout@v5
@@ -51,8 +50,10 @@ jobs:
 
       - name: make
         env:
-          MATRIX_OPTIONS: ${{ matrix.build.make_opts }}
-        run: make ${MATRIX_OPTIONS}
+          CC: '${{ matrix.build.CC }}'
+          CFLAGS: '${{ matrix.build.CFLAGS }}'
+          LDFLAGS: '${{ matrix.build.LDFLAGS }}'
+        run: make
 
       - name: sanity test
         run: ./trurl -v
