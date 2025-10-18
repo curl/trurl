@@ -173,7 +173,7 @@ good. For all the documented goodness, use a more modern libcurl.
 | trurl Feature   |  Minimum libcurl Version |
 |-----------------|--------------------------|
 | imap-options    |   7.30.0                 |
-| normalize-ipv   |   7.77.0                 | 
+| normalize-ipv   |   7.77.0                 |
 | white-space     |   7.78.0                 |
 | url-strerror    |   7.80.0                 |
 | zone-id         |   7.81.0                 |
@@ -183,4 +183,3 @@ good. For all the documented goodness, use a more modern libcurl.
 
 For more details on how trurl will behave if these features are missing see [URL Quirks](https://github.com/curl/trurl/blob/master/URL-QUIRKS.md).
 To see the features your version of trurl supports as well as the version of libcurl it is built with, run the following command:  `trurl --version`
-
