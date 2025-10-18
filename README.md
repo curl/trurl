@@ -1,3 +1,8 @@
+<!--
+Copyright (C) Daniel Stenberg, <daniel@haxx.se>, et al.
+
+SPDX-License-Identifier: curl
+-->
 
 # [![trurl logo](https://curl.se/logo/trurl-logo.svg)](https://curl.se/trurl)
 
