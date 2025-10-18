@@ -37,7 +37,7 @@ fi
 
 rel="trurl-$version"
 
-mkdir $rel
+mkdir "$rel"
 
 # update title in markdown manpage
 sed -ie "s/^Source: trurl \([0-9.]*\)/Source: trurl $version/" trurl.md
@@ -46,10 +46,10 @@ sed -ie "s/^Source: trurl \([0-9.]*\)/Source: trurl $version/" trurl.md
 sed -ie "s/\"[\.0-9]*\"/\"$version\"/" version.h
 
 # render the manpage into nroff
-./scripts/cd2nroff trurl.md > $rel/trurl.1
+./scripts/cd2nroff trurl.md > "$rel"/trurl.1
 
 # create a release directory tree
-cp -p --parents $(git ls-files | grep -vE '^(.github/|.reuse/|.gitignore|LICENSES/)') $rel
+cp -p --parents "$(git ls-files | grep -vE '^(.github/|.reuse/|.gitignore|LICENSES/)')" "$rel"
 
 # create tarball from the tree
 targz="$rel.tar.gz"
@@ -76,7 +76,7 @@ retar ".tarbuild"
 mv out.tar.gz "$targz"
 
 # remove the temporary directory
-rm -rf $rel
+rm -rf "$rel"
 
 # Set deterministic timestamp
 touch -c -t "$filestamp" "$targz"

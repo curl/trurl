@@ -259,8 +259,8 @@ static void help(void)
     " URL COMPONENTS:\n"
     "  ", stdout);
   fputs("url, ", stdout);
-  for(i = 0; i< NUM_COMPONENTS ; i++) {
-    printf("%s%s", i?", ":"", variables[i].name);
+  for(i = 0; i < NUM_COMPONENTS ; i++) {
+    printf("%s%s", i ? ", " : "", variables[i].name);
   }
   fputs("\n", stdout);
   exit(0);
@@ -735,7 +735,7 @@ static void showqkey(FILE *stream, const char *key, size_t klen,
   bool shown = false;
   struct string *qp = urldecode ? qpairsdec : qpairs;
 
-  for(i = 0; i< nqpairs; i++) {
+  for(i = 0; i < nqpairs; i++) {
     if(!strncmp(key, qp[i].str, klen) && (qp[i].str[klen] == '=')) {
       if(shown)
         fputc(' ', stream);
@@ -783,7 +783,7 @@ static CURLUcode geturlpart(struct option *o, int modifiers, CURLU *uh,
                  (o->curl ? 0 : CURLU_NON_SUPPORT_SCHEME)|
                  (((modifiers & VARMODIFIER_URLENCODED) ||
                    o->urlencode) ?
-                  0 :CURLU_URLDECODE));
+                  0 : CURLU_URLDECODE));
 
 #ifdef SUPPORTS_PUNY2IDN
   /* retry get w/ out puny2idn to handle invalid punycode conversions */
@@ -1229,7 +1229,7 @@ static void json(struct option *o, CURLU *uh)
                        qpairsdec[j].len,
                  false);
       fputs(",\n        \"value\": ", stdout);
-      jsonString(stdout, sep?value:"", sep?value_len:0, false);
+      jsonString(stdout, sep ? value : "", sep ? value_len : 0, false);
       fputs("\n      }", stdout);
     }
     fputs("\n    ]", stdout);
@@ -1344,8 +1344,8 @@ static char *encodequery(char *str, size_t len)
     else {
       /* encode it */
       const char hex[] = "0123456789abcdef";
-      dupe[0]='%';
-      dupe[1] = hex[in>>4];
+      dupe[0] = '%';
+      dupe[1] = hex[in >> 4];
       dupe[2] = hex[in & 0xf];
       dupe += 3;
     }
@@ -1479,7 +1479,7 @@ static struct string *memdupdec(char *source, size_t len, bool json)
       }
     }
   }
-  str = malloc(sizeof(char) * (left_len + (sep?(right_len + 1):0)));
+  str = malloc(sizeof(char) * (left_len + (sep ? (right_len + 1) : 0)));
   if(!str) {
     curl_free(right);
     curl_free(left);
@@ -1498,7 +1498,7 @@ static struct string *memdupdec(char *source, size_t len, bool json)
     return NULL;
   }
   ret->str = str;
-  ret->len = left_len + (sep?(right_len + 1):0);
+  ret->len = left_len + (sep ? (right_len + 1) : 0);
   return ret;
 }
 
@@ -1506,7 +1506,7 @@ static struct string *memdupdec(char *source, size_t len, bool json)
 static void freeqpairs(void)
 {
   int i;
-  for(i = 0; i<nqpairs; i++) {
+  for(i = 0; i < nqpairs; i++) {
     if(qpairs[i].len) {
       free(qpairs[i].str);
       qpairs[i].str = NULL;
@@ -1577,7 +1577,7 @@ static void qpair2query(CURLU *uh, struct option *o)
 {
   int i;
   char *nq = NULL;
-  for(i = 0; i<nqpairs; i++) {
+  for(i = 0; i < nqpairs; i++) {
     char *oldnq = nq;
     nq = curl_maprintf("%s%s%s", nq ? nq : "",
                        (nq && *nq && qpairs[i].len) ? o->qsep : "",
@@ -1596,7 +1596,7 @@ static void qpair2query(CURLU *uh, struct option *o)
 static int cmpfunc(const void *p1, const void *p2)
 {
   int i;
-  int len = (int)((((struct string *)p1)->len) < (((struct string *)p2)->len)?
+  int len = (int)((((struct string *)p1)->len) < (((struct string *)p2)->len) ?
                   (((struct string *)p1)->len) : (((struct string *)p2)->len));
 
   for(i = 0; i < len; i++) {
@@ -1715,7 +1715,7 @@ static char *canonical_path(const char *path)
       if(!npath)
         return NULL;
 
-      ndupe = curl_maprintf("%s%s%s", dupe ? dupe : "", npath, sl ? "/": "");
+      ndupe = curl_maprintf("%s%s%s", dupe ? dupe : "", npath, sl ? "/" : "");
       curl_free(npath);
     }
     else if(sl) {
@@ -1841,7 +1841,7 @@ static void singleurl(struct option *o,
           curl_url_cleanup(uh);
           errorf(o, ERROR_ITER, "bad component for iterate");
         }
-        if(iinfo->varmask & (1<<v->part)) {
+        if(iinfo->varmask & (1 << v->part)) {
           curl_url_cleanup(uh);
           errorf(o, ERROR_ITER,
                        "duplicate component for iterate: %s", v->name);

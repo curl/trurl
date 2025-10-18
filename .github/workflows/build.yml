@@ -1,0 +1,107 @@
+# Copyright (C) Daniel Stenberg, <daniel@haxx.se>, et al.
+#
+# SPDX-License-Identifier: curl
+
+name: 'Build'
+
+'on':
+  push:
+    branches: ['master']
+  pull_request:
+    branches: ['master']
+
+permissions: {}
+
+jobs:
+  ubuntu:
+    name: 'Linux'
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        build:
+          - name: 'default'
+            install_packages: valgrind
+            test: test-memory
+
+          - name: 'clang sanitizers'
+            install_packages: clang
+            test: test
+            CC: clang
+            CFLAGS: -fsanitize=address,undefined,signed-integer-overflow -Wformat -Werror=format-security -Werror=array-bounds -g
+            LDFLAGS: -fsanitize=address,undefined,signed-integer-overflow -g
+
+    steps:
+      - name: 'install prereqs'
+        env:
+          MATRIX_PACKAGES: ${{ matrix.build.install_packages }}
+        run: |
+          sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
+          sudo apt-get -o Dpkg::Use-Pty=0 update
+          sudo rm -f /var/lib/man-db/auto-update
+          sudo apt-get -o Dpkg::Use-Pty=0 install \
+            libcurl4-openssl-dev ${MATRIX_PACKAGES}
+
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: 'checksrc'
+        run: make checksrc
+
+      - name: 'make'
+        env:
+          CC: ${{ matrix.build.CC || 'cc' }}
+          CFLAGS: ${{ matrix.build.CFLAGS }}
+          LDFLAGS: ${{ matrix.build.LDFLAGS }}
+        run: make
+
+      - name: 'sanity test'
+        run: ./trurl -v
+
+      - name: 'test'
+        env:
+          MATRIX_TEST_TARGET: ${{matrix.build.test}}
+        run: make ${MATRIX_TEST_TARGET}
+
+  cygwin:
+    name: 'Cygwin'
+    runs-on: windows-2022
+
+    steps:
+      - uses: cygwin/cygwin-install-action@f2009323764960f80959895c7bc3bb30210afe4d # v6
+        with:
+          site: https://mirrors.kernel.org/sourceware/cygwin/
+          work-vol: 'D:'
+          packages: libcurl-devel libcurl4 make gcc-core python3
+
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: 'make'
+        run: make
+
+      - name: 'sanity test'
+        run: ./trurl -v
+
+      - name: 'test'
+        run: make test
+
+  macos:
+    name: 'macOS'
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: 'make'
+        run: make
+
+      - name: 'sanity test'
+        run: ./trurl -v
+
+      - name: 'test'
+        run: make test

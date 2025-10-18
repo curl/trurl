@@ -1,0 +1,5 @@
+# Copyright (C) Viktor Szakats. See LICENSE.md
+# SPDX-License-Identifier: curl
+
+codespell==2.4.1
+reuse==6.1.2

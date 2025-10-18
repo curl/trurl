@@ -1,3 +1,9 @@
+<!--
+Copyright (C) Daniel Stenberg, <daniel@haxx.se>, et al.
+
+SPDX-License-Identifier: curl
+-->
+
 # Contributing to trurl
 This document is intended to provide a framework for contributing to trurl. This document will go over requesting new features, fixing existing bugs and effectively
 using the internal tooling to help PRs merge quickly.
