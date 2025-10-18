@@ -41,11 +41,11 @@ jobs:
           . ./_versions.sh
           sudo podman image trust set --type reject default
           sudo podman image trust set --type accept docker.io/library
-          time podman pull "${DOCKER_IMAGE}"
+          time podman pull "${OCI_IMAGE_DEBIAN}"
           time podman run --volume "$(pwd):$(pwd)" --workdir "$(pwd)" \
             --env-file <(env | grep -a -E \
               '^(CW_|GITHUB_)') \
-            "${DOCKER_IMAGE}" \
+            "${OCI_IMAGE_DEBIAN}" \
             sh -c ./_ci-linux-debian.sh
 
       - name: 'list dependencies'
