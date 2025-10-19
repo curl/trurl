@@ -69,7 +69,7 @@ typedef enum {
 #else
 #define CURLU_ALLOW_SPACE 0
 #endif
-#if CURL_AT_LEAST_VERSION(7,88,0)
+#if CURL_AT_LEAST_VERSION(7,88,0) && !defined(_WIN32)
 #define SUPPORTS_PUNYCODE
 #endif
 #if CURL_AT_LEAST_VERSION(8,3,0)
