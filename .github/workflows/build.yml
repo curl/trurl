@@ -149,10 +149,10 @@ jobs:
 
       - name: 'cmake sanity test'
         run: |
-          PATH="$HOME/curl/bin:$PATH"
+          PATH="$PWD/curl/bin:$PATH"
           bld/Debug/trurl -v
 
       - name: 'cmake test'
         run: |
-          PATH="$HOME/curl/bin:$PATH"
+          PATH="$PWD/curl/bin:$PATH"
           cmake --build bld --target trurl-test
