@@ -58,7 +58,7 @@ jobs:
 
       - name: 'json check'
         run: |
-          jq --indent 4 < tests.json > tests-expected.json
+          jq < tests.json > tests-expected.json
           diff -u tests.json tests-expected.json
 
       - name: 'codespell'
