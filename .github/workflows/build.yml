@@ -59,9 +59,27 @@ jobs:
         run: ./trurl -v
 
       - name: 'Makefile test'
+        if: ${{ matrix.build.test != 'test-memory' }}
         env:
           MATRIX_TEST_TARGET: ${{ matrix.build.test }}
         run: make ${MATRIX_TEST_TARGET}
+
+      - name: 'cmake configure'
+        run: cmake -B bld -G Ninja -DCMAKE_INSTALL_PREFIX="$HOME"/trurl-install -DTRURL_COMPLETION_ZSH=ON -DTRURL_WERROR=ON
+
+      - name: 'cmake build'
+        run: cmake --build bld
+
+      - name: 'cmake install'
+        run: cmake --install bld
+
+      - name: 'cmake sanity test'
+        run: bld/trurl -v
+
+      - name: 'cmake test'
+        env:
+          MATRIX_TEST_TARGET: ${{ matrix.build.test }}
+        run: cmake --build bld --target trurl-"${MATRIX_TEST_TARGET}"
 
   cygwin:
     name: 'Cygwin'
