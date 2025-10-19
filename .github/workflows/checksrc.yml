@@ -4,7 +4,13 @@
 
 name: 'Source'
 
-'on': [push, pull_request]
+'on':
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
@@ -23,7 +29,7 @@ jobs:
 
       - name: 'install prereqs'
         run: |
-          HOMEBREW_NO_AUTO_UPDATE=1 /home/linuxbrew/.linuxbrew/bin/brew install shellcheck zizmor
+          /home/linuxbrew/.linuxbrew/bin/brew install shellcheck zizmor
           python3 -m venv ~/venv
           ~/venv/bin/pip --disable-pip-version-check --no-input --no-cache-dir install --progress-bar off --prefer-binary \
             -r .github/workflows/requirements.txt
