@@ -47,6 +47,18 @@ typedef enum {
 #include <stdbool.h>
 #endif
 
+/* noreturn attribute */
+#ifndef TRURL_NORETURN
+#if (defined(__GNUC__) && (__GNUC__ >= 3)) || defined(__clang__) || \
+  defined(__IAR_SYSTEMS_ICC__)
+#  define TRURL_NORETURN  __attribute__((__noreturn__))
+#elif defined(_MSC_VER)
+#  define TRURL_NORETURN  __declspec(noreturn)
+#else
+#  define TRURL_NORETURN
+#endif
+#endif
+
 #include <locale.h> /* for setlocale() */
 
 #include "version.h"
@@ -232,7 +244,7 @@ static void warnf(const char *fmt, ...)
   va_end(ap);
 }
 
-static void help(void)
+TRURL_NORETURN static void help(void)
 {
   int i;
   fputs(
@@ -272,7 +284,7 @@ static void help(void)
   exit(0);
 }
 
-static void show_version(void)
+TRURL_NORETURN static void show_version(void)
 {
   curl_version_info_data *data = curl_version_info(CURLVERSION_NOW);
   /* puny code isn't guaranteed based on the version, so it must be polled
@@ -405,7 +417,8 @@ static void errorf_low(const char *fmt, va_list ap)
               ERROR_PREFIX "Try " PROGNAME " -h for help\n", fmt, ap);
 }
 
-static void errorf(struct option *o, int exit_code, const char *fmt, ...)
+TRURL_NORETURN static void errorf(struct option *o, int exit_code,
+                                  const char *fmt, ...)
 {
   va_list ap;
   va_start(ap, fmt);
