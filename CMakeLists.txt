@@ -37,6 +37,9 @@ project(trurl VERSION "${trurl_version_str}" LANGUAGES C)
 # Install options
 
 option(TURLS_DISABLE_INSTALL "Disable installation targets" OFF)
+if(NOT TRURL_DISABLE_INSTALL)
+  include(GNUInstallDirs)
+endif()
 
 # Compiler options
 
@@ -77,7 +80,6 @@ add_executable(trurl "trurl.c" "version.h")
 target_link_libraries(trurl PRIVATE "CURL::libcurl")
 
 if(NOT TRURL_DISABLE_INSTALL)
-  include(GNUInstallDirs)
   install(TARGETS "trurl" DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
