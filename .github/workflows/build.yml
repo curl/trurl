@@ -87,6 +87,8 @@ jobs:
     defaults:
       run:
         shell: D:\cygwin\bin\bash.exe '{0}'
+    env:
+      SHELLOPTS: 'igncr'
     steps:
       - run: git config --global core.autocrlf input
         shell: pwsh
