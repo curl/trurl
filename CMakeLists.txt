@@ -43,24 +43,25 @@ endif()
 
 # Compiler options
 
+set(_picky "")
+
 option(TRURL_WERROR "Turn compiler warnings into errors" OFF)
 if(TRURL_WERROR)
   if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.24)
     set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
   elseif(MSVC)
-    list(APPEND _picky_nocheck "-WX")
+    list(APPEND _picky "-WX")
   else()  # llvm/clang and gcc style options
-    list(APPEND _picky_nocheck "-Werror")
+    list(APPEND _picky "-Werror")
   endif()
 
   if((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND
       CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 5.0) OR
      CMAKE_C_COMPILER_ID MATCHES "Clang")
-    list(APPEND _picky_nocheck "-pedantic-errors")
+    list(APPEND _picky "-pedantic-errors")
   endif()
 endif()
 
-set(_picky "")
 if(MSVC)
   list(APPEND _picky "-W4")  # Use the highest warning level for Visual Studio.
 elseif(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
