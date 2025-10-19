@@ -76,7 +76,7 @@ generate_zsh() {
     -e "s/@TRURL_STANDALONE_FLAGS@/${TRURL_STANDALONE_FLAGS}/g" \
     -e "s/@TRURL_COMPONENT_OPTIONS@/${TRURL_COMPONENT_OPTIONS}/g" \
     -e "s/@TRURL_COMPONENT_LIST@/${TRURL_COMPONENT_LIST}/g" \
-    ./completions/_trurl.zsh.in
+    ./scripts/_trurl.zsh.in
 }
 
 generate_zsh "$TRURL_RANDOM_OPTIONS"

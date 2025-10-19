@@ -119,7 +119,7 @@ if(TRURL_COMPLETION_ZSH)
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
       COMMAND "${SH_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate_completions.sh" "trurl.md" > "${_completion_zsh}"
       DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate_completions.sh" "trurl.md"
-        "${CMAKE_CURRENT_SOURCE_DIR}/completions/_trurl.zsh.in"
+        "${CMAKE_CURRENT_SOURCE_DIR}/scripts/_trurl.zsh.in"
       VERBATIM
     )
     add_custom_target("trurl-completion-zsh" ALL DEPENDS "${_completion_zsh}")
