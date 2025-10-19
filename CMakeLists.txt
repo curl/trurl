@@ -22,6 +22,19 @@
 #
 ###########################################################################
 
+#
+# Options:
+#
+# - `TRURL_EMABLE_MANUAL`: Build the trurl man page (requires Perl). Default: `ON`
+# - `TRURL_COMPLETION_ZSH`: Install zsh completions (requires POSIX shell). Default: `OFF`
+# - `TRURL_TESTS`: Run tests (requires Python). Default: `ON`
+#   Test targets: `trurl-test`, `trurl-test-memory`.
+# - `TURLS_DISABLE_INSTALL`: Disable installation targets. Default `OFF`
+# - `TRURL_WERROR`: Turn compiler warnings into errors. Default: `OFF`
+# - `CURL_INCLUDE_DIR`: Absolute path to curl include directory.
+# - `CURL_LIBRARY`: Absolute path to libcurl ibrary.
+#
+
 cmake_minimum_required(VERSION 3.17 FATAL_ERROR)
 message(STATUS "Using CMake version ${CMAKE_VERSION}")
 
@@ -92,7 +105,7 @@ add_executable(trurl "trurl.c" "version.h")
 target_link_libraries(trurl PRIVATE CURL::libcurl)
 
 if(NOT TRURL_DISABLE_INSTALL)
-  install(TARGETS "trurl" DESTINATION ${CMAKE_INSTALL_BINDIR})
+  install(TARGETS trurl DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
 # Manual
@@ -110,7 +123,7 @@ if(TRURL_EMABLE_MANUAL)
       DEPENDS "${PROJECT_SOURCE_DIR}/scripts/cd2nroff" "trurl.md"
       VERBATIM
     )
-    add_custom_target("trurl-man" ALL DEPENDS "${_man_trurl}")
+    add_custom_target(trurl-man ALL DEPENDS "${_man_trurl}")
 
     if(NOT TRURL_DISABLE_INSTALL)
       install(FILES "${_man_trurl}" DESTINATION "${CMAKE_INSTALL_MANDIR}/man1")
@@ -135,7 +148,7 @@ if(TRURL_COMPLETION_ZSH)
         "${CMAKE_CURRENT_SOURCE_DIR}/scripts/_trurl.zsh.in"
       VERBATIM
     )
-    add_custom_target("trurl-completion-zsh" ALL DEPENDS "${_completion_zsh}")
+    add_custom_target(trurl-completion-zsh ALL DEPENDS "${_completion_zsh}")
 
     if(NOT TRURL_DISABLE_INSTALL)
       install(FILES "${_completion_zsh}" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/zsh/site-functions")
@@ -151,14 +164,14 @@ if(TRURL_TESTS)
   if(NOT Python_FOUND)
     message(WARNING "Python not found, cannot run tests")
   else()
-    add_custom_target("trurl-test"
+    add_custom_target(trurl-test
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
       COMMAND "${Python_EXECUTABLE}" "test.py" "--trurl=$<TARGET_FILE:trurl>"
       DEPENDS "trurl" "test.py" "tests.json"
       VERBATIM USES_TERMINAL
     )
     if(NOT APPLE AND NOT WIN32)
-      add_custom_target("trurl-test-memory"
+      add_custom_target(trurl-test-memory
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         COMMAND "${Python_EXECUTABLE}" "test.py" "--trurl=$<TARGET_FILE:trurl>" --with-valgrind
         DEPENDS "trurl" "test.py" "tests.json"
