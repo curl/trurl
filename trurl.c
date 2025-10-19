@@ -617,13 +617,13 @@ static int getarg(struct option *o,
   *usedarg = false;
 
   if((flag[0] == '-') && (flag[1] != '-') && flag[2]) {
-    arg = (char *)&flag[2];
+    arg = (const char *)&flag[2];
     gap = false;
   }
   else if((flag[0] == '-') && (flag[1] == '-')) {
     char *equals = strchr(&flag[2], '=');
     if(equals) {
-      arg = (char *)&equals[1];
+      arg = (const char *)&equals[1];
       gap = false;
     }
   }
