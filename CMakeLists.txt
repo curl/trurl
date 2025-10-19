@@ -142,7 +142,7 @@ if(TRURL_TESTS)
     add_custom_target("trurl-test"
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
       COMMAND "${Python_EXECUTABLE}" "test.py"
-        --trurl=${CMAKE_CURRENT_BINARY_DIR}/trurl
+        --trurl=${CMAKE_CURRENT_BINARY_DIR}/trurl${CMAKE_EXECUTABLE_SUFFIX}
       DEPENDS "trurl" "test.py" "tests.json"
       VERBATIM USES_TERMINAL
     )
@@ -150,7 +150,7 @@ if(TRURL_TESTS)
       add_custom_target("trurl-test-memory"
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         COMMAND "${Python_EXECUTABLE}" "test.py" --with-valgrind
-          --trurl=${CMAKE_CURRENT_BINARY_DIR}/trurl
+          --trurl=${CMAKE_CURRENT_BINARY_DIR}/trurl${CMAKE_EXECUTABLE_SUFFIX}
         DEPENDS "trurl" "test.py" "tests.json"
         VERBATIM USES_TERMINAL
       )
