@@ -123,20 +123,32 @@ jobs:
   windows:
     name: 'Windows'
     runs-on: windows-2022
-
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v5
         with:
           persist-credentials: false
 
+      - name: 'install prereqs'
+        run: |
+          mkdir curl
+          curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 240 --retry 3 --retry-connrefused \
+            --location --proto-redir =https 'https://curl.se/windows/latest.cgi?p=win64-mingw.tar.xz' | tar --strip-components=1 -xz --directory=curl
+
       - name: 'cmake configure'
-        run: cmake -B bld -G Ninja
+        run: cmake -B bld -DCMAKE_BUILD_TYPE=Debug -DCURL_INCLUDE_DIRS="$HOME"/curl -DCURL_LIBRARIES="$HOME"/curl/lib
 
       - name: 'cmake build'
         run: cmake --build bld
 
       - name: 'cmake sanity test'
-        run: bld/trurl -v
+        run: |
+          PATH="$HOME/curl/bin:$PATH"
+          bld/Debug/trurl -v
 
       - name: 'cmake test'
-        run: cmake --build bld --target trurl-test
+        run: |
+          PATH="$HOME/curl/bin:$PATH"
+          cmake --build bld --target trurl-test
