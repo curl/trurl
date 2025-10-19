@@ -26,8 +26,8 @@
 set -eu
 
 if [ -z "$1" ]; then
-    echo "expected a trurl.md file to be passed in..."
-    exit 1
+  echo "expected a trurl.md file to be passed in..."
+  exit 1
 fi
 
 TRURL_MD_FILE=$1
@@ -71,11 +71,12 @@ for flag in $ALL_FLAGS; do
 done
 
 generate_zsh() {
-    sed -e "s/@TRURL_RANDOM_OPTIONS@/${TRURL_RANDOM_OPTIONS}/g" \
-      -e "s/@TRURL_STANDALONE_FLAGS@/${TRURL_STANDALONE_FLAGS}/g" \
-      -e "s/@TRURL_COMPONENT_OPTIONS@/${TRURL_COMPONENT_OPTIONS}/g" \
-      -e "s/@TRURL_COMPONENT_LIST@/${TRURL_COMPONENT_LIST}/g" \
-      ./completions/_trurl.zsh.in  > ./completions/_trurl.zsh
+  sed \
+    -e "s/@TRURL_RANDOM_OPTIONS@/${TRURL_RANDOM_OPTIONS}/g" \
+    -e "s/@TRURL_STANDALONE_FLAGS@/${TRURL_STANDALONE_FLAGS}/g" \
+    -e "s/@TRURL_COMPONENT_OPTIONS@/${TRURL_COMPONENT_OPTIONS}/g" \
+    -e "s/@TRURL_COMPONENT_LIST@/${TRURL_COMPONENT_LIST}/g" \
+    ./completions/_trurl.zsh.in  > ./completions/_trurl.zsh
 }
 
 generate_zsh "$TRURL_RANDOM_OPTIONS"
