@@ -826,7 +826,7 @@ static bool is_valid_trurl_error(CURLUcode rc)
       return false;
     default:
       return true;
-    }
+  }
   return true;
 }
 
