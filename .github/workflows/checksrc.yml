@@ -56,6 +56,11 @@ jobs:
       - name: 'spacecheck'
         run: scripts/spacecheck.pl
 
+      - name: 'json check'
+        run: |
+          jq --indent 4 < tests.json > tests-jq.json
+          diff -u tests.json tests-jq.json
+
       - name: 'codespell'
         run: |
           source ~/venv/bin/activate
