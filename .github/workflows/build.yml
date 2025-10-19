@@ -108,7 +108,7 @@ jobs:
       - name: 'test'
         run: make test
 
-      - name: 'cmake configuration'
+      - name: 'cmake configure'
         run: cmake -B bld -G Ninja -DCMAKE_INSTALL_PREFIX="$HOME"/trurl-install -DTRURL_COMPLETION_ZSH=ON
 
       - name: 'cmake build'
