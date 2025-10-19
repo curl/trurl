@@ -23,6 +23,7 @@
 #
 ##########################################################################
 
+set -eu
 
 if [ -z "$1" ]; then
     echo "expected a trurl.md file to be passed in..."
