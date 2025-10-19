@@ -141,14 +141,14 @@ if(TRURL_TESTS)
   else()
     add_custom_target("trurl-test"
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-      COMMAND "${Python_EXECUTABLE}" "test.py" --trurl=$<TARGET_FILE:trurl>
+      COMMAND "${Python_EXECUTABLE}" "test.py" "--trurl=$<TARGET_FILE:trurl>"
       DEPENDS "trurl" "test.py" "tests.json"
       VERBATIM USES_TERMINAL
     )
     if(NOT APPLE AND NOT WIN32)
       add_custom_target("trurl-test-memory"
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        COMMAND "${Python_EXECUTABLE}" "test.py" --trurl=$<TARGET_FILE:trurl> --with-valgrind
+        COMMAND "${Python_EXECUTABLE}" "test.py" "--trurl=$<TARGET_FILE:trurl>" --with-valgrind
         DEPENDS "trurl" "test.py" "tests.json"
         VERBATIM USES_TERMINAL
       )
