@@ -106,23 +106,29 @@ jobs:
         run: make test
 
       - name: 'cmake configure'
+        shell: D:\cygwin\bin\bash.exe '{0}'
         run: |
           cmake -B bld -DCMAKE_INSTALL_PREFIX="$HOME"/trurl-install -DTRURL_COMPLETION_ZSH=ON -DTRURL_WERROR=ON
 
       - name: 'cmake build'
+        shell: D:\cygwin\bin\bash.exe '{0}'
         run: cmake --build bld
 
       - name: 'cmake configure log'
         if: ${{ !cancelled() }}
+        shell: D:\cygwin\bin\bash.exe '{0}'
         run: cat bld/CMakeFiles/CMake*.yaml 2>/dev/null || true
 
       - name: 'cmake install'
+        shell: D:\cygwin\bin\bash.exe '{0}'
         run: cmake --install bld
 
       - name: 'cmake sanity test'
+        shell: D:\cygwin\bin\bash.exe '{0}'
         run: bld/trurl -v
 
       - name: 'cmake test'
+        shell: D:\cygwin\bin\bash.exe '{0}'
         run: cmake --build bld --target trurl-test
 
   macos:
