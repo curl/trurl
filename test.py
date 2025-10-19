@@ -224,6 +224,8 @@ def main(argc, argv):
         print(f'Error: {VALGRINDTEST} is not installed!', file=sys.stderr)
         return EXIT_ERROR
 
+    print(f"Using trurl binary: '{baseCmd}'")
+
     # check if the trurl executable exists
     if path.isfile(baseCmd):
         # get the version info for the feature list

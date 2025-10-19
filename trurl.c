@@ -22,6 +22,12 @@
  *
  ***************************************************************************/
 
+#ifdef _WIN32
+#ifndef _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+#endif
+
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -63,7 +69,7 @@ typedef enum {
 #else
 #define CURLU_ALLOW_SPACE 0
 #endif
-#if CURL_AT_LEAST_VERSION(7,88,0)
+#if CURL_AT_LEAST_VERSION(7,88,0) && !defined(_WIN32)
 #define SUPPORTS_PUNYCODE
 #endif
 #if CURL_AT_LEAST_VERSION(8,3,0)
@@ -820,8 +826,7 @@ static bool is_valid_trurl_error(CURLUcode rc)
       return false;
     default:
       return true;
-    }
-  return true;
+  }
 }
 
 static void showurl(FILE *stream, struct option *o, int modifiers,
@@ -1170,7 +1175,7 @@ static void json(struct option *o, CURLU *uh)
        cause problems. URL decode it when push to json. */
     rc = geturlpart(o, VARMODIFIER_URLENCODED, uh, variables[i].part, &part);
     if(!rc) {
-      int olen;
+      int olen = 0;
       char *dec = NULL;
 
       if(!o->urlencode) {

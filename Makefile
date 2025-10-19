@@ -39,7 +39,7 @@ PREFIX ?= /usr/local
 BINDIR ?= $(PREFIX)/bin
 MANDIR ?= $(PREFIX)/share/man/man1
 ZSH_COMPLETIONSDIR ?= $(PREFIX)/share/zsh/site-functions
-COMPLETION_FILES = completions/_trurl.zsh
+COMPLETION_FILES = scripts/_trurl.zsh
 
 INSTALL ?= install
 PYTHON3 ?= python3
@@ -85,4 +85,4 @@ checksrc:
 
 .PHONY: completions
 completions: trurl.md
-	./scripts/generate_completions.sh $^
+	./scripts/generate_completions.sh $^ > $(COMPLETION_FILES)

@@ -19,6 +19,19 @@ concurrency:
 permissions: {}
 
 jobs:
+  checksrc:
+    name: 'checksrc'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: 'checksrc'
+        run: |
+          # shellcheck disable=SC2046
+          scripts/checksrc.pl $(git ls-files '*.c' '*.h')
+
   linters:
     name: 'spellcheck, linters, REUSE'
     runs-on: ubuntu-latest
@@ -66,3 +79,33 @@ jobs:
           source ~/venv/bin/activate
           codespell --version
           codespell README.md RELEASE-NOTES CONTRIBUTING.md trurl.1 trurl.c
+
+      - name: 'cmakelint'
+        run: |
+          source ~/venv/bin/activate
+          cmake-lint --version
+          cmake-lint \
+            --suppress-decorations \
+            --disable \
+            --line-width 132 \
+            --tab-size 2 \
+            --use-tabchars false \
+            --disabled-codes C0113 \
+            --function-pattern 'trurl_[0-9a-z_]+' \
+            --macro-pattern 'trurl_[0-9a-z_]+' \
+            --global-var-pattern '[A-Z][0-9A-Z_]+' \
+            --internal-var-pattern '_[a-z][0-9a-z_]+' \
+            --local-var-pattern '_[a-z][0-9a-z_]+' \
+            --private-var-pattern '_[0-9a-z_]+' \
+            --public-var-pattern '[A-Z][0-9A-Z_]+' \
+            --argument-var-pattern '_[a-z][0-9a-z_]+' \
+            --keyword-pattern '[A-Z][0-9A-Z_]+' \
+            --max-conditionals-custom-parser 2 \
+            --min-statement-spacing 1 \
+            --max-statement-spacing 2 \
+            --max-returns 6 \
+            --max-branches 12 \
+            --max-arguments 5 \
+            --max-localvars 15 \
+            --max-statements 50 \
+            CMakeLists.txt

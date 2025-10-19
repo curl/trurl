@@ -48,47 +48,103 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: 'checksrc'
-        run: make checksrc
-
-      - name: 'make'
+      - name: 'Makefile make'
         env:
           CC: ${{ matrix.build.CC || 'cc' }}
           CFLAGS: ${{ matrix.build.CFLAGS }}
           LDFLAGS: ${{ matrix.build.LDFLAGS }}
         run: make
 
-      - name: 'sanity test'
+      - name: 'Makefile sanity test'
         run: ./trurl -v
 
-      - name: 'test'
+      - name: 'Makefile test'
+        if: ${{ matrix.build.test != 'test-memory' }}
         env:
-          MATRIX_TEST_TARGET: ${{matrix.build.test}}
+          MATRIX_TEST_TARGET: ${{ matrix.build.test }}
         run: make ${MATRIX_TEST_TARGET}
+
+      - name: 'cmake configure'
+        run: cmake -B bld -G Ninja -DCMAKE_INSTALL_PREFIX="$HOME"/trurl-install -DTRURL_COMPLETION_ZSH=ON -DTRURL_WERROR=ON
+
+      - name: 'cmake build'
+        run: cmake --build bld
+
+      - name: 'cmake install'
+        run: cmake --install bld
+
+      - name: 'cmake sanity test'
+        run: bld/trurl -v
+
+      - name: 'cmake test'
+        env:
+          MATRIX_TEST_TARGET: ${{ matrix.build.test }}
+        run: cmake --build bld --target trurl-"${MATRIX_TEST_TARGET}"
 
   cygwin:
     name: 'Cygwin'
     runs-on: windows-2022
-
+    defaults:
+      run:
+        shell: D:\cygwin\bin\bash.exe '{0}'
+    env:
+      SHELLOPTS: 'igncr'
     steps:
       - uses: cygwin/cygwin-install-action@f2009323764960f80959895c7bc3bb30210afe4d # v6
         with:
           site: https://mirrors.kernel.org/sourceware/cygwin/
           work-vol: 'D:'
-          packages: libcurl-devel libcurl4 make gcc-core python3
+          packages: gcc-core make cmake libcurl-devel python3
 
       - uses: actions/checkout@v5
         with:
           persist-credentials: false
 
-      - name: 'make'
-        run: make
+      - name: 'Makefile make'
+        run: |
+          PATH=/usr/bin
+          make
 
-      - name: 'sanity test'
-        run: ./trurl -v
+      - name: 'Makefile sanity test'
+        run: |
+          PATH=/usr/bin
+          ./trurl -v
 
-      - name: 'test'
-        run: make test
+      - name: 'Makefile test'
+        run: |
+          PATH=/usr/bin
+          make test
+
+      - name: 'cmake configure'
+        run: |
+          PATH=/usr/bin
+          cmake -B bld -DCMAKE_INSTALL_PREFIX="$HOME"/trurl-install -DTRURL_COMPLETION_ZSH=ON -DTRURL_WERROR=ON
+
+      - name: 'cmake build'
+        run: |
+          PATH=/usr/bin
+          cmake --build bld
+
+      - name: 'cmake configure log'
+        if: ${{ !cancelled() }}
+        run: |
+          PATH=/usr/bin
+          cat bld/CMakeFiles/CMake*.yaml 2>/dev/null || true
+
+      - name: 'cmake install'
+        run: |
+          PATH=/usr/bin
+          cmake --install bld
+
+      - name: 'cmake sanity test'
+        run: |
+          PATH=/usr/bin
+          bld/trurl -v
+
+      - name: 'cmake test'
+        run: |
+          PATH=/usr/bin
+          cmake --build bld --target trurl-test
 
   macos:
     name: 'macOS'
@@ -99,11 +155,63 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: 'make'
+      - name: 'Makefile make'
         run: make
 
-      - name: 'sanity test'
+      - name: 'Makefile sanity test'
         run: ./trurl -v
 
-      - name: 'test'
+      - name: 'Makefile test'
         run: make test
+
+      - name: 'cmake configure'
+        run: cmake -B bld -G Ninja -DCMAKE_INSTALL_PREFIX="$HOME"/trurl-install -DTRURL_COMPLETION_ZSH=ON -DTRURL_WERROR=ON
+
+      - name: 'cmake build'
+        run: cmake --build bld
+
+      - name: 'cmake install'
+        run: cmake --install bld
+
+      - name: 'cmake sanity test'
+        run: bld/trurl -v
+
+      - name: 'cmake test'
+        run: cmake --build bld --target trurl-test
+
+  windows:
+    name: 'Windows'
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: 'install prereqs'
+        run: |
+          mkdir curl
+          curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 240 --retry 3 --retry-connrefused \
+            --location --proto-redir =https 'https://curl.se/windows/latest.cgi?p=win64-mingw.tar.xz' | tar --strip-components=1 -xJ --directory=curl
+
+      - name: 'cmake configure'
+        run: cmake -B bld -DCMAKE_BUILD_TYPE=Debug -DCURL_INCLUDE_DIR="$PWD"/curl/include -DCURL_LIBRARY="$PWD"/curl/lib/libcurl.dll.a -DTRURL_WERROR=ON
+
+      - name: 'cmake build'
+        run: cmake --build bld --verbose
+
+      - name: 'cmake configure log'
+        if: ${{ !cancelled() }}
+        run: cat bld/CMakeFiles/CMake*.yaml 2>/dev/null || true
+
+      - name: 'cmake sanity test'
+        run: |
+          PATH="$PWD/curl/bin:$PATH"
+          bld/Debug/trurl -v
+
+      - name: 'cmake test'
+        run: |
+          PATH="$PWD/curl/bin:$PATH"
+          cmake --build bld --target trurl-test
