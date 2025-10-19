@@ -122,7 +122,7 @@ jobs:
 
   windows:
     name: 'Windows'
-    runs-on: windows-2022
+    runs-on: windows-latest
     defaults:
       run:
         shell: bash
@@ -138,10 +138,10 @@ jobs:
             --location --proto-redir =https 'https://curl.se/windows/latest.cgi?p=win64-mingw.tar.xz' | tar --strip-components=1 -xJ --directory=curl
 
       - name: 'cmake configure'
-        run: cmake -B bld -DCMAKE_BUILD_TYPE=Debug -DCURL_INCLUDE_DIR="$PWD"/curl -DCURL_LIBRARY="$PWD"/curl/lib/libcurl.dll.a
+        run: cmake -B bld -DCMAKE_BUILD_TYPE=Debug -DCURL_INCLUDE_DIR="$PWD"/curl/include -DCURL_LIBRARY="$PWD"/curl/lib/libcurl.dll.a
 
       - name: 'cmake build'
-        run: cmake --build bld
+        run: cmake --build bld --verbose
 
       - name: 'cmake configure log'
         if: ${{ !cancelled() }}
