@@ -26,7 +26,7 @@
 
 # This file is generated from trurls generate_completions.sh
 
-# standalone flags - things that have now follow on 
+# standalone flags - things that have now follow on
 standalone_flags=(@TRURL_STANDALONE_FLAGS@)
 
 # component options - flags that expected to come after them
@@ -52,11 +52,11 @@ if (( "${random_options[(Ie)${words[$CURRENT-1]}]}" )); then
     return 0
 fi
 
-# calling compadd directly allows us the let the flags be 
-# repeatable so we can recall --set, --get etc. 
+# calling compadd directly allows us the let the flags be
+# repeatable so we can recall --set, --get etc.
 repeatable=( "${component_options[@]}" "${random_options[@]}" )
 args=( "${repeatable[@]}" )
-# only apply single completions which haven't been used. 
+# only apply single completions which haven't been used.
 for sf in "${standalone_flags[@]}"; do
     if ! (( "${words[(Ie)$sf]}" ));  then
         args+=("$sf")

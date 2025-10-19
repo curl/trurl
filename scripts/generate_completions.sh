@@ -32,7 +32,6 @@ fi
 TRURL_MD_FILE=$1
 
 
-
 ALL_FLAGS="$(sed  -n \
         -e 's/"//g' \
         -e '/\# URL COMPONENTS/q;p' \
@@ -53,7 +52,7 @@ TRURL_COMPONENT_LIST="$(sed -n \
     | awk '{printf "\"%s\" ", $2}')"
 
 for flag in $ALL_FLAGS; do
-  # these are now TRURL_STANDALONE 
+  # these are now TRURL_STANDALONE
   if echo "$flag" | grep -q "="; then
     TRURL_COMPONENT_OPTIONS+="$(echo "$flag" \
     | awk '{split($0, a, ","); for(i in a) {printf "%s ", a[i]}}' \
