@@ -47,9 +47,7 @@ set(_picky "")
 
 option(TRURL_WERROR "Turn compiler warnings into errors" OFF)
 if(TRURL_WERROR)
-  if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.24)
-    set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
-  elseif(MSVC)
+  if(MSVC)
     list(APPEND _picky "-WX")
   else()  # llvm/clang and gcc style options
     list(APPEND _picky "-Werror")
