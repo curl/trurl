@@ -68,8 +68,8 @@ elseif(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang"
   list(APPEND _picky "-Wconversion" "-Wmissing-prototypes" "-Wwrite-strings" "-Wsign-compare" "-Wno-sign-conversion")
 endif()
 
-string(REPLACE ";" " " _picky "${_picky_tmp}")
-message(STATUS "Picky compiler options:${_picky_tmp}")
+string(REPLACE ";" " " _picky_tmp "${_picky}")
+message(STATUS "Picky compiler options: ${_picky_tmp}")
 set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS "${_picky}")
 
 # Build
