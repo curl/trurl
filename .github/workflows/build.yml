@@ -48,9 +48,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: 'checksrc'
-        run: make checksrc
-
       - name: 'make'
         env:
           CC: ${{ matrix.build.CC || 'cc' }}
@@ -116,6 +113,27 @@ jobs:
 
       - name: 'cmake install'
         run: cmake --install bld
+
+      - name: 'cmake sanity test'
+        run: bld/trurl -v
+
+      - name: 'cmake test'
+        run: cmake --build bld --target trurl-test
+
+  windows:
+    name: 'Windows'
+    runs-on: windows-2022
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: 'cmake configure'
+        run: cmake -B bld -G Ninja
+
+      - name: 'cmake build'
+        run: cmake --build bld
 
       - name: 'cmake sanity test'
         run: bld/trurl -v

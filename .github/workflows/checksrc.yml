@@ -19,6 +19,19 @@ concurrency:
 permissions: {}
 
 jobs:
+  checksrc:
+    name: 'checksrc'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: 'checksrc'
+        run: |
+          # shellcheck disable=SC2046
+          scripts/checksrc.pl $(git ls-files '*.c' '*.h')
+
   linters:
     name: 'spellcheck, linters, REUSE'
     runs-on: ubuntu-latest
