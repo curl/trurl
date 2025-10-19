@@ -39,7 +39,7 @@ PREFIX ?= /usr/local
 BINDIR ?= $(PREFIX)/bin
 MANDIR ?= $(PREFIX)/share/man/man1
 ZSH_COMPLETIONSDIR ?= $(PREFIX)/share/zsh/site-functions
-COMPLETION_FILES=completions/_trurl.zsh
+COMPLETION_FILES = completions/_trurl.zsh
 
 INSTALL ?= install
 PYTHON3 ?= python3
