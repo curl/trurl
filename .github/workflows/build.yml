@@ -87,8 +87,6 @@ jobs:
     defaults:
       run:
         shell: D:\cygwin\bin\bash.exe '{0}'
-    env:
-      SHELLOPTS: 'igncr'
     steps:
       - run: git config --global core.autocrlf input
         shell: pwsh
@@ -111,9 +109,6 @@ jobs:
 
       - name: 'Makefile test'
         run: make test
-
-      #- name: 'Makefile clean'
-      #  run: make clean
 
       - name: 'cmake configure'
         run: |
