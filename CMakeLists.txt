@@ -92,7 +92,7 @@ set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS "${_picky}")
 
 # Build
 
-find_package(CURL REQUIRED)
+find_package(CURL 7.62.0 REQUIRED)
 if(CURL_INCLUDE_DIR AND CURL_LIBRARY)  # Custom configuration
   # CMake's FindCURL.cmake module (as of v4.1.2), may leave a 'curl' library
   # in the `INTERFACE_LINK_LIBRARIES` property, while telling it to look for
