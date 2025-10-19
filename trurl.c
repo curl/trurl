@@ -827,7 +827,6 @@ static bool is_valid_trurl_error(CURLUcode rc)
     default:
       return true;
   }
-  return true;
 }
 
 static void showurl(FILE *stream, struct option *o, int modifiers,
