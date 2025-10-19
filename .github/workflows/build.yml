@@ -90,7 +90,7 @@ jobs:
         with:
           site: https://mirrors.kernel.org/sourceware/cygwin/
           work-vol: 'D:'
-          packages: libcurl-devel make gcc-core python3 cmake
+          packages: gcc-core make cmake libcurl-devel python3
 
       - uses: actions/checkout@v5
         with:
