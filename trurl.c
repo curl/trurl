@@ -824,8 +824,6 @@ static bool is_valid_trurl_error(CURLUcode rc)
 #endif
     /* silently ignore */
       return false;
-    default:
-      return true;
   }
   return true;
 }
