@@ -101,13 +101,19 @@ jobs:
           persist-credentials: false
 
       - name: 'Makefile make'
-        run: make
+        run: |
+          PATH=/usr/bin
+          make
 
       - name: 'Makefile sanity test'
-        run: ./trurl -v
+        run: |
+          PATH=/usr/bin
+          ./trurl -v
 
       - name: 'Makefile test'
-        run: make test
+        run: |
+          PATH=/usr/bin
+          make test
 
       - name: 'cmake configure'
         run: |
