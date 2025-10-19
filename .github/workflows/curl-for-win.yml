@@ -20,7 +20,7 @@ env:
 
 jobs:
   win-llvm:
-    name: 'Windows llvm (ARM64, x64)'
+    name: 'Windows llvm (arm64, x64)'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
