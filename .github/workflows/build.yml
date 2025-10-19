@@ -141,12 +141,14 @@ jobs:
         run: |
           /usr/bin/find curl
           echo '-------------------'
-          cmake -B bld -DCMAKE_BUILD_TYPE=Debug -DCURL_INCLUDE_DIRS="$HOME"/curl -DCURL_LIBRARY="$HOME"/curl/lib/libcurl.dll.a
+          pwd
+          echo '-------------------'
+          cmake -B bld -DCMAKE_BUILD_TYPE=Debug -DCURL_INCLUDE_DIRS="$PWD"/curl -DCURL_LIBRARY="$PWD"/curl/lib/libcurl.dll.a
 
       - name: 'cmake build'
         run: cmake --build bld
 
-      - name: 'cmake onfigure log'
+      - name: 'cmake configure log'
         if: ${{ !cancelled() }}
         run: cat bld/CMakeFiles/CMake*.yaml 2>/dev/null || true
 
