@@ -77,7 +77,7 @@ set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS "${_picky}")
 
 find_package(CURL REQUIRED)
 add_executable(trurl "trurl.c" "version.h")
-target_link_libraries(trurl PRIVATE "CURL::libcurl")
+target_link_libraries(trurl PRIVATE CURL::libcurl)
 
 if(NOT TRURL_DISABLE_INSTALL)
   install(TARGETS "trurl" DESTINATION ${CMAKE_INSTALL_BINDIR})
