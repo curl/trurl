@@ -114,10 +114,10 @@ if(TRURL_COMPLETION_ZSH)
   if(NOT SH_EXECUTABLE)
     message(WARNING "POSIX shell not found, cannot generate completion script")
   else()
-    set(_completion_zsh "${CMAKE_CURRENT_SOURCE_DIR}/completions/_trurl.zsh")  # Hard-coded target in the generator script
+    set(_completion_zsh "${CMAKE_CURRENT_BINARY_DIR}/_trurl.zsh")
     add_custom_command(OUTPUT "${_completion_zsh}"
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-      COMMAND "${SH_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate_completions.sh" "trurl.md"
+      COMMAND "${SH_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate_completions.sh" "trurl.md" > "${_completion_zsh}"
       DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate_completions.sh" "trurl.md"
         "${CMAKE_CURRENT_SOURCE_DIR}/completions/_trurl.zsh.in"
       VERBATIM

@@ -85,4 +85,4 @@ checksrc:
 
 .PHONY: completions
 completions: trurl.md
-	./scripts/generate_completions.sh $^
+	./scripts/generate_completions.sh $^ > $(COMPLETION_FILES)
