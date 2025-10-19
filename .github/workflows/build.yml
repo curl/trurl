@@ -60,7 +60,7 @@ jobs:
 
       - name: 'Makefile test'
         env:
-          MATRIX_TEST_TARGET: ${{matrix.build.test}}
+          MATRIX_TEST_TARGET: ${{ matrix.build.test }}
         run: make ${MATRIX_TEST_TARGET}
 
   cygwin:
