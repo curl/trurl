@@ -108,6 +108,9 @@ jobs:
       - name: 'Makefile test'
         run: make test
 
+      - name: 'Makefile clean'
+        run: make clean
+
       - name: 'cmake configure'
         shell: D:\cygwin\bin\bash.exe '{0}'
         run: |
