@@ -141,7 +141,7 @@ jobs:
         run: |
           /usr/bin/find curl
           echo '-------------------'
-          cmake -B bld -DCMAKE_BUILD_TYPE=Debug -DCURL_INCLUDE_DIRS="$HOME"/curl -DCURL_LIBRARIES="$HOME"/curl/lib/libcurl.dll.a
+          cmake -B bld -DCMAKE_BUILD_TYPE=Debug -DCURL_INCLUDE_DIRS="$HOME"/curl -DCURL_LIBRARY="$HOME"/curl/lib/libcurl.dll.a
 
       - name: 'cmake build'
         run: cmake --build bld
