@@ -132,7 +132,7 @@ endif()
 
 # Tests
 
-option(TRURL_TESTS "Run tests (requires Python)" OFF)
+option(TRURL_TESTS "Run tests (requires Python)" ON)
 if(TRURL_TESTS)
   find_package(Python)
   if(NOT Python_FOUND)
