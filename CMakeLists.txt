@@ -25,14 +25,18 @@
 #
 # Options:
 #
-# - `TRURL_EMABLE_MANUAL`: Build the trurl man page (requires Perl). Default: `ON`
-# - `TRURL_COMPLETION_ZSH`: Install zsh completions (requires POSIX shell). Default: `OFF`
-# - `TRURL_TESTS`: Run tests (requires Python). Default: `ON`
-#   Test targets: `trurl-test`, `trurl-test-memory`.
-# - `TURLS_DISABLE_INSTALL`: Disable installation targets. Default `OFF`
-# - `TRURL_WERROR`: Turn compiler warnings into errors. Default: `OFF`
-# - `CURL_INCLUDE_DIR`: Absolute path to curl include directory.
-# - `CURL_LIBRARY`: Absolute path to libcurl ibrary.
+# - `TRURL_EMABLE_MANUAL`:    Build the trurl man page (requires Perl). Default: `ON`
+# - `TRURL_COMPLETION_ZSH`:   Install zsh completions (requires POSIX shell). Default: `OFF`
+# - `TRURL_TESTS`:            Run tests (requires Python). Default: `ON`
+#                             Test targets:
+#                             - `trurl-test`:        Run tests.
+#                             - `trurl-test-memory`: Run tests with valgrind.
+# - `TURLS_DISABLE_INSTALL`:  Disable installation targets. Default `OFF`
+# - `TRURL_WERROR`:           Turn compiler warnings into errors. Default: `OFF`
+#
+# - `CURL_INCLUDE_DIR`:       Absolute path to curl include directory.
+# - `CURL_LIBRARY`:           Absolute path to libcurl library.
+# - `CURL_USE_STATIC_LIBS`:   Look for static libcurl library (requires CMake v3.28).
 #
 
 cmake_minimum_required(VERSION 3.17 FATAL_ERROR)
