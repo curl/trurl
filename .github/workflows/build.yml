@@ -112,8 +112,8 @@ jobs:
       - name: 'Makefile test'
         run: make test
 
-      - name: 'Makefile clean'
-        run: make clean
+      #- name: 'Makefile clean'
+      #  run: make clean
 
       - name: 'cmake configure'
         run: |
