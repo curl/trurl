@@ -1174,7 +1174,7 @@ static void json(struct option *o, CURLU *uh)
        cause problems. URL decode it when push to json. */
     rc = geturlpart(o, VARMODIFIER_URLENCODED, uh, variables[i].part, &part);
     if(!rc) {
-      int olen;
+      int olen = 0;
       char *dec = NULL;
 
       if(!o->urlencode) {
