@@ -1171,6 +1171,7 @@ static void json(struct option *o, CURLU *uh)
   bool first = true;
   char *url;
   CURLUcode rc = geturlpart(o, 0, uh, CURLUPART_URL, &url);
+  bool params_errors;
   if(rc) {
     trurl_cleanup_options(o);
     verify(o, ERROR_BADURL, "invalid url [%s]", curl_url_strerror(rc));
@@ -1181,7 +1182,7 @@ static void json(struct option *o, CURLU *uh)
   curl_free(url);
   fputs(",\n    \"parts\": {\n", stdout);
   /* special error handling required to not print params array. */
-  bool params_errors = false;
+  params_errors = false;
   for(i = 0; variables[i].name; i++) {
     char *part;
     /* ask for the URL encoded version so that weird control characters do not
@@ -1660,6 +1661,8 @@ static bool replace(struct option *o)
     }
     for(i = 0; i < nqpairs; i++) {
       char *q = qpairs[i].str;
+      struct string *pdec, *p;
+
       /* not the correct query, move on */
       if(strncmp(q, key.str, key.len))
         continue;
@@ -1673,11 +1676,10 @@ static bool replace(struct option *o)
         qpairsdec[i].str = xstrdup(o, "");
         continue;
       }
-      struct string *pdec =
-        memdupdec(key.str, key.len + value.len + 1, o->jsonout);
-      struct string *p = memdupzero(key.str, key.len + value.len +
-                                    (value.str ? 1 : 0),
-                                    &query_is_modified);
+      pdec = memdupdec(key.str, key.len + value.len + 1, o->jsonout);
+      p = memdupzero(key.str, key.len + value.len +
+                     (value.str ? 1 : 0),
+                     &query_is_modified);
       qpairs[i].len = p->len;
       qpairs[i].str = p->str;
       qpairsdec[i].len = pdec->len;
@@ -1718,8 +1720,10 @@ static char *canonical_path(const char *path)
     char *npath;
     char *ndupe;
     int olen;
+    size_t partlen;
+
     sl = memchr(path, '/', len);
-    size_t partlen = sl ? (size_t)(sl - path) : len;
+    partlen = sl ? (size_t)(sl - path) : len;
 
     if(partlen) {
       /* First URL decode the part */
