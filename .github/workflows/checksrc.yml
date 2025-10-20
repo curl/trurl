@@ -80,6 +80,13 @@ jobs:
           codespell --version
           codespell README.md RELEASE-NOTES CONTRIBUTING.md trurl.1 trurl.c
 
+      - name: 'ruff'
+        run: |
+          source ~/venv/bin/activate
+          ruff --version
+          ruff check --extend-select=B007,B016,C405,C416,COM818,D200,D213,D204,D401,D415,FURB129,N818,PERF401,PERF403,PIE790,PIE808,PLW0127,Q004,RUF010,SIM101,SIM117,SIM118,TRY400,TRY401 \
+            $(git ls-files '*.py')
+
       - name: 'cmakelint'
         run: |
           source ~/venv/bin/activate
