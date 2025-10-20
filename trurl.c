@@ -47,6 +47,18 @@ typedef enum {
 #include <stdbool.h>
 #endif
 
+/* noreturn attribute */
+#ifndef TRURL_NORETURN
+#if (defined(__GNUC__) && (__GNUC__ >= 3)) || defined(__clang__) || \
+  defined(__IAR_SYSTEMS_ICC__)
+#  define TRURL_NORETURN  __attribute__((__noreturn__))
+#elif defined(_MSC_VER)
+#  define TRURL_NORETURN  __declspec(noreturn)
+#else
+#  define TRURL_NORETURN
+#endif
+#endif
+
 #include <locale.h> /* for setlocale() */
 
 #include "version.h"
@@ -88,18 +100,6 @@ typedef enum {
 #else
 #define CURLU_GET_EMPTY 0
 #endif
-
-#define OUTPUT_URL      0  /* default */
-#define OUTPUT_SCHEME   1
-#define OUTPUT_USER     2
-#define OUTPUT_PASSWORD 3
-#define OUTPUT_OPTIONS  4
-#define OUTPUT_HOST     5
-#define OUTPUT_PORT     6
-#define OUTPUT_PATH     7
-#define OUTPUT_QUERY    8
-#define OUTPUT_FRAGMENT 9
-#define OUTPUT_ZONEID   10
 
 #define NUM_COMPONENTS 10 /* excluding "url" */
 
@@ -232,7 +232,7 @@ static void warnf(const char *fmt, ...)
   va_end(ap);
 }
 
-static void help(void)
+TRURL_NORETURN static void help(void)
 {
   int i;
   fputs(
@@ -265,14 +265,14 @@ static void help(void)
     " URL COMPONENTS:\n"
     "  ", stdout);
   fputs("url, ", stdout);
-  for(i = 0; i < NUM_COMPONENTS ; i++) {
+  for(i = 0; i < NUM_COMPONENTS; i++) {
     printf("%s%s", i ? ", " : "", variables[i].name);
   }
   fputs("\n", stdout);
   exit(0);
 }
 
-static void show_version(void)
+TRURL_NORETURN static void show_version(void)
 {
   curl_version_info_data *data = curl_version_info(CURLVERSION_NOW);
   /* puny code isn't guaranteed based on the version, so it must be polled
@@ -382,9 +382,9 @@ static void trurl_warnf(struct option *o, const char *fmt, ...)
 }
 
 #define MAX_QPAIRS 1000
-struct string qpairs[MAX_QPAIRS]; /* encoded */
-struct string qpairsdec[MAX_QPAIRS]; /* decoded */
-int nqpairs; /* how many is stored */
+static struct string qpairs[MAX_QPAIRS]; /* encoded */
+static struct string qpairsdec[MAX_QPAIRS]; /* decoded */
+static size_t nqpairs; /* how many is stored */
 
 static void trurl_cleanup_options(struct option *o)
 {
@@ -405,7 +405,8 @@ static void errorf_low(const char *fmt, va_list ap)
               ERROR_PREFIX "Try " PROGNAME " -h for help\n", fmt, ap);
 }
 
-static void errorf(struct option *o, int exit_code, const char *fmt, ...)
+TRURL_NORETURN static void errorf(struct option *o, int exit_code,
+                                  const char *fmt, ...)
 {
   va_list ap;
   va_start(ap, fmt);
@@ -604,13 +605,13 @@ static int getarg(struct option *o,
   *usedarg = false;
 
   if((flag[0] == '-') && (flag[1] != '-') && flag[2]) {
-    arg = (char *)&flag[2];
+    arg = (const char *)&flag[2];
     gap = false;
   }
   else if((flag[0] == '-') && (flag[1] == '-')) {
     char *equals = strchr(&flag[2], '=');
     if(equals) {
-      arg = (char *)&equals[1];
+      arg = (const char *)&equals[1];
       gap = false;
     }
   }
@@ -737,7 +738,7 @@ static int getarg(struct option *o,
 static void showqkey(FILE *stream, const char *key, size_t klen,
                      bool urldecode, bool showall)
 {
-  int i;
+  size_t i;
   bool shown = false;
   struct string *qp = urldecode ? qpairsdec : qpairs;
 
@@ -1110,10 +1111,10 @@ static unsigned int set(CURLU *uh,
 static void jsonString(FILE *stream, const char *in, size_t len,
                        bool lowercase)
 {
-  const unsigned char *i = (unsigned char *)in;
+  const unsigned char *i = (const unsigned char *)in;
   const char *in_end = &in[len];
   fputc('\"', stream);
-  for(; i < (unsigned char *)in_end; i++) {
+  for(; i < (const unsigned char *)in_end; i++) {
     switch(*i) {
     case '\\':
       fputs("\\\\", stream);
@@ -1140,7 +1141,7 @@ static void jsonString(FILE *stream, const char *in, size_t len,
       if(*i < 32)
         fprintf(stream, "\\u%04x", *i);
       else {
-        char out = *i;
+        unsigned char out = *i;
         if(lowercase && (out >= 'A' && out <= 'Z'))
           /* do not use tolower() since that's locale specific */
           out |= ('a' - 'A');
@@ -1158,6 +1159,7 @@ static void json(struct option *o, CURLU *uh)
   bool first = true;
   char *url;
   CURLUcode rc = geturlpart(o, 0, uh, CURLUPART_URL, &url);
+  bool params_errors;
   if(rc) {
     trurl_cleanup_options(o);
     verify(o, ERROR_BADURL, "invalid url [%s]", curl_url_strerror(rc));
@@ -1168,7 +1170,7 @@ static void json(struct option *o, CURLU *uh)
   curl_free(url);
   fputs(",\n    \"parts\": {\n", stdout);
   /* special error handling required to not print params array. */
-  bool params_errors = false;
+  params_errors = false;
   for(i = 0; variables[i].name; i++) {
     char *part;
     /* ask for the URL encoded version so that weird control characters do not
@@ -1216,9 +1218,9 @@ static void json(struct option *o, CURLU *uh)
   fputs("\n    }", stdout);
   first = true;
   if(nqpairs && !params_errors) {
-    int j;
+    size_t j;
     fputs(",\n    \"params\": [\n", stdout);
-    for(j = 0 ; j < nqpairs; j++) {
+    for(j = 0; j < nqpairs; j++) {
       const char *sep = memchr(qpairsdec[j].str, '=', qpairsdec[j].len);
       const char *value = sep ? sep + 1 : "";
       int value_len = (int) qpairsdec[j].len - (int)(value - qpairsdec[j].str);
@@ -1254,7 +1256,7 @@ static bool trim(struct option *o)
          asterisk */
       size_t inslen;
       bool pattern = false;
-      int i;
+      size_t i;
       char *temp = NULL;
 
       inslen = strlen(ptr);
@@ -1276,7 +1278,7 @@ static bool trim(struct option *o)
           inslen--;
       }
 
-      for(i = 0 ; i < nqpairs; i++) {
+      for(i = 0; i < nqpairs; i++) {
         char *q = qpairs[i].str;
         char *sep = strchr(q, '=');
         size_t qlen;
@@ -1339,8 +1341,7 @@ static char *encodequery(char *str, size_t len)
     return NULL;
 
   while(len--) {
-    /* treat the characters unsigned */
-    unsigned char in = (unsigned char)*str++;
+    char in = *str++;
 
     if(in == ' ')
       *dupe++ = '+';
@@ -1350,8 +1351,8 @@ static char *encodequery(char *str, size_t len)
       /* encode it */
       const char hex[] = "0123456789abcdef";
       dupe[0] = '%';
-      dupe[1] = hex[in >> 4];
-      dupe[2] = hex[in & 0xf];
+      dupe[1] = hex[(unsigned char)in >> 4];
+      dupe[2] = hex[(unsigned char)in & 0xf];
       dupe += 3;
     }
   }
@@ -1376,7 +1377,7 @@ static struct string *memdupzero(char *source, size_t len, bool *modified)
     char *sep = memchr(source, '=', len);
     int olen;
     if(!sep) { /* no '=' */
-      char *decode = decodequery(source, (int)len, &olen);
+      char *decode = decodequery(source, len, &olen);
       if(decode)
         encode = encodequery(decode, olen);
       else
@@ -1510,7 +1511,7 @@ static struct string *memdupdec(char *source, size_t len, bool json)
 
 static void freeqpairs(void)
 {
-  int i;
+  size_t i;
   for(i = 0; i < nqpairs; i++) {
     if(qpairs[i].len) {
       free(qpairs[i].str);
@@ -1580,7 +1581,7 @@ static bool extractqpairs(CURLU *uh, struct option *o)
 
 static void qpair2query(CURLU *uh, struct option *o)
 {
-  int i;
+  size_t i;
   char *nq = NULL;
   for(i = 0; i < nqpairs; i++) {
     char *oldnq = nq;
@@ -1590,7 +1591,7 @@ static void qpair2query(CURLU *uh, struct option *o)
     curl_free(oldnq);
   }
   if(nq) {
-    int rc = curl_url_set(uh, CURLUPART_QUERY, nq, 0);
+    CURLUcode rc = curl_url_set(uh, CURLUPART_QUERY, nq, 0);
     if(rc)
       trurl_warnf(o, "internal problem: failed to store updated query in URL");
   }
@@ -1601,12 +1602,14 @@ static void qpair2query(CURLU *uh, struct option *o)
 static int cmpfunc(const void *p1, const void *p2)
 {
   int i;
-  int len = (int)((((struct string *)p1)->len) < (((struct string *)p2)->len) ?
-                  (((struct string *)p1)->len) : (((struct string *)p2)->len));
+  int len = (int)((((const struct string *)p1)->len) <
+                  (((const struct string *)p2)->len) ?
+                  (((const struct string *)p1)->len) :
+                  (((const struct string *)p2)->len));
 
   for(i = 0; i < len; i++) {
-    char c1 = ((struct string *)p1)->str[i] | ('a' - 'A');
-    char c2 = ((struct string *)p2)->str[i] | ('a' - 'A');
+    char c1 = ((const struct string *)p1)->str[i] | ('a' - 'A');
+    char c2 = ((const struct string *)p2)->str[i] | ('a' - 'A');
     if(c1 != c2)
       return c1 - c2;
   }
@@ -1633,7 +1636,7 @@ static bool replace(struct option *o)
     struct string key;
     struct string value;
     bool replaced = false;
-    int i;
+    size_t i;
     key.str = node->data;
     value.str = strchr(key.str, '=');
     if(value.str) {
@@ -1647,6 +1650,8 @@ static bool replace(struct option *o)
     }
     for(i = 0; i < nqpairs; i++) {
       char *q = qpairs[i].str;
+      struct string *pdec, *p;
+
       /* not the correct query, move on */
       if(strncmp(q, key.str, key.len))
         continue;
@@ -1660,11 +1665,10 @@ static bool replace(struct option *o)
         qpairsdec[i].str = xstrdup(o, "");
         continue;
       }
-      struct string *pdec =
-        memdupdec(key.str, key.len + value.len + 1, o->jsonout);
-      struct string *p = memdupzero(key.str, key.len + value.len +
-                                    (value.str ? 1 : 0),
-                                    &query_is_modified);
+      pdec = memdupdec(key.str, key.len + value.len + 1, o->jsonout);
+      p = memdupzero(key.str, key.len + value.len +
+                     (value.str ? 1 : 0),
+                     &query_is_modified);
       qpairs[i].len = p->len;
       qpairs[i].str = p->str;
       qpairsdec[i].len = pdec->len;
@@ -1705,8 +1709,10 @@ static char *canonical_path(const char *path)
     char *npath;
     char *ndupe;
     int olen;
+    size_t partlen;
+
     sl = memchr(path, '/', len);
-    size_t partlen = sl ? (size_t)(sl - path) : len;
+    partlen = sl ? (size_t)(sl - path) : len;
 
     if(partlen) {
       /* First URL decode the part */
@@ -2011,7 +2017,7 @@ static void singleurl(struct option *o,
     else {
       /* default output is full URL */
       char *nurl = NULL;
-      int rc = geturlpart(o, 0, uh, CURLUPART_URL, &nurl);
+      CURLUcode rc = geturlpart(o, 0, uh, CURLUPART_URL, &nurl);
       if(!rc) {
         printf("%s\n", nurl);
         curl_free(nurl);
