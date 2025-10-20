@@ -25,7 +25,7 @@
 #
 # Options:
 #
-# - `TRURL_EMABLE_MANUAL`:    Build the trurl man page (requires Perl). Default: `ON`
+# - `TRURL_MANUAL`:           Build the trurl man page (requires Perl). Default: `ON`
 # - `TRURL_COMPLETION_ZSH`:   Install zsh completions (requires POSIX shell). Default: `OFF`
 # - `TRURL_TESTS`:            Run tests (requires Python). Default: `ON`
 #                             Test targets:
@@ -124,8 +124,8 @@ endif()
 
 # Manual
 
-option(TRURL_EMABLE_MANUAL "Build the trurl man page (requires Perl)" ON)
-if(TRURL_EMABLE_MANUAL)
+option(TRURL_MANUAL "Build the trurl man page (requires Perl)" ON)
+if(TRURL_MANUAL)
   find_package(Perl)
   if(NOT Perl_FOUND)
     message(WARNING "Perl not found, cannot build the man page.")
