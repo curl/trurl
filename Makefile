@@ -28,8 +28,9 @@ ifndef TRURL_IGNORE_CURL_CONFIG
 LDLIBS += $$(curl-config --libs)
 CFLAGS += $$(curl-config --cflags)
 endif
-CFLAGS += -W -Wall -Wshadow -pedantic
-CFLAGS += -Wconversion -Wmissing-prototypes -Wwrite-strings -Wsign-compare -Wno-sign-conversion
+CFLAGS += -W -Wall -pedantic
+CFLAGS += -Wconversion -Wmissing-prototypes -Wshadow -Wsign-compare -Wno-sign-conversion -Wwrite-strings
+CFLAGS += -Wcast-qual -Wdeclaration-after-statement -Wmissing-noreturn
 ifndef NDEBUG
 CFLAGS += -Werror -g
 endif
