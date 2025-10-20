@@ -394,9 +394,9 @@ static void trurl_warnf(struct option *o, const char *fmt, ...)
 }
 
 #define MAX_QPAIRS 1000
-struct string qpairs[MAX_QPAIRS]; /* encoded */
-struct string qpairsdec[MAX_QPAIRS]; /* decoded */
-int nqpairs; /* how many is stored */
+static struct string qpairs[MAX_QPAIRS]; /* encoded */
+static struct string qpairsdec[MAX_QPAIRS]; /* decoded */
+static int nqpairs; /* how many is stored */
 
 static void trurl_cleanup_options(struct option *o)
 {
