@@ -1347,7 +1347,7 @@ static char *encodequery(char *str, size_t len)
     if(in == ' ')
       *dupe++ = '+';
     else if(ISUNRESERVED(in))
-      *dupe++ = in;
+      *dupe++ = (char)in;
     else {
       /* encode it */
       const char hex[] = "0123456789abcdef";
