@@ -71,7 +71,7 @@ def check_valgrind():
 
 
 def getcharmap():
-    process = Popen("locale charmap", shell=True, stdout=PIPE, stderr=PIPE, encoding="utf-8");
+    process = Popen("locale charmap", shell=True, stdout=PIPE, stderr=PIPE, encoding="utf-8")
     output, error = process.communicate()
     return output.strip()
 
