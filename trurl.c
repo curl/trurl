@@ -1341,19 +1341,18 @@ static char *encodequery(char *str, size_t len)
     return NULL;
 
   while(len--) {
-    /* treat the characters unsigned */
-    unsigned char in = (unsigned char)*str++;
+    char in = *str++;
 
     if(in == ' ')
       *dupe++ = '+';
     else if(ISUNRESERVED(in))
-      *dupe++ = (char)in;
+      *dupe++ = in;
     else {
       /* encode it */
       const char hex[] = "0123456789abcdef";
       dupe[0] = '%';
-      dupe[1] = hex[in >> 4];
-      dupe[2] = hex[in & 0xf];
+      dupe[1] = hex[(unsigned char)in >> 4];
+      dupe[2] = hex[(unsigned char)in & 0xf];
       dupe += 3;
     }
   }
