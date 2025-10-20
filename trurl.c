@@ -265,7 +265,7 @@ TRURL_NORETURN static void help(void)
     " URL COMPONENTS:\n"
     "  ", stdout);
   fputs("url, ", stdout);
-  for(i = 0; i < NUM_COMPONENTS ; i++) {
+  for(i = 0; i < NUM_COMPONENTS; i++) {
     printf("%s%s", i ? ", " : "", variables[i].name);
   }
   fputs("\n", stdout);
@@ -1220,7 +1220,7 @@ static void json(struct option *o, CURLU *uh)
   if(nqpairs && !params_errors) {
     int j;
     fputs(",\n    \"params\": [\n", stdout);
-    for(j = 0 ; j < nqpairs; j++) {
+    for(j = 0; j < nqpairs; j++) {
       const char *sep = memchr(qpairsdec[j].str, '=', qpairsdec[j].len);
       const char *value = sep ? sep + 1 : "";
       int value_len = (int) qpairsdec[j].len - (int)(value - qpairsdec[j].str);
@@ -1278,7 +1278,7 @@ static bool trim(struct option *o)
           inslen--;
       }
 
-      for(i = 0 ; i < nqpairs; i++) {
+      for(i = 0; i < nqpairs; i++) {
         char *q = qpairs[i].str;
         char *sep = strchr(q, '=');
         size_t qlen;
