@@ -54,6 +54,7 @@ jobs:
           languages: cpp
           build-mode: manual
           trap-caching: false
+          queries: security-extended
 
       - name: 'install libcurl'
         run: |
