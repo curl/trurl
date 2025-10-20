@@ -1378,7 +1378,7 @@ static struct string *memdupzero(char *source, size_t len, bool *modified)
     char *sep = memchr(source, '=', len);
     int olen;
     if(!sep) { /* no '=' */
-      char *decode = decodequery(source, (int)len, &olen);
+      char *decode = decodequery(source, len, &olen);
       if(decode)
         encode = encodequery(decode, olen);
       else
