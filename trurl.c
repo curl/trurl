@@ -384,7 +384,7 @@ static void trurl_warnf(struct option *o, const char *fmt, ...)
 #define MAX_QPAIRS 1000
 static struct string qpairs[MAX_QPAIRS]; /* encoded */
 static struct string qpairsdec[MAX_QPAIRS]; /* decoded */
-static int nqpairs; /* how many is stored */
+static size_t nqpairs; /* how many is stored */
 
 static void trurl_cleanup_options(struct option *o)
 {
@@ -738,7 +738,7 @@ static int getarg(struct option *o,
 static void showqkey(FILE *stream, const char *key, size_t klen,
                      bool urldecode, bool showall)
 {
-  int i;
+  size_t i;
   bool shown = false;
   struct string *qp = urldecode ? qpairsdec : qpairs;
 
@@ -1218,7 +1218,7 @@ static void json(struct option *o, CURLU *uh)
   fputs("\n    }", stdout);
   first = true;
   if(nqpairs && !params_errors) {
-    int j;
+    size_t j;
     fputs(",\n    \"params\": [\n", stdout);
     for(j = 0; j < nqpairs; j++) {
       const char *sep = memchr(qpairsdec[j].str, '=', qpairsdec[j].len);
@@ -1256,7 +1256,7 @@ static bool trim(struct option *o)
          asterisk */
       size_t inslen;
       bool pattern = false;
-      int i;
+      size_t i;
       char *temp = NULL;
 
       inslen = strlen(ptr);
@@ -1512,7 +1512,7 @@ static struct string *memdupdec(char *source, size_t len, bool json)
 
 static void freeqpairs(void)
 {
-  int i;
+  size_t i;
   for(i = 0; i < nqpairs; i++) {
     if(qpairs[i].len) {
       free(qpairs[i].str);
@@ -1582,7 +1582,7 @@ static bool extractqpairs(CURLU *uh, struct option *o)
 
 static void qpair2query(CURLU *uh, struct option *o)
 {
-  int i;
+  size_t i;
   char *nq = NULL;
   for(i = 0; i < nqpairs; i++) {
     char *oldnq = nq;
@@ -1637,7 +1637,7 @@ static bool replace(struct option *o)
     struct string key;
     struct string value;
     bool replaced = false;
-    int i;
+    size_t i;
     key.str = node->data;
     value.str = strchr(key.str, '=');
     if(value.str) {
