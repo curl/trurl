@@ -1123,10 +1123,10 @@ static unsigned int set(CURLU *uh,
 static void jsonString(FILE *stream, const char *in, size_t len,
                        bool lowercase)
 {
-  const unsigned char *i = (unsigned char *)in;
+  const unsigned char *i = (const unsigned char *)in;
   const char *in_end = &in[len];
   fputc('\"', stream);
-  for(; i < (unsigned char *)in_end; i++) {
+  for(; i < (const unsigned char *)in_end; i++) {
     switch(*i) {
     case '\\':
       fputs("\\\\", stream);
@@ -1615,12 +1615,14 @@ static void qpair2query(CURLU *uh, struct option *o)
 static int cmpfunc(const void *p1, const void *p2)
 {
   int i;
-  int len = (int)((((struct string *)p1)->len) < (((struct string *)p2)->len) ?
-                  (((struct string *)p1)->len) : (((struct string *)p2)->len));
+  int len = (int)((((const struct string *)p1)->len) <
+                  (((const struct string *)p2)->len) ?
+                  (((const struct string *)p1)->len) :
+                  (((const struct string *)p2)->len));
 
   for(i = 0; i < len; i++) {
-    char c1 = ((struct string *)p1)->str[i] | ('a' - 'A');
-    char c2 = ((struct string *)p2)->str[i] | ('a' - 'A');
+    char c1 = ((const struct string *)p1)->str[i] | ('a' - 'A');
+    char c2 = ((const struct string *)p2)->str[i] | ('a' - 'A');
     if(c1 != c2)
       return c1 - c2;
   }
