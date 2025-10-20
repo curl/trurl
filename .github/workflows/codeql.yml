@@ -54,6 +54,7 @@ jobs:
           languages: cpp
           build-mode: manual
           trap-caching: false
+          queries: security-extended
 
       - name: 'install libcurl'
         run: |
@@ -64,7 +65,9 @@ jobs:
             libcurl4-openssl-dev
 
       - name: 'build'
-        run: make
+        run: |
+          cmake -B bld -DTRURL_MANUAL=OFF
+          cmake --build bld
 
       - name: 'perform analysis'
         uses: github/codeql-action/analyze@v4
