@@ -1141,7 +1141,7 @@ static void jsonString(FILE *stream, const char *in, size_t len,
       if(*i < 32)
         fprintf(stream, "\\u%04x", *i);
       else {
-        char out = *i;
+        unsigned char out = *i;
         if(lowercase && (out >= 'A' && out <= 'Z'))
           /* do not use tolower() since that's locale specific */
           out |= ('a' - 'A');
