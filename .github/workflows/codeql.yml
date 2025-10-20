@@ -66,7 +66,7 @@ jobs:
 
       - name: 'build'
         run: |
-          cmake -B bld
+          cmake -B bld -DTRURL_MANUAL=OFF
           cmake --build bld
 
       - name: 'perform analysis'
