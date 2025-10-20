@@ -1592,7 +1592,7 @@ static void qpair2query(CURLU *uh, struct option *o)
     curl_free(oldnq);
   }
   if(nq) {
-    int rc = curl_url_set(uh, CURLUPART_QUERY, nq, 0);
+    CURLUcode rc = curl_url_set(uh, CURLUPART_QUERY, nq, 0);
     if(rc)
       trurl_warnf(o, "internal problem: failed to store updated query in URL");
   }
@@ -2018,7 +2018,7 @@ static void singleurl(struct option *o,
     else {
       /* default output is full URL */
       char *nurl = NULL;
-      int rc = geturlpart(o, 0, uh, CURLUPART_URL, &nurl);
+      CURLUcode rc = geturlpart(o, 0, uh, CURLUPART_URL, &nurl);
       if(!rc) {
         printf("%s\n", nurl);
         curl_free(nurl);
