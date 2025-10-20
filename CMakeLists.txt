@@ -106,7 +106,7 @@ find_package(CURL 7.62.0 REQUIRED)
 if(CURL_INCLUDE_DIR AND CURL_LIBRARY)  # Custom configuration
   # CMake's FindCURL.cmake module (as of v4.1.2), may leave a 'curl' library
   # in the `INTERFACE_LINK_LIBRARIES` property, while telling it to look for
-  # libcurl at a specific locations via custom `CURL_*` variables. It seems to
+  # libcurl at a specific location via custom `CURL_*` variables. It seems to
   # be picking up the stray library from `pkg-config`. Seen in a cross-build
   # from Unix to Windows. Linking then fails because the library is not found
   # by the linker on a default path. Work around by deleting the stray library.
