@@ -68,7 +68,7 @@ if(TRURL_WERROR)
     set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
   elseif(MSVC)
     list(APPEND _picky "-WX")
-  else()  # llvm/clang and gcc style options
+  else()  # llvm/clang and gcc-style options
     list(APPEND _picky "-Werror")
   endif()
 
