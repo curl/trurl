@@ -83,9 +83,9 @@ if(MSVC)
   list(APPEND _picky "-W4")  # Use the highest warning level for Visual Studio.
 elseif(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
   if(CMAKE_C_COMPILER_ID MATCHES "Clang")
-    set(_picky_enable "-Wextra")
+    list(APPEND _picky "-Wextra")
   else()
-    set(_picky_enable "-W")
+    list(APPEND _picky "-W")
   endif()
 
   list(APPEND _picky -Wall -pedantic)
