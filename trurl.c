@@ -101,18 +101,6 @@ typedef enum {
 #define CURLU_GET_EMPTY 0
 #endif
 
-#define OUTPUT_URL      0  /* default */
-#define OUTPUT_SCHEME   1
-#define OUTPUT_USER     2
-#define OUTPUT_PASSWORD 3
-#define OUTPUT_OPTIONS  4
-#define OUTPUT_HOST     5
-#define OUTPUT_PORT     6
-#define OUTPUT_PATH     7
-#define OUTPUT_QUERY    8
-#define OUTPUT_FRAGMENT 9
-#define OUTPUT_ZONEID   10
-
 #define NUM_COMPONENTS 10 /* excluding "url" */
 
 #define PROGNAME        "trurl"
