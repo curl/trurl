@@ -8,7 +8,7 @@ updates:
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
-      interval: 'monthly'
+      interval: 'quarterly'
     cooldown:
       default-days: 30
     groups:
@@ -20,7 +20,7 @@ updates:
     directories:
       - '.github/workflows'
     schedule:
-      interval: 'monthly'
+      interval: 'quarterly'
     cooldown:
       default-days: 7
       semver-major-days: 15
