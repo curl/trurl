@@ -32,6 +32,19 @@ jobs:
           # shellcheck disable=SC2046
           scripts/checksrc.pl $(git ls-files '*.c' '*.h')
 
+  dist:
+    name: 'dist'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: 'check'
+        run: |
+          scripts/mkrelease 91.92.93
+          tar -tf trurl-91.92.93.tar.gz
+
   linters:
     name: 'spellcheck, linters, REUSE'
     runs-on: ubuntu-latest
