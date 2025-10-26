@@ -38,7 +38,7 @@ jobs:
         env:
           CW_LLVM_MINGW_DL: '1'
           CW_LLVM_MINGW_ONLY: '0'
-          CW_TURL_TEST: '1'
+          CW_TRURL_TEST: '1'
         run: |
           git clone --depth 1 https://github.com/curl/curl-for-win
           mv curl-for-win/* .
