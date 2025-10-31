@@ -31,7 +31,7 @@
 #                             Test targets:
 #                             - `trurl-test`:        Run tests.
 #                             - `trurl-test-memory`: Run tests with valgrind.
-# - `TURLS_DISABLE_INSTALL`:  Disable installation targets. Default `OFF`
+# - `TRURL_DISABLE_INSTALL`:  Disable installation targets. Default `OFF`
 # - `TRURL_WERROR`:           Turn compiler warnings into errors. Default: `OFF`
 #
 # - `CURL_INCLUDE_DIR`:       Absolute path to curl include directory.
@@ -53,7 +53,7 @@ project(trurl VERSION "${trurl_version_str}" LANGUAGES C)
 
 # Install options
 
-option(TURLS_DISABLE_INSTALL "Disable installation targets" OFF)
+option(TRURL_DISABLE_INSTALL "Disable installation targets" OFF)
 if(NOT TRURL_DISABLE_INSTALL)
   include(GNUInstallDirs)
 endif()
