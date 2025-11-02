@@ -19,8 +19,7 @@ updates:
       prefix: 'GHA:'
 
   - package-ecosystem: 'pip'
-    directories:
-      - '.github/workflows'
+    directory: '.github/workflows'
     schedule:
       interval: 'quarterly'
     cooldown:
