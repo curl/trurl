@@ -12,9 +12,11 @@ updates:
     cooldown:
       default-days: 30
     groups:
-      actions-deps:
+      gha-dependencies:
         patterns:
           - '*'
+    commit-message:
+      prefix: 'GHA:'
 
   - package-ecosystem: 'pip'
     directories:
@@ -26,3 +28,9 @@ updates:
       semver-major-days: 15
       semver-minor-days: 7
       semver-patch-days: 3
+    groups:
+      pip-dependencies:
+        patterns:
+          - '*'
+    commit-message:
+      prefix: 'GHA:'
