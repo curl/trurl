@@ -28,9 +28,7 @@ jobs:
           persist-credentials: false
 
       - name: 'checksrc'
-        run: |
-          # shellcheck disable=SC2046
-          scripts/checksrc.pl $(git ls-files '*.c' '*.h')
+        run: git ls-files '*.c' '*.h' -z | xargs -0 -r scripts/checksrc.pl
 
   dist:
     name: 'dist'
@@ -76,8 +74,7 @@ jobs:
         run: |
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
           shellcheck --version
-          # shellcheck disable=SC2046
-          shellcheck $(grep -l -E '^#!(/usr/bin/env bash|/bin/sh|/bin/bash)' $(git ls-files))
+          git grep -z -l -E '^#!(/usr/bin/env bash|/bin/sh|/bin/bash)' | xargs -0 -r shellcheck --
 
       - name: 'spacecheck'
         run: scripts/spacecheck.pl
@@ -97,9 +94,8 @@ jobs:
         run: |
           source ~/venv/bin/activate
           ruff --version
-          # shellcheck disable=SC2046
-          ruff check --extend-select=B007,B016,C405,C416,COM818,D200,D213,D204,D401,D415,FURB129,N818,PERF401,PERF403,PIE790,PIE808,PLW0127,Q004,RUF010,SIM101,SIM117,SIM118,TRY400,TRY401 \
-            $(git ls-files '*.py')
+          git ls-files '*.py' -z | xargs -0 -r \
+          ruff check --extend-select=B007,B016,C405,C416,COM818,D200,D213,D204,D401,D415,FURB129,N818,PERF401,PERF403,PIE790,PIE808,PLW0127,Q004,RUF010,SIM101,SIM117,SIM118,TRY400,TRY401 --
 
       - name: 'cmakelint'
         run: |
