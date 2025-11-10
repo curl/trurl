@@ -49,8 +49,7 @@ sed -ie "s/\"[\.0-9]*\"/\"$version\"/" version.h
 ./scripts/cd2nroff trurl.md > "$rel"/trurl.1
 
 # create a release directory tree
-# shellcheck disable=SC2046
-cp -p --parents $(git ls-files | grep -vE '(\.git|^REUSE\.toml|^LICENSES/)') "$rel"
+git ls-files ':!:.git*' ':!:*/.git*' ':!:REUSE.toml' ':!:LICENSES/*' -z | xargs -0 -r -I{} cp -p --parents {} "$rel"
 
 # create tarball from the tree
 targz="$rel.tar.gz"
