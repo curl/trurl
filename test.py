@@ -249,17 +249,17 @@ def main(argc, argv):
             # skip tests if required features are not met
             required = allTests[testIndex].get("required", None)
             if required and not set(required).issubset(set(features)):
-                print(f"Missing feature, skipping test {testIndex + 1}.")
+                print(f"Missing feature {','.join(required)}, skipping test {testIndex + 1}.")
                 numTestsSkipped += 1
                 continue
             excludes = allTests[testIndex].get("excludes", None)
             if excludes and set(excludes).issubset(set(features)):
-                print(f"Test not compatible, skipping test {testIndex + 1}")
+                print(f"Test not compatible with {','.join(excludes)}, skipping test {testIndex + 1}")
                 numTestsSkipped += 1
                 continue
             encoding = allTests[testIndex].get("encoding", None)
             if encoding and encoding != getcharmap():
-                print(f"Invalid locale, skipping test {testIndex + 1}.")
+                print(f"Invalid locale {encoding}, skipping test {testIndex + 1}.")
                 numTestsSkipped += 1
                 continue
 
