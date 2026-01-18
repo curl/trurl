@@ -284,7 +284,7 @@ TRURL_NORETURN static void show_version(void)
 #if defined(SUPPORTS_PUNYCODE) || defined(SUPPORTS_PUNY2IDN)
   bool supports_puny = (data->features & CURL_VERSION_IDN) != 0;
 #endif
-#if defined(SUPPORTS_IMAP_OPTIONS)
+#ifdef SUPPORTS_IMAP_OPTIONS
   bool supports_imap = false;
   const char * const *protocol_name = data->protocols;
   while(*protocol_name && !supports_imap) {
