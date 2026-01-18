@@ -43,6 +43,7 @@ NOCOLOR = "\033[0m"
 EXIT_SUCCESS = 0
 EXIT_ERROR = 1
 
+
 @dataclass
 class CommandOutput:
     stdout: Any
