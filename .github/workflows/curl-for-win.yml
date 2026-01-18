@@ -19,10 +19,12 @@ permissions: {}
 
 env:
   CW_GET: 'curl'
+  CW_BLD: 'trurl'  # to save time by not building a default curl
   CW_MAP: '0'
   CW_JOBS: '5'
   CW_PKG_NODELETE: '1'
   CW_PKG_FLATTEN: '1'
+  CW_TRURL_TEST: '1'
 
 jobs:
   win-llvm:
@@ -38,11 +40,10 @@ jobs:
         env:
           CW_LLVM_MINGW_DL: '1'
           CW_LLVM_MINGW_ONLY: '0'
-          CW_TRURL_TEST: '1'
         run: |
           git clone --depth 1 https://github.com/curl/curl-for-win
           mv curl-for-win/* .
-          export CW_CONFIG='-dev-zero-imap-osnotls-osnoidn-nohttp-nocurltool-win'
+          export CW_CONFIG='-dev-zero-win'  # use '-zero' to avoid 3rd-party dependencies
           export CW_REVISION="${GITHUB_SHA}"
           . ./_versions.sh
           sudo podman image trust set --type reject default
