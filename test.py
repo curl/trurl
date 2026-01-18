@@ -43,6 +43,7 @@ NOCOLOR = "\033[0m"
 EXIT_SUCCESS = 0
 EXIT_ERROR = 1
 
+
 @dataclass
 class CommandOutput:
     stdout: Any
@@ -59,6 +60,7 @@ def testComponent(value, exp):
             return not result
 
     return value == exp
+
 
 # checks if valgrind is installed
 def check_valgrind():
@@ -131,7 +133,8 @@ class TestCase:
         # are equal to the ones found in the testfile
         self.testPassed = all(
             testComponent(asdict(self.commandOutput)[k], exp)
-            for k, exp in self.expected.items())
+            for k, exp in self.expected.items()
+        )
         return self.testPassed
 
     def _printVerbose(self, output: TextIO):
@@ -146,7 +149,7 @@ class TestCase:
             print("expected:", file=output)
             print("nothing" if exp is False else
                   "something" if exp is True else
-                  f"{exp!r}",file=output)
+                  f"{exp!r}", file=output)
             print("got:", file=output)
 
             header = RED if itemFail else ""
@@ -166,7 +169,6 @@ class TestCase:
             footer = NOCOLOR
         text = f"{self.testIndex}: {result}\t{shlex.join(self.arguments)}"
         print(f"{header}{text}{footer}", file=output)
-
 
     def printDetail(self, verbose: bool = False, failed: bool = False):
         output: TextIO = sys.stderr if failed else sys.stdout
@@ -221,7 +223,7 @@ def main(argc, argv):
                 cmdfilter = argv[1]
 
     if runWithValgrind and not check_valgrind():
-        print(f'Error: {VALGRINDTEST} is not installed!', file=sys.stderr)
+        print(f"Error: {VALGRINDTEST} is not installed!", file=sys.stderr)
         return EXIT_ERROR
 
     print(f"Using trurl binary: '{baseCmd}'")
@@ -240,7 +242,7 @@ def main(argc, argv):
             stdout=PIPE, stderr=PIPE,
             encoding="utf-8"
         )
-        features = output.stdout.split('\n')[1].split()[1:]
+        features = output.stdout.split("\n")[1].split()[1:]
 
         numTestsFailed = 0
         numTestsPassed = 0
@@ -282,12 +284,12 @@ def main(argc, argv):
             f"Skipped: {numTestsSkipped}",
             f"Total: {len(testIndexesToRun)}"
         ])
-        if (numTestsFailed == 0):
+        if numTestsFailed == 0:
             print("Passed! - ", result)
         else:
             ret = f"Failed! - {result}"
     else:
-        ret = f" error: File \"{baseCmd}\" not found!"
+        ret = f' error: File "{baseCmd}" not found!'
     return ret
 
 
