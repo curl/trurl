@@ -61,6 +61,7 @@ def testComponent(value, exp):
 
     return value == exp
 
+
 # checks if valgrind is installed
 def check_valgrind():
     process = Popen(VALGRINDTEST + " --version",
