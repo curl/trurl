@@ -133,7 +133,8 @@ class TestCase:
         # are equal to the ones found in the testfile
         self.testPassed = all(
             testComponent(asdict(self.commandOutput)[k], exp)
-            for k, exp in self.expected.items())
+            for k, exp in self.expected.items()
+        )
         return self.testPassed
 
     def _printVerbose(self, output: TextIO):
