@@ -170,7 +170,6 @@ class TestCase:
         text = f"{self.testIndex}: {result}\t{shlex.join(self.arguments)}"
         print(f"{header}{text}{footer}", file=output)
 
-
     def printDetail(self, verbose: bool = False, failed: bool = False):
         output: TextIO = sys.stderr if failed else sys.stdout
         if verbose:
