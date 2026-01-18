@@ -3086,6 +3086,9 @@
         "imap://us%65r:pwd;gir%41ffe@odd"
       ]
     },
+    "required": [
+      "imap-options"
+    ],
     "expected": {
       "stdout": "imap://user:pwd;girAffe@odd/\n",
       "stderr": "",
