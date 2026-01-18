@@ -242,7 +242,7 @@ def main(argc, argv):
             stdout=PIPE, stderr=PIPE,
             encoding="utf-8"
         )
-        features = output.stdout.split('\n')[1].split()[1:]
+        features = output.stdout.split("\n")[1].split()[1:]
 
         numTestsFailed = 0
         numTestsPassed = 0
