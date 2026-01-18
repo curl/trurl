@@ -1974,7 +1974,10 @@
     "expected": {
       "stdout": "",
       "returncode": 9,
-      "stderr": "trurl error: Bad scheme [hello]\ntrurl error: Try trurl -h for help\n"
+      "stderr": [
+        "trurl error: Bad scheme [hello]\ntrurl error: Try trurl -h for help\n",
+        "trurl error: Error [hello]\ntrurl error: Try trurl -h for help\n"
+      ]
     }
   },
   {
@@ -2018,7 +2021,10 @@
     "expected": {
       "stdout": "https://example.org/\ngit://curl.se/\n",
       "returncode": 0,
-      "stderr": "trurl note: Bad scheme [foo]\ntrurl note: Bad scheme [hi]\ntrurl note: Bad scheme [hey]\n"
+      "stderr": [
+        "trurl note: Bad scheme [foo]\ntrurl note: Bad scheme [hi]\ntrurl note: Bad scheme [hey]\n",
+        "trurl note: Error [foo]\ntrurl note: Error [hi]\ntrurl note: Error [hey]\n"
+      ]
     }
   },
   {
@@ -2767,7 +2773,10 @@
       ]
     },
     "expected": {
-      "stderr": "trurl note: URL decode error, most likely because of rubbish in the input (query)\n",
+      "stderr": [
+        "trurl note: URL decode error, most likely because of rubbish in the input (query)\n",
+        "trurl note: Error (query)\n"
+      ],
       "returncode": 0,
       "stdout": "\n"
     }
