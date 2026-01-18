@@ -146,7 +146,7 @@ class TestCase:
             print("expected:", file=output)
             print("nothing" if exp is False else
                   "something" if exp is True else
-                  f"{exp!r}",file=output)
+                  f"{exp!r}", file=output)
             print("got:", file=output)
 
             header = RED if itemFail else ""
