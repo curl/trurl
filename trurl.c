@@ -126,35 +126,35 @@ struct string {
 };
 
 static const struct var variables[] = {
-  {"scheme",   CURLUPART_SCHEME},
-  {"user",     CURLUPART_USER},
-  {"password", CURLUPART_PASSWORD},
-  {"options",  CURLUPART_OPTIONS},
-  {"host",     CURLUPART_HOST},
-  {"port",     CURLUPART_PORT},
-  {"path",     CURLUPART_PATH},
-  {"query",    CURLUPART_QUERY},
-  {"fragment", CURLUPART_FRAGMENT},
-  {"zoneid",   CURLUPART_ZONEID},
-  {NULL, 0}
+  { "scheme",   CURLUPART_SCHEME },
+  { "user",     CURLUPART_USER },
+  { "password", CURLUPART_PASSWORD },
+  { "options",  CURLUPART_OPTIONS },
+  { "host",     CURLUPART_HOST },
+  { "port",     CURLUPART_PORT },
+  { "path",     CURLUPART_PATH },
+  { "query",    CURLUPART_QUERY },
+  { "fragment", CURLUPART_FRAGMENT },
+  { "zoneid",   CURLUPART_ZONEID },
+  { NULL, 0 }
 };
 
 #define ERROR_PREFIX PROGNAME " error: "
-#define WARN_PREFIX PROGNAME " note: "
+#define WARN_PREFIX  PROGNAME " note: "
 
 /* error codes */
 #define ERROR_FILE   1
-#define ERROR_APPEND 2 /* --append mistake */
-#define ERROR_ARG    3 /* a command line option misses its argument */
-#define ERROR_FLAG   4 /* a command line flag mistake */
-#define ERROR_SET    5 /* a --set problem */
-#define ERROR_MEM    6 /* out of memory */
-#define ERROR_URL    7 /* could not get a URL out of the set components */
-#define ERROR_TRIM   8 /* a --qtrim problem */
-#define ERROR_BADURL 9 /* if --verify is set and the URL cannot parse */
-#define ERROR_GET   10 /* bad --get syntax */
-#define ERROR_ITER  11 /* bad --iterate syntax */
-#define ERROR_REPL  12 /* a --replace problem */
+#define ERROR_APPEND 2  /* --append mistake */
+#define ERROR_ARG    3  /* a command line option misses its argument */
+#define ERROR_FLAG   4  /* a command line flag mistake */
+#define ERROR_SET    5  /* a --set problem */
+#define ERROR_MEM    6  /* out of memory */
+#define ERROR_URL    7  /* could not get a URL out of the set components */
+#define ERROR_TRIM   8  /* a --qtrim problem */
+#define ERROR_BADURL 9  /* if --verify is set and the URL cannot parse */
+#define ERROR_GET    10 /* bad --get syntax */
+#define ERROR_ITER   11 /* bad --iterate syntax */
+#define ERROR_REPL   12 /* a --replace problem */
 
 #ifndef SUPPORTS_URL_STRERROR
 /* provide a fake local mockup */
@@ -168,21 +168,24 @@ static char *curl_url_strerror(CURLUcode error)
 
 /* Mapping table to go from lowercase to uppercase for plain ASCII.*/
 static const unsigned char touppermap[256] = {
-0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
-22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
-41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
-60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78,
-79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 65,
-66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84,
-85, 86, 87, 88, 89, 90, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133,
-134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149,
-150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165,
-166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181,
-182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197,
-198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213,
-214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229,
-230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245,
-246, 247, 248, 249, 250, 251, 252, 253, 254, 255
+  0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
+  15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
+  30,  31,  32,  33,  34,  35,  36,  37,  38,  39,  40,  41,  42,  43,  44,
+  45,  46,  47,  48,  49,  50,  51,  52,  53,  54,  55,  56,  57,  58,  59,
+  60,  61,  62,  63,  64,  65,  66,  67,  68,  69,  70,  71,  72,  73,  74,
+  75,  76,  77,  78,  79,  80,  81,  82,  83,  84,  85,  86,  87,  88,  89,
+  90,  91,  92,  93,  94,  95,  96,  65,  66,  67,  68,  69,  70,  71,  72,
+  73,  74,  75,  76,  77,  78,  79,  80,  81,  82,  83,  84,  85,  86,  87,
+  88,  89,  90,  123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134,
+  135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149,
+  150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164,
+  165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179,
+  180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194,
+  195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209,
+  210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224,
+  225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239,
+  240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254,
+  255
 };
 
 /* Portable, ASCII-consistent toupper. Do not use toupper() because its
@@ -263,7 +266,8 @@ TRURL_NORETURN static void help(void)
     "  -v, --version                    - show version\n"
     "      --verify                     - return error on (first) bad URL\n"
     " URL COMPONENTS:\n"
-    "  ", stdout);
+    "  ",
+    stdout);
   fputs("url, ", stdout);
   for(i = 0; i < NUM_COMPONENTS; i++) {
     printf("%s%s", i ? ", " : "", variables[i].name);
@@ -280,9 +284,9 @@ TRURL_NORETURN static void show_version(void)
 #if defined(SUPPORTS_PUNYCODE) || defined(SUPPORTS_PUNY2IDN)
   bool supports_puny = (data->features & CURL_VERSION_IDN) != 0;
 #endif
-#if defined(SUPPORTS_IMAP_OPTIONS)
+#ifdef SUPPORTS_IMAP_OPTIONS
   bool supports_imap = false;
-  const char *const *protocol_name = data->protocols;
+  const char * const *protocol_name = data->protocols;
   while(*protocol_name && !supports_imap) {
     supports_imap = !strncmp(*protocol_name, "imap", 3);
     protocol_name++;
@@ -447,8 +451,7 @@ static void verify(struct option *o, int exit_code, const char *fmt, ...)
 
 static char *strurldecode(const char *url, int inlength, int *outlength)
 {
-  return curl_easy_unescape(NULL, inlength ? url : "", inlength,
-                            outlength);
+  return curl_easy_unescape(NULL, inlength ? url : "", inlength, outlength);
 }
 
 static void urladd(struct option *o, const char *url)
@@ -458,7 +461,6 @@ static void urladd(struct option *o, const char *url)
   if(n)
     o->url_list = n;
 }
-
 
 /* read URLs from this file/stdin */
 static void urlfile(struct option *o, const char *file)
@@ -518,8 +520,7 @@ static void queryadd(struct option *o, const char *query)
   }
 }
 
-static void appendadd(struct option *o,
-                      const char *arg)
+static void appendadd(struct option *o, const char *arg)
 {
   if(!strncmp("path=", arg, 5))
     pathadd(o, arg + 5);
@@ -529,8 +530,7 @@ static void appendadd(struct option *o,
     errorf(o, ERROR_APPEND, "--append unsupported component: %s", arg);
 }
 
-static void setadd(struct option *o,
-                   const char *set) /* [component]=[data] */
+static void setadd(struct option *o, const char *set) /* [component]=[data] */
 {
   struct curl_slist *n;
   n = curl_slist_append(o->set_list, set);
@@ -656,7 +656,7 @@ static int getarg(struct option *o,
       errorf(o, ERROR_FLAG, "only one --query-separator is supported");
     if(strlen(arg) != 1)
       errorf(o, ERROR_FLAG,
-                   "only single-letter query separators are supported");
+             "only single-letter query separators are supported");
     o->qsep = arg;
     *usedarg = gap;
   }
@@ -676,8 +676,7 @@ static int getarg(struct option *o,
     if(o->format)
       errorf(o, ERROR_FLAG, "only one --get is supported");
     if(o->jsonout)
-      errorf(o, ERROR_FLAG,
-                   "--get is mutually exclusive with --json");
+      errorf(o, ERROR_FLAG, "--get is mutually exclusive with --json");
     o->format = arg;
     *usedarg = gap;
   }
@@ -693,7 +692,7 @@ static int getarg(struct option *o,
     o->accept_space = true;
 #else
     trurl_warnf(o,
-        "built with too old libcurl version, --accept-space does not work");
+      "built with too old libcurl version, --accept-space does not work");
 #endif
   }
   else if(!strcmp("--curl", flag))
@@ -731,7 +730,7 @@ static int getarg(struct option *o,
     *usedarg = gap;
   }
   else
-    return 1;  /* unrecognized option */
+    return 1; /* unrecognized option */
   return 0;
 }
 
@@ -746,7 +745,7 @@ static void showqkey(FILE *stream, const char *key, size_t klen,
     if(!strncmp(key, qp[i].str, klen) && (qp[i].str[klen] == '=')) {
       if(shown)
         fputc(' ', stream);
-      fprintf(stream, "%.*s", (int) (qp[i].len - klen - 1),
+      fprintf(stream, "%.*s", (int)(qp[i].len - klen - 1),
               &qp[i].str[klen + 1]);
       if(!showall)
         break;
@@ -771,8 +770,7 @@ static CURLUcode geturlpart(struct option *o, int modifiers, CURLU *uh,
 {
   CURLUcode rc =
     curl_url_get(uh, part, out,
-                 (((modifiers & VARMODIFIER_DEFAULT) ||
-                   o->default_port) ?
+                 (((modifiers & VARMODIFIER_DEFAULT) || o->default_port) ?
                   CURLU_DEFAULT_PORT :
                   ((part != CURLUPART_URL || o->keep_port) ?
                    0 : CURLU_NO_DEFAULT_PORT))|
@@ -787,9 +785,8 @@ static CURLUcode geturlpart(struct option *o, int modifiers, CURLU *uh,
 #ifdef SUPPORTS_GET_EMPTY
                  ((modifiers & VARMODIFIER_EMPTY) ? CURLU_GET_EMPTY : 0) |
 #endif
-                 (o->curl ? 0 : CURLU_NON_SUPPORT_SCHEME)|
-                 (((modifiers & VARMODIFIER_URLENCODED) ||
-                   o->urlencode) ?
+                 (o->curl ? 0 : CURLU_NON_SUPPORT_SCHEME) |
+                 (((modifiers & VARMODIFIER_URLENCODED) || o->urlencode) ?
                   0 : CURLU_URLDECODE));
 
 #ifdef SUPPORTS_PUNY2IDN
@@ -799,9 +796,7 @@ static CURLUcode geturlpart(struct option *o, int modifiers, CURLU *uh,
     curl_free(*out);
     modifiers &= ~VARMODIFIER_PUNY2IDN;
     o->puny2idn = false;
-    trurl_warnf(o,
-                "Error converting url to IDN [%s]",
-                curl_url_strerror(rc));
+    trurl_warnf(o, "Error converting url to IDN [%s]", curl_url_strerror(rc));
     return geturlpart(o, modifiers, uh, part, out);
   }
 #endif
@@ -811,27 +806,26 @@ static CURLUcode geturlpart(struct option *o, int modifiers, CURLU *uh,
 static bool is_valid_trurl_error(CURLUcode rc)
 {
   switch(rc) {
-    case CURLUE_OK:
-    case CURLUE_NO_SCHEME:
-    case CURLUE_NO_USER:
-    case CURLUE_NO_PASSWORD:
-    case CURLUE_NO_OPTIONS:
-    case CURLUE_NO_HOST:
-    case CURLUE_NO_PORT:
-    case CURLUE_NO_QUERY:
-    case CURLUE_NO_FRAGMENT:
+  case CURLUE_OK:
+  case CURLUE_NO_SCHEME:
+  case CURLUE_NO_USER:
+  case CURLUE_NO_PASSWORD:
+  case CURLUE_NO_OPTIONS:
+  case CURLUE_NO_HOST:
+  case CURLUE_NO_PORT:
+  case CURLUE_NO_QUERY:
+  case CURLUE_NO_FRAGMENT:
 #ifdef SUPPORTS_ZONEID
-    case CURLUE_NO_ZONEID:
+  case CURLUE_NO_ZONEID:
 #endif
     /* silently ignore */
-      return false;
-    default:
-      return true;
+    return false;
+  default:
+    return true;
   }
 }
 
-static void showurl(FILE *stream, struct option *o, int modifiers,
-                    CURLU *uh)
+static void showurl(FILE *stream, struct option *o, int modifiers, CURLU *uh)
 {
   char *url;
   CURLUcode rc = geturlpart(o, modifiers, uh, CURLUPART_URL, &url);
@@ -1074,34 +1068,31 @@ static const struct var *setone(CURLU *uh, const char *setline,
 
       if(!skip)
         rc = curl_url_set(uh, v->part, ptr[1] ? &ptr[1] : NULL,
-                          (o->curl ? 0 : CURLU_NON_SUPPORT_SCHEME)|
-                          (urlencode ? CURLU_URLENCODE : 0) );
+                          (o->curl ? 0 : CURLU_NON_SUPPORT_SCHEME) |
+                            (urlencode ? CURLU_URLENCODE : 0));
       if(rc)
         warnf("Error setting %s: %s", v->name, curl_url_strerror(rc));
       found = true;
     }
     if(!found)
-      errorf(o, ERROR_SET,
-                   "unknown component: %.*s", (int)vlen, setline);
+      errorf(o, ERROR_SET, "unknown component: %.*s", (int)vlen, setline);
   }
   else
     errorf(o, ERROR_SET, "invalid --set syntax: %s", setline);
   return v;
 }
 
-static unsigned int set(CURLU *uh,
-                        struct option *o)
+static unsigned int set(CURLU *uh, struct option *o)
 {
   struct curl_slist *node;
   unsigned int mask = 0;
-  for(node =  o->set_list; node; node = node->next) {
+  for(node = o->set_list; node; node = node->next) {
     const struct var *v;
     char *setline = node->data;
     v = setone(uh, setline, o);
     if(v) {
       if(mask & (1 << v->part))
-        errorf(o, ERROR_SET,
-                     "duplicate --set for component %s", v->name);
+        errorf(o, ERROR_SET, "duplicate --set for component %s", v->name);
       mask |= (1 << v->part);
     }
   }
@@ -1211,8 +1202,8 @@ static void json(struct option *o, CURLU *uh)
       curl_free(dec);
     }
     else if(is_valid_trurl_error(rc)) {
-        trurl_warnf(o, "%s (%s)", curl_url_strerror(rc), variables[i].name);
-        params_errors = true;
+      trurl_warnf(o, "%s (%s)", curl_url_strerror(rc), variables[i].name);
+      params_errors = true;
     }
   }
   fputs("\n    }", stdout);
@@ -1223,7 +1214,7 @@ static void json(struct option *o, CURLU *uh)
     for(j = 0; j < nqpairs; j++) {
       const char *sep = memchr(qpairsdec[j].str, '=', qpairsdec[j].len);
       const char *value = sep ? sep + 1 : "";
-      int value_len = (int) qpairsdec[j].len - (int)(value - qpairsdec[j].str);
+      int value_len = (int)qpairsdec[j].len - (int)(value - qpairsdec[j].str);
       /* don't print out empty/trimmed values */
       if(!qpairsdec[j].len || !qpairsdec[j].str[0])
         continue;
@@ -1232,8 +1223,7 @@ static void json(struct option *o, CURLU *uh)
       first = false;
       fputs("      {\n        \"key\": ", stdout);
       jsonString(stdout, qpairsdec[j].str,
-                 sep ? (size_t)(sep - qpairsdec[j].str) :
-                       qpairsdec[j].len,
+                 sep ? (size_t)(sep - qpairsdec[j].str) : qpairsdec[j].len,
                  false);
       fputs(",\n        \"value\": ", stdout);
       jsonString(stdout, sep ? value : "", sep ? value_len : 0, false);
@@ -1323,12 +1313,13 @@ static char *decodequery(char *str, size_t len, int *olen)
 }
 
 /* the unusual thing here is that we let '*' remain as-is */
-#define ISURLPUNTCS(x) (((x) == '-') || ((x) == '.') || ((x) == '_') || \
-                        ((x) == '~') || ((x) == '*'))
-#define ISUPPER(x)  (((x) >= 'A') && ((x) <= 'Z'))
-#define ISLOWER(x)  (((x) >= 'a') && ((x) <= 'z'))
-#define ISDIGIT(x)  (((x) >= '0') && ((x) <= '9'))
-#define ISALNUM(x)  (ISDIGIT(x) || ISLOWER(x) || ISUPPER(x))
+#define ISURLPUNTCS(x) \
+  (((x) == '-') || ((x) == '.') || ((x) == '_') || \
+   ((x) == '~') || ((x) == '*'))
+#define ISUPPER(x)      (((x) >= 'A') && ((x) <= 'Z'))
+#define ISLOWER(x)      (((x) >= 'a') && ((x) <= 'z'))
+#define ISDIGIT(x)      (((x) >= '0') && ((x) <= '9'))
+#define ISALNUM(x)      (ISDIGIT(x) || ISLOWER(x) || ISUPPER(x))
 #define ISUNRESERVED(x) (ISALNUM(x) || ISURLPUNTCS(x))
 
 static char *encodequery(char *str, size_t len)
@@ -1475,8 +1466,7 @@ static struct string *memdupdec(char *source, size_t len, bool json)
   if(sep) {
     char *p;
     int plen;
-    right = strurldecode(sep + 1, (int)(len - (sep - source) - 1),
-                         &right_len);
+    right = strurldecode(sep + 1, (int)(len - (sep - source) - 1), &right_len);
 
     /* convert null bytes to periods */
     for(plen = right_len, p = right; plen; plen--, p++) {
@@ -1507,7 +1497,6 @@ static struct string *memdupdec(char *source, size_t len, bool json)
   ret->len = left_len + (sep ? (right_len + 1) : 0);
   return ret;
 }
-
 
 static void freeqpairs(void)
 {
@@ -1666,8 +1655,7 @@ static bool replace(struct option *o)
         continue;
       }
       pdec = memdupdec(key.str, key.len + value.len + 1, o->jsonout);
-      p = memdupzero(key.str, key.len + value.len +
-                     (value.str ? 1 : 0),
+      p = memdupzero(key.str, key.len + value.len + (value.str ? 1 : 0),
                      &query_is_modified);
       qpairs[i].len = p->len;
       qpairs[i].str = p->str;
@@ -1689,11 +1677,9 @@ static bool replace(struct option *o)
 static CURLUcode seturl(struct option *o, CURLU *uh, const char *url)
 {
   return curl_url_set(uh, CURLUPART_URL, url,
-                      (o->no_guess_scheme ?
-                       0 : CURLU_GUESS_SCHEME)|
-                      (o->curl ? 0 : CURLU_NON_SUPPORT_SCHEME)|
-                      (o->accept_space ?
-                       CURLU_ALLOW_SPACE : 0)|
+                      (o->no_guess_scheme ? 0 : CURLU_GUESS_SCHEME) |
+                      (o->curl ? 0 : CURLU_NON_SUPPORT_SCHEME) |
+                      (o->accept_space ? CURLU_ALLOW_SPACE : 0) |
                       CURLU_URLENCODE);
 }
 
@@ -1783,7 +1769,6 @@ static void normalize_part(struct option *o, CURLU *uh, CURLUPart part)
   curl_free(ptr);
 }
 
-
 static void singleurl(struct option *o,
                       const char *url, /* might be NULL */
                       struct iterinfo *iinfo,
@@ -1860,8 +1845,7 @@ static void singleurl(struct option *o,
         if(setmask & (1 << v->part)) {
           curl_url_cleanup(uh);
           errorf(o, ERROR_ITER,
-                 "duplicate --iterate and --set for component %s",
-                 v->name);
+                 "duplicate --iterate and --set for component %s", v->name);
         }
       }
       else {
@@ -1915,8 +1899,7 @@ static void singleurl(struct option *o,
 
         /* append the new segment */
         npath = curl_maprintf("%s%s%s", opath,
-                              opath[olen-1] == '/' ? "" : "/",
-                              apath);
+                              opath[olen - 1] == '/' ? "" : "/", apath);
         curl_free(opath);
         opath = npath;
         path_is_modified = true;
@@ -1984,8 +1967,7 @@ static void singleurl(struct option *o,
         if(rc) {
           if(o->verify) /* only clean up if we're exiting */
             curl_url_cleanup(uh);
-          verify(o, ERROR_BADURL, "%s [%s]", curl_url_strerror(rc),
-                 ourl);
+          verify(o, ERROR_BADURL, "%s [%s]", curl_url_strerror(rc), ourl);
           url_is_invalid = true;
         }
         else {
@@ -2108,8 +2090,7 @@ int main(int argc, const char **argv)
       }
 
       /* trim trailing spaces and tabs */
-      while((eol > buffer) &&
-            ((eol[-1] == ' ') || eol[-1] == '\t'))
+      while((eol > buffer) && ((eol[-1] == ' ') || eol[-1] == '\t'))
         eol--;
 
       if(eol > buffer) {
