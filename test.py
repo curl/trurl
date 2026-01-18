@@ -58,6 +58,10 @@ def testComponent(value, exp):
             return result
         else:
             return not result
+    elif isinstance(exp, list):
+        for alt in exp:
+            if value == alt:
+                return True
 
     return value == exp
 
