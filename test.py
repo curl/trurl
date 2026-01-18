@@ -282,7 +282,7 @@ def main(argc, argv):
             f"Skipped: {numTestsSkipped}",
             f"Total: {len(testIndexesToRun)}"
         ])
-        if (numTestsFailed == 0):
+        if numTestsFailed == 0:
             print("Passed! - ", result)
         else:
             ret = f"Failed! - {result}"
