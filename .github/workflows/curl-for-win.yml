@@ -56,3 +56,29 @@ jobs:
 
       - name: 'list dependencies'
         run: cat urls.txt
+
+  linux-glibc-gcc-minimal:  # use gcc to minimize installed packages
+    name: 'Linux gcc glibc minimal'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+          path: 'trurl'
+          fetch-depth: 8
+      - name: 'build'
+        run: |
+          git clone --depth 1 https://github.com/curl/curl-for-win
+          mv curl-for-win/* .
+          export CW_CONFIG='-dev-zero-imap-osnotls-osnoidn-nohttp-noverbose-nocurltool-linux-x64-gcc'
+          export CW_REVISION="${GITHUB_SHA}"
+          . ./_versions.sh
+          sudo podman image trust set --type reject default
+          sudo podman image trust set --type accept docker.io/library
+          time podman pull "${OCI_IMAGE_DEBIAN}"
+          time podman run --volume "$(pwd):$(pwd)" --workdir "$(pwd)" \
+            --env-file <(env | grep -a -E \
+              '^(CW_|GITHUB_)') \
+            "${OCI_IMAGE_DEBIAN}" \
+            sh -c ./_ci-linux-debian.sh
