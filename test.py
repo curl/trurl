@@ -221,7 +221,7 @@ def main(argc, argv):
                 cmdfilter = argv[1]
 
     if runWithValgrind and not check_valgrind():
-        print(f'Error: {VALGRINDTEST} is not installed!', file=sys.stderr)
+        print(f"Error: {VALGRINDTEST} is not installed!", file=sys.stderr)
         return EXIT_ERROR
 
     print(f"Using trurl binary: '{baseCmd}'")
