@@ -287,7 +287,7 @@ def main(argc, argv):
         else:
             ret = f"Failed! - {result}"
     else:
-        ret = f" error: File \"{baseCmd}\" not found!"
+        ret = f' error: File "{baseCmd}" not found!'
     return ret
 
 
