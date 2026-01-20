@@ -285,12 +285,17 @@ TRURL_NORETURN static void show_version(void)
   bool supports_puny = (data->features & CURL_VERSION_IDN) != 0;
 #endif
 #ifdef SUPPORTS_IMAP_OPTIONS
-  bool supports_imap = false;
+  bool supports_imap;
+#if CURL_AT_LEAST_VERSION(8,19,0)
+  supports_imap = true;
+#else
   const char * const *protocol_name = data->protocols;
+  supports_imap = false;
   while(*protocol_name && !supports_imap) {
     supports_imap = !strncmp(*protocol_name, "imap", 3);
     protocol_name++;
   }
+#endif
 #endif
 
   fprintf(stdout, "%s version %s libcurl/%s [built-with %s]\n",
