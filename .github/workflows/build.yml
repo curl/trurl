@@ -200,10 +200,10 @@ jobs:
             --location --proto-redir =https 'https://curl.se/windows/latest.cgi?p=win64-mingw.tar.xz' | tar --strip-components=1 -xJ --directory=curl
 
       - name: 'cmake configure'
-        run: cmake -B bld -DCMAKE_BUILD_TYPE=Debug -DCURL_INCLUDE_DIR="$PWD"/curl/include -DCURL_LIBRARY="$PWD"/curl/lib/libcurl.dll.a -DTRURL_WERROR=ON
+        run: cmake -B bld -DCURL_INCLUDE_DIR="$PWD"/curl/include -DCURL_LIBRARY="$PWD"/curl/lib/libcurl.dll.a -DTRURL_WERROR=ON
 
       - name: 'cmake build'
-        run: cmake --build bld --verbose
+        run: cmake --build bld --config Debug --verbose
 
       - name: 'cmake configure log'
         if: ${{ !cancelled() }}
