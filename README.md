@@ -166,7 +166,7 @@ if someone wanted to.
 ### Older libcurls
 
 trurl builds with libcurl older than 7.81.0 but will then not work as
-good. For all the documented goodness, use a more modern libcurl.
+well. For all the documented goodness, use a more modern libcurl.
 
 ### trurl / libcurl Compatibility
 
