@@ -868,9 +868,10 @@ static void get(struct option *o, CURLU *uh)
       else {
         /* this is meant as a variable to output */
         const char *start = ptr;
-        char *end;
-        char *cl;
+        const char *end;
+        const char *cl;
         size_t vlen;
+        size_t badlen;
         bool isquery = false;
         bool queryall = false;
         bool strict = false; /* strict mode, fail on URL decode problems */
@@ -930,7 +931,7 @@ static void get(struct option *o, CURLU *uh)
             else {
               /* syntax error */
               vlen = 0;
-              end[1] = '\0';
+              badlen = end - start + 1;
             }
             break;
           }
@@ -945,7 +946,7 @@ static void get(struct option *o, CURLU *uh)
                    queryall);
         }
         else if(!vlen)
-          errorf(o, ERROR_GET, "Bad --get syntax: %s", start);
+          errorf(o, ERROR_GET, "Bad --get syntax: %.*s", (int)badlen, start);
         else if(!strncmp(ptr, "url", vlen))
           showurl(stream, o, mods, uh);
         else {
