@@ -1820,7 +1820,7 @@ static void singleurl(struct option *o,
       const char *w;
       size_t wlen;
       const char *sep;
-      char *septmp;
+      char *sepw;
       bool urlencode = true;
       const struct var *v;
 
@@ -1861,10 +1861,10 @@ static void singleurl(struct option *o,
         w = iinfo->ptr;
       }
 
-      septmp = strchr(w, ' ');
-      if(septmp) {
-        wlen = septmp - w;
-        iinfo->ptr = septmp + 1; /* next word is here */
+      sepw = strchr(w, ' ');
+      if(sepw) {
+        wlen = sepw - w;
+        iinfo->ptr = sepw + 1; /* next word is here */
       }
       else {
         /* last word */
