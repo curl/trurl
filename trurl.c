@@ -871,7 +871,7 @@ static void get(struct option *o, CURLU *uh)
         const char *end;
         const char *cl;
         size_t vlen;
-        size_t badlen;
+        size_t badlen = 0;
         bool isquery = false;
         bool queryall = false;
         bool strict = false; /* strict mode, fail on URL decode problems */
