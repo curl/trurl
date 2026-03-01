@@ -499,7 +499,7 @@ static void pathadd(struct option *o, const char *path)
 
 static char *encodeassign(const char *query)
 {
-  char *p = strchr(query, '=');
+  const char *p = strchr(query, '=');
   char *urle;
   if(p) {
     /* URL encode the left and the right side of the '=' separately */
@@ -614,7 +614,7 @@ static int getarg(struct option *o,
     gap = false;
   }
   else if((flag[0] == '-') && (flag[1] == '-')) {
-    char *equals = strchr(&flag[2], '=');
+    const char *equals = strchr(&flag[2], '=');
     if(equals) {
       arg = (const char *)&equals[1];
       gap = false;
@@ -1029,7 +1029,7 @@ static void get(struct option *o, CURLU *uh)
 static const struct var *setone(CURLU *uh, const char *setline,
                                 struct option *o)
 {
-  char *ptr = strchr(setline, '=');
+  const char *ptr = strchr(setline, '=');
   const struct var *v = NULL;
   if(ptr && (ptr > setline)) {
     size_t vlen = ptr - setline;
@@ -1274,8 +1274,8 @@ static bool trim(struct option *o)
       }
 
       for(i = 0; i < nqpairs; i++) {
-        char *q = qpairs[i].str;
-        char *sep = strchr(q, '=');
+        const char *q = qpairs[i].str;
+        const char *sep = strchr(q, '=');
         size_t qlen;
         if(sep)
           qlen = sep - q;
@@ -1554,10 +1554,9 @@ static bool extractqpairs(CURLU *uh, struct option *o)
   /* extract the query */
   if(!curl_url_get(uh, CURLUPART_QUERY, &q, 0)) {
     char *p = q;
-    char *amp;
     while(*p) {
       size_t len;
-      amp = strchr(p, o->qsep[0]);
+      char *amp = strchr(p, o->qsep[0]);
       if(!amp)
         len = strlen(p);
       else
@@ -1692,7 +1691,7 @@ static char *canonical_path(const char *path)
 {
   /* split the path per slash, URL decode + encode, then put together again */
   size_t len = strlen(path);
-  char *sl;
+  const char *sl;
   char *dupe = NULL;
 
   do {
@@ -1819,7 +1818,8 @@ static void singleurl(struct option *o,
       size_t plen;
       const char *w;
       size_t wlen;
-      char *sep;
+      const char *sep;
+      char *septmp;
       bool urlencode = true;
       const struct var *v;
 
@@ -1860,10 +1860,10 @@ static void singleurl(struct option *o,
         w = iinfo->ptr;
       }
 
-      sep = strchr(w, ' ');
-      if(sep) {
-        wlen = sep - w;
-        iinfo->ptr = sep + 1; /* next word is here */
+      septmp = strchr(w, ' ');
+      if(septmp) {
+        wlen = septmp - w;
+        iinfo->ptr = septmp + 1; /* next word is here */
       }
       else {
         /* last word */
