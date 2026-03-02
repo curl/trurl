@@ -227,7 +227,7 @@ The URL components are provided URL decoded. Change that with **--urlencode**.
 ## --keep-port
 
 By default, trurl removes default port numbers from URLs with a known scheme
-even if they are explicitly specified in the input URL. This options, makes
+even if they are explicitly specified in the input URL. This option makes
 trurl not remove them.
 
 Example:
