@@ -1508,7 +1508,7 @@ static void freeqpairs(void)
 {
   size_t i;
   for(i = 0; i < nqpairs; i++) {
-    if(qpairs[i].len) {
+    if(qpairs[i].str) {
       free(qpairs[i].str);
       qpairs[i].str = NULL;
       free(qpairsdec[i].str);

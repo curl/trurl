@@ -3520,5 +3520,21 @@
       "returncode": 0,
       "stderr": ""
     }
+  },
+  {
+    "input": {
+      "arguments": [
+        "https://example.com/?a=1&b=2&c=3",
+        "--qtrim",
+        "b",
+        "--get",
+        "{query}"
+      ]
+    },
+    "expected": {
+      "stdout": "a=1&c=3\n",
+      "returncode": 0,
+      "stderr": ""
+    }
   }
 ]
