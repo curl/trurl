@@ -3536,5 +3536,18 @@
       "returncode": 0,
       "stderr": ""
     }
+  },
+  {
+    "input": {
+      "arguments": [
+        "https://example.com/?ab=2&a=1&abc=3",
+        "--sort-query"
+      ]
+    },
+    "expected": {
+      "stdout": "https://example.com/?a=1&ab=2&abc=3\n",
+      "returncode": 0,
+      "stderr": ""
+    }
   }
 ]
