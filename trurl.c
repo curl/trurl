@@ -292,7 +292,7 @@ TRURL_NORETURN static void show_version(void)
   const char * const *protocol_name = data->protocols;
   supports_imap = false;
   while(*protocol_name && !supports_imap) {
-    supports_imap = !strncmp(*protocol_name, "imap", 3);
+    supports_imap = !strncmp(*protocol_name, "imap", 4);
     protocol_name++;
   }
 #endif
