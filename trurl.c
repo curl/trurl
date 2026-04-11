@@ -1662,6 +1662,11 @@ static bool replace(struct option *o)
       pdec = memdupdec(key.str, key.len + value.len + 1, o->jsonout);
       p = memdupzero(key.str, key.len + value.len + (value.str ? 1 : 0),
                      &query_is_modified);
+      if(!p || !pdec) {
+        free(pdec);
+        free(p);
+        errorf(o, ERROR_MEM, "out of memory");
+      }
       qpairs[i].len = p->len;
       qpairs[i].str = p->str;
       qpairsdec[i].len = pdec->len;
