@@ -1595,10 +1595,10 @@ static void qpair2query(CURLU *uh, struct option *o)
 /* sort case insensitively */
 static int cmpfunc(const void *p1, const void *p2)
 {
-  int i;
+  size_t i;
   size_t len1 = ((const struct string *)p1)->len;
   size_t len2 = ((const struct string *)p2)->len;
-  int len = (int)(len1 < len2 ? len1 : len2);
+  size_t len = len1 < len2 ? len1 : len2;
 
   for(i = 0; i < len; i++) {
     char c1 = ((const struct string *)p1)->str[i] | ('a' - 'A');
@@ -1607,9 +1607,7 @@ static int cmpfunc(const void *p1, const void *p2)
       return c1 - c2;
   }
 
-  if(len1 != len2)
-    return len1 < len2 ? -1 : 1;
-  return 0;
+  return (len1 > len2) - (len1 < len2);
 }
 
 static bool sortquery(struct option *o)
