@@ -10,7 +10,7 @@ updates:
     schedule:
       interval: 'quarterly'
     cooldown:
-      default-days: 30
+      default-days: 7
     groups:
       gha-dependencies:
         patterns:
