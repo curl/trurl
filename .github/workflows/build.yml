@@ -24,17 +24,19 @@ env:
 jobs:
   ubuntu:
     name: 'Linux'
-    runs-on: ubuntu-26.04
+    runs-on: ${{ matrix.build.image }}
 
     strategy:
       matrix:
         build:
           - name: 'default'
+            image: ubuntu-26.04-arm
             install_packages: gcc-16 valgrind
             test: test-memory
             CC: gcc-16
 
           - name: 'clang sanitizers'
+            image: ubuntu-26.04
             install_packages: clang-22
             test: test
             CC: clang-22
