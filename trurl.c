@@ -342,7 +342,7 @@ struct iterinfo {
   CURLU *uh;
   const char *part;
   size_t plen;
-  char *ptr;
+  const char *ptr;
   unsigned int varmask; /* sets 1 << [component] */
 };
 
@@ -1825,7 +1825,7 @@ static void singleurl(struct option *o,
       const char *w;
       size_t wlen;
       const char *sep;
-      char *sepw;
+      const char *sepw;
       bool urlencode = true;
       const struct var *v;
 
