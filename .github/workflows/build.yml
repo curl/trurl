@@ -24,19 +24,20 @@ env:
 jobs:
   ubuntu:
     name: 'Linux'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
 
     strategy:
       matrix:
         build:
           - name: 'default'
-            install_packages: valgrind
+            install_packages: gcc-16 valgrind
             test: test-memory
+            CC: gcc-16
 
           - name: 'clang sanitizers'
-            install_packages: clang
+            install_packages: clang-22
             test: test
-            CC: clang
+            CC: clang-22
             CFLAGS: -fsanitize=address,undefined,signed-integer-overflow -Wformat -Werror=format-security -Werror=array-bounds -g
             LDFLAGS: -fsanitize=address,undefined,signed-integer-overflow -g
 
@@ -71,6 +72,10 @@ jobs:
         run: make ${MATRIX_TEST_TARGET}
 
       - name: 'cmake configure'
+        env:
+          CC: ${{ matrix.build.CC || 'cc' }}
+          CFLAGS: ${{ matrix.build.CFLAGS }}
+          LDFLAGS: ${{ matrix.build.LDFLAGS }}
         run: cmake -B bld -G Ninja -DCMAKE_INSTALL_PREFIX="$HOME"/trurl-install -DTRURL_COMPLETION_ZSH=ON -DTRURL_WERROR=ON
 
       - name: 'cmake build'
