@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 ##########################################################################
 #                                  _   _ ____  _
 #  Project                     ___| | | |  _ \| |
@@ -23,14 +22,14 @@
 #
 ##########################################################################
 
-import sys
-from os import getcwd, path
 import json
-import shlex
-from subprocess import PIPE, run, Popen
-from dataclasses import dataclass, asdict
-from typing import Any, Optional, TextIO
 import locale
+import shlex
+import sys
+from dataclasses import asdict, dataclass
+from os import getcwd, path
+from subprocess import PIPE, Popen, run
+from typing import Any, TextIO
 
 PROGNAME = "trurl"
 TESTFILE = "tests.json"
@@ -56,9 +55,8 @@ def testComponent(value, exp):
         result = value == 0 or value not in ("", [])
         if exp:
             return result
-        else:
-            return not result
-    elif isinstance(exp, list):
+        return not result
+    if isinstance(exp, list):
         for alt in exp:
             if value == alt:
                 return True
@@ -71,14 +69,12 @@ def check_valgrind():
     process = Popen(VALGRINDTEST + " --version",
                     shell=True, stdout=PIPE, stderr=PIPE, encoding="utf-8")
     output, error = process.communicate()
-    if output.startswith(VALGRINDTEST) and not len(error):
-        return True
-    return False
+    return output.startswith(VALGRINDTEST) and not len(error)
 
 
 def getcharmap():
     process = Popen("locale charmap", shell=True, stdout=PIPE, stderr=PIPE, encoding="utf-8")
-    output, error = process.communicate()
+    output, _ = process.communicate()
     return output.strip()
 
 
@@ -92,7 +88,7 @@ class TestCase:
         self.commandOutput: CommandOutput = None
         self.testPassed: bool = False
 
-    def runCommand(self, cmdfilter: Optional[str], runWithValgrind: bool):
+    def runCommand(self, cmdfilter: str | None, runWithValgrind: bool):
         # Skip test if none of the arguments contain the keyword
         if cmdfilter and all(cmdfilter not in arg for arg in self.arguments):
             return False
@@ -108,8 +104,9 @@ class TestCase:
 
         output = run(
             cmd + args,
-            stdout=PIPE, stderr=PIPE,
-            encoding="utf-8"
+            capture_output=True,
+            encoding="utf-8",
+            check=False
         )
 
         if isinstance(self.expected["stdout"], list):
@@ -243,8 +240,9 @@ def main(argc, argv):
             cmd = [baseCmd]
         output = run(
             cmd + args,
-            stdout=PIPE, stderr=PIPE,
-            encoding="utf-8"
+            capture_output=True,
+            encoding="utf-8",
+            check=False
         )
         features = output.stdout.split("\n")[1].split()[1:]
 
