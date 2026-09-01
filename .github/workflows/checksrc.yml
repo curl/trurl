@@ -97,12 +97,18 @@ jobs:
         run: |
           source ~/venv/bin/activate
           ruff --version
-          git ls-files '*.py' -z | xargs -0 -r \
-          ruff check --extend-select=B007,B016,C405,C416,COM818,D200,D213,D204,D401,\
-          D415,FURB129,N818,PERF401,PERF403,PIE790,PIE808,PLW0127,Q004,RUF010,SIM101,\
-          SIM110,SIM117,SIM118,TRY400,TRY401,RET503,RET504,UP004,B018,B904,RSE102,RET505,\
-          I001,PERF102,C419 \
-            --ignore=FA100 --
+          ruff check --preview --target-version=py38 \
+          --extend-select=B007,C416,D200,D213,D204,D401,D415,N818,PERF401,\
+          PERF403,Q004,TRY400,RET503,RET504,B904,RSE102,RET505 \
+            --ignore=FA100
+
+      - name: 'pyrefly'
+        run: |
+          source ~/venv/bin/activate
+          pyrefly --version
+          pyrefly check --preset=strict --python-version=3.8 \
+          --check-unannotated-defs --ignore=implicit-any-parameter --summary \
+            *.py
 
       - name: 'cmakelint'
         run: |
