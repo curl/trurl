@@ -55,8 +55,7 @@ def testComponent(value, exp):
         result = value == 0 or value not in ("", [])
         if exp:
             return result
-        else:
-            return not result
+        return not result
     elif isinstance(exp, list):
         for alt in exp:
             if value == alt:
