@@ -105,7 +105,7 @@ class TestCase:
 
         output = run(
             cmd + args,
-            stdout=PIPE, stderr=PIPE,
+            capture_output=True,
             encoding="utf-8",
             check=False
         )
@@ -241,7 +241,7 @@ def main(argc, argv):
             cmd = [baseCmd]
         output = run(
             cmd + args,
-            stdout=PIPE, stderr=PIPE,
+            capture_output=True,
             encoding="utf-8",
             check=False
         )
