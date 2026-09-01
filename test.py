@@ -85,7 +85,7 @@ class TestCase:
         self.baseCmd = baseCmd
         self.arguments = testCase["input"]["arguments"]
         self.expected = testCase["expected"]
-        self.commandOutput: CommandOutput = None
+        self.commandOutput: CommandOutput = CommandOutput(None, 0, '')
         self.testPassed: bool = False
 
     def runCommand(self, cmdfilter: str, runWithValgrind: bool):
@@ -195,7 +195,7 @@ def main(argc, argv):
 
     with open(path.join(baseDir, TESTFILE), "r", encoding="utf-8") as file:
         allTests = json.load(file)
-        testIndexesToRun = []
+        testIndexesToRun: list[int] = []
 
     # if argv[1] exists and starts with int
     cmdfilter = ""
