@@ -98,7 +98,11 @@ jobs:
           source ~/venv/bin/activate
           ruff --version
           git ls-files '*.py' -z | xargs -0 -r \
-          ruff check --extend-select=B007,B016,C405,C416,COM818,D200,D213,D204,D401,D415,FURB129,N818,PERF401,PERF403,PIE790,PIE808,PLW0127,Q004,RUF010,SIM101,SIM117,SIM118,TRY400,TRY401 --
+          ruff check --extend-select=B007,B016,C405,C416,COM818,D200,D213,D204,D401,\
+          D415,FURB129,N818,PERF401,PERF403,PIE790,PIE808,PLW0127,Q004,RUF010,SIM101,\
+          SIM110,SIM117,SIM118,TRY400,TRY401,RET503,RET504,UP004,B018,B904,RSE102,RET505,\
+          I001,PERF102,C419 \
+            --ignore=FA100 --
 
       - name: 'cmakelint'
         run: |
