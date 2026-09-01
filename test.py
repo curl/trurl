@@ -88,7 +88,7 @@ class TestCase:
         self.commandOutput: CommandOutput = None
         self.testPassed: bool = False
 
-    def runCommand(self, cmdfilter: str | None, runWithValgrind: bool):
+    def runCommand(self, cmdfilter: str, runWithValgrind: bool):
         # Skip test if none of the arguments contain the keyword
         if cmdfilter and all(cmdfilter not in arg for arg in self.arguments):
             return False
