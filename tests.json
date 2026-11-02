@@ -3536,5 +3536,61 @@
       "returncode": 0,
       "stderr": ""
     }
+  },
+  {
+    "input": {
+      "arguments": [
+        "http://localhost:8000",
+        "--append",
+        "query"
+      ]
+    },
+    "expected": {
+      "stdout": "",
+      "stderr": "trurl error: --append expected '=' after 'query'\ntrurl error: Try trurl -h for help\n",
+      "returncode": 2
+    }
+  },
+  {
+    "input": {
+      "arguments": [
+        "http://localhost:8000",
+        "--append",
+        "path"
+      ]
+    },
+    "expected": {
+      "stdout": "",
+      "stderr": "trurl error: --append expected '=' after 'path'\ntrurl error: Try trurl -h for help\n",
+      "returncode": 2
+    }
+  },
+  {
+    "input": {
+      "arguments": [
+        "http://localhost:8000",
+        "--append",
+        "host"
+      ]
+    },
+    "expected": {
+      "stdout": "",
+      "stderr": "trurl error: --append expected '=' after 'host'\ntrurl error: Try trurl -h for help\n",
+      "returncode": 2
+    }
+  },
+  {
+    "input": {
+      "arguments": [
+        "http://localhost:8000",
+        "--append",
+        "host=example.com"
+      ]
+    },
+    "expected": {
+      "stdout": "",
+      "stderr": "trurl error: --append unsupported component: host=example.com\ntrurl error: Try trurl -h for help\n",
+      "returncode": 2
+    }
   }
 ]
