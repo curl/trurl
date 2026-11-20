@@ -764,6 +764,9 @@
         "query=user=me"
       ]
     },
+    "excludes": [
+      "uppercase-hex"
+    ],
     "expected": {
       "stdout": "https://curl.se/hello?user%3dme\n",
       "stderr": "",
@@ -2183,6 +2186,9 @@
         "query:=a&b&a%26b"
       ]
     },
+    "excludes": [
+      "uppercase-hex"
+    ],
     "expected": {
       "stdout": "http://localhost/ABC%5c%5c?a&b&a%26b\n",
       "returncode": 0,
@@ -2891,6 +2897,9 @@
         "path=%61"
       ]
     },
+    "excludes": [
+      "uppercase-hex"
+    ],
     "expected": {
       "stdout": "https://example.com/one/tao/%2fB/%2561\n",
       "stderr": "",
@@ -3533,6 +3542,19 @@
     },
     "expected": {
       "stdout": "a=1&c=3\n",
+      "returncode": 0,
+      "stderr": ""
+    }
+  },
+  {
+    "input": {
+      "arguments": [
+        "https://example.com/?ab=2&a=1&abc=3",
+        "--sort-query"
+      ]
+    },
+    "expected": {
+      "stdout": "https://example.com/?a=1&ab=2&abc=3\n",
       "returncode": 0,
       "stderr": ""
     }
