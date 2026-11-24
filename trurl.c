@@ -527,6 +527,8 @@ static void queryadd(struct option *o, const char *query)
 
 static void appendadd(struct option *o, const char *arg)
 {
+  if(!strchr(arg, '='))
+    errorf(o, ERROR_APPEND, "--append expected '=' after '%s'", arg);
   if(!strncmp("path=", arg, 5))
     pathadd(o, arg + 5);
   else if(!strncmp("query=", arg, 6))
