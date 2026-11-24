@@ -52,8 +52,10 @@ $ trurl --url https://curl.se/we/are.html --get '{path}'
 **Extract the port from a URL:**
 
 ```text
-$ trurl --url https://curl.se/we/are.html --get '{port}'
+$ trurl --url https://curl.se/we/are.html --get '{default:port}'
 443
+$ trurl --url https://example.com:1997/past.html --get '{port}'
+1997
 ```
 
 **Append a path segment to a URL:**
